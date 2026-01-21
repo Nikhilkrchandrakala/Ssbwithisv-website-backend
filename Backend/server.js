@@ -9,7 +9,7 @@ const loginUsers = require("./api/Login");
 const forgotPassword = require("./api/forgotPassword");
 const sendEmail = require("./api/SendEmail");
 const verifyOtp = require("./api/VerifyOtp");
-const sendOtp = require("./api/sendOtp");
+// const sendOtp = require("./api/sendOtp");
 const leads = require("./api/Leads");
 const { connectDB } = require("./config/database");
 const cookieParser = require("cookie-parser");
@@ -39,7 +39,7 @@ app.use("/api", loginUsers);
 app.use("/api", forgotPassword);
 app.use("/api", sendEmail);
 app.use("/api", leads);
-app.use("/api", sendOtp);
+// app.use("/api", sendOtp);
 
 // app.use(bodyParser.json({ limit: '100mb' })); 
 // app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
