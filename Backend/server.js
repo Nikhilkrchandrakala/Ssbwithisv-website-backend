@@ -61,7 +61,7 @@ app.use((err, req, res, next) => {
 connectDB();
 
 // Listen to the PORT
-const PORT = 5000;
+const PORT = 5001;
 
 app.listen(PORT, (err) => {
     if (err) {
