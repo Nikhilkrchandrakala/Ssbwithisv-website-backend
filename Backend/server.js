@@ -4,35 +4,42 @@ const cors = require("cors");
 const morgan = require("morgan"); // For logging
 const numberMonitor = require("./api/NumberMonitor");
 const magazinePdf = require("./api/MagazinePdf");
+const Register = require("./api/Register");
 const loginUsers = require("./api/Login");
+const forgotPassword = require("./api/forgotPassword");
 const sendEmail = require("./api/SendEmail");
 const verifyOtp = require("./api/VerifyOtp");
-const leads= require("./api/Leads");
+const sendOtp = require("./api/sendOtp");
+const leads = require("./api/Leads");
 const { connectDB } = require("./config/database");
 const cookieParser = require("cookie-parser");
-const {Lead}=require("./model/LeadDetails");
+const { Lead } = require("./model/LeadDetails");
 
 const app = express();
 
 // Middlewares
-app.use(morgan("dev")); 
+app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin:  '*', 
+    origin: '*',
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: ["Content-Type", "token", "authorization", "Authorization"],
     credentials: true,
 }));
 
 // Middleware: Connecting different Routes
+
 app.use("/api", verifyOtp);
 app.use("/api", numberMonitor);
 app.use("/api", magazinePdf);
+app.use("/api", Register);
 app.use("/api", loginUsers);
+app.use("/api", forgotPassword);
 app.use("/api", sendEmail);
 app.use("/api", leads);
+app.use("/api", sendOtp);
 
 // app.use(bodyParser.json({ limit: '100mb' })); 
 // app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
@@ -50,10 +57,11 @@ app.use((err, req, res, next) => {
 });
 
 // Connect to the Database
+
 connectDB();
 
 // Listen to the PORT
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 
 app.listen(PORT, (err) => {
     if (err) {
