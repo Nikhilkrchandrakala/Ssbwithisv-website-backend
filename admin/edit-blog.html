@@ -357,7 +357,7 @@
         <div class="admin-dashboard-right">
             <a href="./dashboard.html" class="admin-dashboard-link">DashBoard</a>
             <a href="./magazine.html" class="admin-dashboard-link">Magazine</a>
-            <a href="./Blogs.html" class="admin-dashboard-link active">Blogs</a>
+            <a href="./BlogList.html" class="admin-dashboard-link active">Blogs</a>
             <a href="./leads.html" class="admin-dashboard-link">Leads</a>
             <button id="logoutBtn">Logout</button>
         </div>
@@ -552,7 +552,7 @@
                 blogFormContainer.style.display = 'none';
                 errorMessage.style.display = 'none';
 
-                const response = await fetch(`http://localhost:5001/api/allBlogs`, {
+                const response = await fetch(`${config.backendBaseUrl}/api/allBlogs`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -846,7 +846,7 @@
                 updateBtn.disabled = true;
 
                 // API call
-                const response = await fetch(`http://localhost:5001/api/updateBlog/${blogId}`, {
+                const response = await fetch(`${config.backendBaseUrl}/api/updateBlog/${blogId}`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`

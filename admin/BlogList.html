@@ -368,7 +368,7 @@
         <div class="admin-dashboard-right">
             <a href="./dashboard.html" class="admin-dashboard-link">DashBoard</a>
             <a href="./magazine.html" class="admin-dashboard-link">Magazine</a>
-            <a href="./Blogs.html" class="admin-dashboard-link active">Blogs</a>
+            <a href="./BlogList.html" class="admin-dashboard-link active">Blogs</a>
             <a href="./leads.html" class="admin-dashboard-link">Leads</a>
             <button id="logoutBtn">Logout</button>
         </div>
@@ -382,7 +382,7 @@
                     <p>Manage all your blog posts from here</p>
                 </div>
                 <div class="col-md-4 text-end">
-                    <a href="./add-blog.html" class="add-blog-btn">
+                    <a href="./Blogs.html" class="add-blog-btn">
                         <i class="fas fa-plus"></i> Add New Blog
                     </a>
                 </div>
@@ -407,7 +407,7 @@
             </div>
             <h3>No Blogs Found</h3>
             <p>You haven't created any blog posts yet. Start by adding your first blog!</p>
-            <a href="./add-blog.html" class="add-blog-btn">
+            <a href="./Blogs.html" class="add-blog-btn">
                 <i class="fas fa-plus"></i> Add Your First Blog
             </a>
         </div>
@@ -480,9 +480,9 @@
                 blogsGrid.innerHTML = '';
                 emptyState.style.display = 'none';
 
-                const response = await fetch('http://localhost:5001/api/allBlogs', {
+                const response = await fetch(`${config.backendBaseUrl}/api/allBlogs`, {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${ token }`
                     }
                 });
 
@@ -505,12 +505,12 @@
                 console.error('Error loading blogs:', error);
                 alert('Error loading blogs: ' + error.message);
                 blogsGrid.innerHTML = `
-                    <div class="col-12">
-                        <div class="alert alert-danger" role="alert">
-                            Failed to load blogs. Please try again.
-                        </div>
-                    </div>
-                `;
+                < div class= "col-12" >
+                <div class="alert alert-danger" role="alert">
+                    Failed to load blogs. Please try again.
+                </div>
+                    </div >
+                    `;
             } finally {
                 loadingSpinner.style.display = 'none';
             }
@@ -540,7 +540,7 @@
             const formattedDate = formatDate(blog.createdAt || blog.updatedAt);
 
             colDiv.innerHTML = `
-                <div class="blog-card">
+                    < div class="blog-card" >
                     <div class="blog-status status-published">
                         <i class="fas fa-check-circle"></i> Published
                     </div>
@@ -575,16 +575,16 @@
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </div>
-                </div>
-            `;
+                </div >
+                    `;
 
             return colDiv;
         }
 
         // Edit Blog - Redirect to edit page
         function editBlog(blogId) {
-            // You can create an edit-blog.html page or use the same add-blog.html with query param
-            window.location.href = `./edit-blog.html?id=${blogId}`;
+            // You can create an edit-blog.html page or use the same Blogs.html with query param
+            window.location.href = `./ edit - blog.html ? id = ${ blogId } `;
         }
 
         // Show delete confirmation modal
@@ -600,27 +600,27 @@
             if (!token) return;
 
             try {
-                const response = await fetch(`http://localhost:5001/api/deleteBlog/${blogId}`, {
-                    method: 'DELETE',
+                const response = await fetch(`${config.backendBaseUrl}/api/deleteBlog/${blogId}`, {
+                method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to delete blog');
+                    'Authorization': `Bearer ${token}`
                 }
+            });
 
-                const result = await response.json();
-                alert(result.message || 'Blog deleted successfully');
-
-                // Reload blogs after deletion
-                loadBlogs();
-
-            } catch (error) {
-                console.error('Error deleting blog:', error);
-                alert('Error deleting blog: ' + error.message);
+            if (!response.ok) {
+                throw new Error('Failed to delete blog');
             }
+
+            const result = await response.json();
+            alert(result.message || 'Blog deleted successfully');
+
+            // Reload blogs after deletion
+            loadBlogs();
+
+        } catch (error) {
+            console.error('Error deleting blog:', error);
+            alert('Error deleting blog: ' + error.message);
+        }
         }
 
         // Confirm delete button handler
