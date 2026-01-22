@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,76 +8,118 @@
   <link rel="stylesheet" href="./assets/css/magazine.css" />
   <link rel="stylesheet" href="./assets/css/admin-header.css" />
 </head>
+
 <body>
-    <header class="admin-dashboard-navbar">
-        <div class="admin-dashboard-left">
-          <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
-          Hi Admin;👋🏻
-        </div>
-        <div class="admin-dashboard-right">
-          <a href="./dashboard.html" class="admin-dashboard-link ">DashBoard</a>
-          <a href="./magazine.html" class="admin-dashboard-link active">Magazine</a>
-          <a href="./leads.html" class="admin-dashboard-link">Leads</a>
-     
-          <button id="logoutBtn">Logout</button>
-        </div>
-    </header>
+  <header class="admin-dashboard-navbar">
+    <div class="admin-dashboard-left">
+      <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
+      Hi Admin;👋🏻
+    </div>
+    <div class="admin-dashboard-right">
+      <a href="./dashboard.html" class="admin-dashboard-link ">DashBoard</a>
+      <a href="./magazine.html" class="admin-dashboard-link active">Magazine</a>
+      <a href="./Blogs.html" class="admin-dashboard-link ">Blogs</a>
+      <a href="./leads.html" class="admin-dashboard-link">Leads</a>
 
-    <div class="container">
-      <h1>Magazine PDF Dashboard</h1>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </header>
 
-      <h2>Upload a New Magazine PDF</h2>
-      <form id="uploadPdfForm" enctype="multipart/form-data">
-        <label for="pdfTitle">Magazine Title</label>
-        <input type="text" id="pdfTitle" required>
+  <div class="container">
+    <h1>Magazine PDF Dashboard</h1>
 
-        <label for="magazinePdf">Select PDF</label>
-        <input type="file" id="magazinePdf" required accept="application/pdf">
-        
-        <label for="magazineImage">Select Cover Image</label>
-        <input type="file" id="magazineImage" required accept="image/*">
-        
-        <button type="submit">Upload PDF</button>
-      </form>
-<!-- Modal Structure -->
-<div id="editMagazineModal" class="modal">
-    <div class="modal-content">
+    <h2>Upload a New Magazine PDF</h2>
+    <!-- <form id="uploadPdfForm" enctype="multipart/form-data">
+      <label for="pdfTitle">Magazine Title</label>
+      <input type="text" id="pdfTitle" required>
+
+      <label for="magazinePdf">Select PDF</label>
+      <input type="file" id="magazinePdf" required accept="application/pdf">
+
+      <label for="magazineImage">Select Cover Image</label>
+      <input type="file" id="magazineImage" required accept="image/*">
+
+      <button type="submit">Upload PDF</button>
+    </form> -->
+
+    <form id="uploadPdfForm" enctype="multipart/form-data">
+
+      <label for="pdfTitle">Magazine Title</label>
+      <input type="text" id="pdfTitle" name="title" required>
+
+      <!-- 🔥 NEW DROPDOWN -->
+      <label for="tags">Category</label>
+      <select id="tags" name="tags" required>
+        <option value="">-- Select Category --</option>
+        <option value="Magazine">Magazine</option>
+        <option value="Books">Books</option>
+        <option value="SSBPrep">SSBPrep</option>
+      </select>
+
+      <label for="magazinePdf">Select PDF</label>
+      <input type="file" id="magazinePdf" name="pdf" required accept="application/pdf">
+
+      <label for="magazineImage">Select Cover Image</label>
+      <input type="file" id="magazineImage" name="image" required accept="image/*">
+
+      <button type="submit">Upload PDF</button>
+
+    </form>
+
+    <!-- Modal Structure -->
+    <div id="editMagazineModal" class="modal">
+      <div class="modal-content">
         <span class="close-button">&times;</span>
         <h2>Edit Magazine</h2>
-        <form id="editMagazineForm">
-            <label for="newTitle">Magazine Title:</label>
-            <input type="text" id="newTitle" name="newTitle" required>
 
-            <label for="magazinePdf">Upload PDF:</label>
-            <input type="file" id="newmagazinePdf" name="magazinePdf" accept="application/pdf">
 
-            <label for="magazineImage">Upload Image:</label>
-            <input type="file" id="newmagazineImage" name="magazineImage" accept="image/*">
+        <form id="editMagazineForm" enctype="multipart/form-data">
 
-            <button type="submit">Update</button>
+          <label for="newTitle">Magazine Title:</label>
+          <input type="text" id="newTitle" name="title" required>
+
+          <!-- 🔥 NEW DROPDOWN -->
+          <label for="newTags">Category</label>
+          <select id="newTags" name="tags" required>
+            <option value="">-- Select Category --</option>
+            <option value="Magazine">Magazine</option>
+            <option value="Books">Books</option>
+            <option value="SSBPrep">SSBPrep</option>
+          </select>
+
+          <label for="newmagazinePdf">Upload PDF:</label>
+          <input type="file" id="newmagazinePdf" name="pdf" accept="application/pdf">
+
+          <label for="newmagazineImage">Upload Image:</label>
+          <input type="file" id="newmagazineImage" name="image" accept="image/*">
+
+          <button type="submit">Update</button>
+
         </form>
-    </div>
-</div>
-<div id="overlay">
-  <div id="spinner"></div>
-</div>
 
-      <h2>All Magazine PDFs</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Cover Image</th>
-            <th>File</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="magazineTableBody"></tbody>
-      </table>
+      </div>
+    </div>
+    <div id="overlay">
+      <div id="spinner"></div>
     </div>
 
-    <script src="./assets/js/admin-header.js"></script>
-    <script src="./assets/js/config.js"></script>
-    <script src="./assets/js/magazine.js"></script>
+    <h2>All Magazine PDFs</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Cover Image</th>
+          <th>File</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="magazineTableBody"></tbody>
+    </table>
+  </div>
+
+  <script src="./assets/js/admin-header.js"></script>
+  <script src="./assets/js/config.js"></script>
+  <script src="./assets/js/magazine.js"></script>
 </body>
+
 </html>

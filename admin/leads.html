@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,45 +10,49 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
 </head>
+
 <body>
-    <header class="admin-dashboard-navbar">
-        <div class="admin-dashboard-left">
-          <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
-          Hi Admin;👋🏻
-        </div>
-        <div class="admin-dashboard-right">
-          <a href="./dashboard.html" class="admin-dashboard-link ">DashBoard</a>
-          <a href="./magazine.html" class="admin-dashboard-link">Magazine</a>
-          <a href="./leads.html" class="admin-dashboard-link active">Leads</a>
-          <button id="logoutBtn">Logout</button>
-        </div>
-    </header>
-<section class="all-lead-container">
+  <header class="admin-dashboard-navbar">
+    <div class="admin-dashboard-left">
+      <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
+      Hi Admin;👋🏻
+    </div>
+    <div class="admin-dashboard-right">
+      <a href="./dashboard.html" class="admin-dashboard-link ">DashBoard</a>
+      <a href="./magazine.html" class="admin-dashboard-link">Magazine</a>
+      <a href="./Blogs.html" class="admin-dashboard-link ">Blogs</a>
+
+      <a href="./leads.html" class="admin-dashboard-link active">Leads</a>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </header>
+  <section class="all-lead-container">
     <div class="container">
-        <h1>All Leads</h1>
-        <table id="leadsTable">
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Date</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone Number</th>
-            </tr>
-          </thead>
-          <tbody id="leadsTableBody">
-            <!-- Lead data will be inserted here dynamically -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-    <button id="excelDownloadBtn" title="Download as Excel">
-        <img src="./assets/imgs/xls.png" alt="Download Excel" />
-      </button>
-      
-   
-    <script src="./assets/js/admin-header.js"></script>
-    <script src="./assets/js/config.js"></script>
-    <script src="./assets/js/leads.js"></script>
+      <h1>All Leads</h1>
+      <table id="leadsTable">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Date</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+          </tr>
+        </thead>
+        <tbody id="leadsTableBody">
+          <!-- Lead data will be inserted here dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <button id="excelDownloadBtn" title="Download as Excel">
+    <img src="./assets/imgs/xls.png" alt="Download Excel" />
+  </button>
+
+
+  <script src="./assets/js/admin-header.js"></script>
+  <script src="./assets/js/config.js"></script>
+  <script src="./assets/js/leads.js"></script>
 </body>
+
 </html>

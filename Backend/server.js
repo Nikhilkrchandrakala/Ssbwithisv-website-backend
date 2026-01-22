@@ -9,6 +9,10 @@ const loginUsers = require("./api/Login");
 const forgotPassword = require("./api/forgotPassword");
 const sendEmail = require("./api/SendEmail");
 const verifyOtp = require("./api/VerifyOtp");
+const userProfile = require("./api/UserProfile");
+const blogRoutes = require("./api/blogRoutes");
+
+
 // const sendOtp = require("./api/sendOtp");
 const leads = require("./api/Leads");
 const { connectDB } = require("./config/database");
@@ -39,6 +43,8 @@ app.use("/api", loginUsers);
 app.use("/api", forgotPassword);
 app.use("/api", sendEmail);
 app.use("/api", leads);
+app.use("/api", userProfile);
+app.use("/api", blogRoutes);
 // app.use("/api", sendOtp);
 
 // app.use(bodyParser.json({ limit: '100mb' })); 

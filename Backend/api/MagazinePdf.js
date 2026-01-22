@@ -30,35 +30,44 @@ router.get("/magazinePdf/:id", (req, res) => {
 });
 
 // --- POST: Upload a new Magazine PDF and Front Image ---
-router.post("/addMagazinePdf", checkAuth, magazineUpload.fields([
-  { name: 'magazinePdf', maxCount: 1 },
-  { name: 'magazineFrontImage', maxCount: 1 }
-]), (req, res) => {
-  try {
-    const pdfTitle = req.body.pdfTitle;
-    const pdfFilePath = req.files['magazinePdf'][0].path; // Path to the uploaded PDF
-    const magazineFrontImage = req.files['magazineFrontImage'][0].path; // Path to the uploaded front image
+router.post(
+  "/addMagazinePdf",
+  checkAuth,
+  magazineUpload.fields([
+    { name: "magazinePdf", maxCount: 1 },
+    { name: "magazineFrontImage", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const { pdfTitle, tags } = req.body; // 🔥 tags added
 
-    const newMagazinePdf = new MagazinePdf({
-      pdfTitle: pdfTitle,
-      pdfFilePath: pdfFilePath,
-      magazineFrontImage: magazineFrontImage,
-    });
+      if (!pdfTitle || !tags) {
+        return res.status(400).json({ message: "Title and tags are required" });
+      }
 
-    newMagazinePdf
-      .save()
-      .then((data) => {
-        res.status(201).send({ message: "Successfully uploaded Magazine PDF and image", data });
-      })
-      .catch((err) => {
-        console.error("Error saving Magazine PDF:", err);
-        res.status(500).send({ message: err.message });
+      const pdfFilePath = req.files["magazinePdf"][0].path;
+      const magazineFrontImage = req.files["magazineFrontImage"][0].path;
+
+      const newMagazinePdf = new MagazinePdf({
+        pdfTitle,
+        pdfFilePath,
+        magazineFrontImage,
+        tags, // 🔥 SAVE TAGS
       });
-  } catch (error) {
-    console.error("Error during upload:", error);
-    res.status(500).send({ message: error.message });
+
+      const data = await newMagazinePdf.save();
+
+      res.status(201).json({
+        message: "Successfully uploaded Magazine PDF and image",
+        data,
+      });
+    } catch (error) {
+      console.error("Error during upload:", error);
+      res.status(500).json({ message: error.message });
+    }
   }
-});
+);
+
 
 // --- PUT: Update an existing Magazine PDF and Front Image ---
 router.put("/updateMagazinePdf/:id", checkAuth, magazineUpload.fields([

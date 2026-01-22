@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - Add Blog</title>
+
+    <link rel="stylesheet" href="./assets/css/magazine.css" />
+    <link rel="stylesheet" href="./assets/css/admin-header.css" />
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <!-- CKEditor 5 -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.0.0/classic/ckeditor.js"></script>
+
+    <style>
+        :root {
+            --theme-color: #715c20;
+            --secondary-color: #e3c607;
+            --theme-white: #c6c5af;
+            --dark-gray: #1f1f1f;
+            --gray: #3b3930;
+            --light-gray: #f2f0e1;
+            --white: #ffffff;
+
+            /* Gradients */
+            --gradient-overlay: linear-gradient(0deg,
+                    rgba(0, 0, 0, 0.3),
+                    rgba(0, 0, 0, 0.3));
+
+            --gradient-dark: linear-gradient(291.97deg,
+                    #0b0b0b 0.67%,
+                    rgba(31, 31, 31, 0.3) 50%,
+                    #0b0b0b 99.33%);
+
+            --gradient-gold: linear-gradient(90deg,
+                    #e0c214 0%,
+                    #d2a100 100%);
+
+            /* Spacing Scale */
+            --space-20: 20px;
+            --space-40: 40px;
+            --space-60: 60px;
+            --space-80: 80px;
+            --space-100: 100px;
+
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+
+            /* Transition */
+            --transition-fast: 0.2s ease;
+            --transition-medium: 0.4s ease;
+
+            /* font family */
+            --font-family: "Inter", sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background-color: var(--dark-gray);
+            color: var(--theme-white);
+            min-height: 100vh;
+        }
+
+        .admin-blog-card-header {
+            margin-bottom: var(--space-40);
+            padding-bottom: var(--space-20);
+            border-bottom: 1px solid var(--theme-color);
+        }
+
+        .admin-blog-card-header h1 {
+            color: var(--secondary-color);
+            font-weight: 600;
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+
+        .admin-blog-card-header p {
+            color: var(--theme-white);
+            opacity: 0.8;
+        }
+
+        /* Form Card */
+        .admin-blog-card {
+            background: var(--gradient-dark);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-md);
+            padding: var(--space-40);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-form-sct {
+            margin-bottom: var(--space-40);
+        }
+
+        .admin-form-sct-title {
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: var(--space-20);
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(227, 198, 7, 0.3);
+        }
+
+        /* Custom Input Styles */
+        .thm-input {
+            background: rgba(16, 16, 22, 0.376) !important;
+            border: 2px solid rgba(255, 255, 255, 0.25) !important;
+            color: var(--theme-white) !important;
+            padding: 12px 20px !important;
+            font-size: 16px !important;
+            letter-spacing: 0.001rem !important;
+            border-radius: var(--radius-sm) !important;
+            margin-bottom: 5px !important;
+            width: 100% !important;
+            transition: var(--transition-medium) !important;
+        }
+
+        .thm-input.disable {
+            opacity: 0.5 !important;
+        }
+
+        .thm-input::placeholder {
+            color: #9a9a9a !important;
+        }
+
+        .thm-input:focus {
+            background: rgba(16, 16, 22, 0.8) !important;
+            border-color: var(--secondary-color) !important;
+            box-shadow: 0 0 0 0.2rem rgba(227, 198, 7, 0.25) !important;
+            outline: none !important;
+        }
+
+        /* Label styling */
+        .form-label {
+            color: var(--theme-white);
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .required::after {
+            content: " *";
+            color: #ff6b6b;
+        }
+
+        /* Error Messages */
+        .error-message {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            display: none;
+            padding-left: 5px;
+        }
+
+        .has-error .thm-input {
+            border-color: #ff6b6b !important;
+        }
+
+        /* CKEditor Customization */
+        .ck-editor {
+            margin-bottom: var(--space-20);
+        }
+
+        .ck.ck-editor__main .ck-content {
+            background: rgba(16, 16, 22, 0.376) !important;
+            color: var(--theme-white) !important;
+            min-height: 250px !important;
+            border: 2px solid rgba(255, 255, 255, 0.25) !important;
+            border-top: none !important;
+            border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important;
+        }
+
+        .ck.ck-toolbar {
+            background: var(--gray) !important;
+            border: 2px solid rgba(255, 255, 255, 0.25) !important;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .ck.ck-button {
+            color: var(--theme-white) !important;
+        }
+
+        .ck.ck-button:not(.ck-disabled):hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* Image Upload Area */
+        .admin-blog-image-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.25);
+            border-radius: var(--radius-sm);
+            padding: var(--space-40);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-medium);
+            margin-bottom: var(--space-20);
+            background: rgba(16, 16, 22, 0.2);
+        }
+
+        .admin-blog-image-upload-area:hover {
+            border-color: var(--secondary-color);
+            background: rgba(16, 16, 22, 0.4);
+        }
+
+        .admin-blog-image-upload-icon {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        .admin-blog-image-upload-text {
+            color: var(--theme-white);
+            margin-bottom: 10px;
+        }
+
+        .admin-blog-image-upload-subtext {
+            color: var(--theme-white);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Image Preview Area */
+        .admin-blog-ImagePreview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: var(--space-20);
+        }
+
+        .admin-blog-ImagePreview {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .admin-blog-preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .admin-blog-remove-img {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            z-index: 10;
+        }
+
+        .admin-blog-remove-img:hover {
+            background: rgba(255, 0, 0, 0.8);
+        }
+
+        /* Button Styles */
+        .thm-btn1 {
+            position: relative;
+            background: transparent;
+            color: var(--secondary-color);
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 0px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: var(--transition-medium);
+        }
+
+        .thm-btn1::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            padding: 2.5px;
+            background: var(--gradient-gold);
+            -webkit-mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            border-radius: 0px;
+        }
+
+        .thm-btn1.disable {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .thm-btn1.disable::before {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .thm-btn1:hover {
+            color: #000;
+            background: var(--gradient-gold);
+        }
+
+        /* Loading State */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="admin-dashboard-navbar">
+        <div class="admin-dashboard-left">
+            <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
+            Hi Admin;👋🏻
+        </div>
+        <div class="admin-dashboard-right">
+            <a href="./dashboard.html" class="admin-dashboard-link ">DashBoard</a>
+            <a href="./magazine.html" class="admin-dashboard-link ">Magazine</a>
+            <a href="./Blogs.html" class="admin-dashboard-link active">Blogs</a>
+            <a href="./leads.html" class="admin-dashboard-link">Leads</a>
+
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </header>
+    <div class="container">
+        <div class="col-12 row mx-auto">
+            <div class="col-lg-10 mx-auto">
+                <div class="admin-blog-card">
+                    <div class="admin-blog-card-header">
+                        <h1>Add New Blog Post</h1>
+                        <p>
+                            Fill in the details below to create a new blog
+                            post
+                        </p>
+                    </div>
+                    <form id="adminBlogFrom">
+                        <!-- Blog Title Section -->
+                        <div class="admin-form-sct">
+                            <h3 class="admin-form-sct-title">
+                                Basic Information
+                            </h3>
+
+                            <div class="form-group mb-4">
+                                <label for="blogTitle" class="form-label required">Blog Title</label>
+                                <input type="text" id="blogTitle" class="thm-input" placeholder="Enter blog title" />
+                                <div id="blogTitleError" class="error-message">
+                                    Please enter a blog title
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="shortDescription" class="form-label required">Short Description</label>
+                                <textarea id="shortDescription" class="thm-input" rows="3"
+                                    placeholder="Brief summary of the blog post (max 200 characters)"></textarea>
+                                <div id="shortDescriptionError" class="error-message">
+                                    Please enter a short description
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Blog Content Section -->
+                        <div class="admin-form-sct">
+                            <h3 class="admin-form-sct-title">
+                                Blog Content
+                            </h3>
+
+                            <div class="form-group mb-4">
+                                <label class="form-label required">Full Description</label>
+                                <div id="editorContainer"></div>
+                                <div id="editorError" class="error-message">
+                                    Please enter blog content
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Upload Section -->
+                        <div class="admin-form-sct">
+                            <h3 class="admin-form-sct-title">
+                                Blog Images
+                            </h3>
+
+                            <div class="form-group mb-4">
+                                <label class="form-label">Upload Images (Multiple)</label>
+
+                                <div class="admin-blog-image-upload-area" id="blogImgUploadArea">
+                                    <div class="admin-blog-image-upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="admin-blog-image-upload-text">
+                                        Click to upload or drag and drop
+                                    </div>
+                                    <div class="admin-blog-image-upload-subtext">
+                                        PNG, JPG, GIF up to 5MB each
+                                    </div>
+                                    <input type="file" id="blogImgInput" multiple accept="image/*"
+                                        style="display: none" />
+                                </div>
+
+                                <!-- Image Previews -->
+                                <div class="admin-blog-ImagePreview-container" id="blogImgPreviewContainer">
+                                    <!-- Preview images will appear here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Author Information -->
+                        <div class="admin-form-sct">
+                            <h3 class="admin-form-sct-title">
+                                Author Information
+                            </h3>
+
+                            <div class="row">
+                                <div class="col-md-6 form-group mb-4">
+                                    <label for="authorName" class="form-label required">Author Name</label>
+                                    <input type="text" id="authorName" class="thm-input"
+                                        placeholder="Enter author name" />
+                                    <div id="authorNameError" class="error-message">
+                                        Please enter author name
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-group mb-4">
+                                    <label for="authorQuote" class="form-label">Author Quote</label>
+                                    <input type="text" id="authorQuote" class="thm-input"
+                                        placeholder="Enter a quote by the author" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="row col-12 mx-auto justify-content-end gx-3 pe-0">
+                            <div class="col-auto">
+                                <button type="button" class="thm-btn1" id="cancelBtn">
+                                    Cancel
+                                </button>
+                            </div>
+                            <div class="col-auto pe-0">
+                                <button type="submit" class="thm-btn1" id="submitBtn">
+                                    Publish Blog
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // DOM Elements
+        const blogImgUploadArea = document.getElementById("blogImgUploadArea");
+        const blogImgInput = document.getElementById("blogImgInput");
+        const blogImgPreviewContainer = document.getElementById("blogImgPreviewContainer");
+        const adminBlogFrom = document.getElementById("adminBlogFrom");
+        const cancelBtn = document.getElementById("cancelBtn");
+        const submitBtn = document.getElementById("submitBtn");
+
+        // Form Inputs
+        const blogTitleInput = document.getElementById("blogTitle");
+        const shortDescriptionInput = document.getElementById("shortDescription");
+        const authorNameInput = document.getElementById("authorName");
+        const authorQuoteInput = document.getElementById("authorQuote");
+
+        // Error Elements
+        const blogTitleError = document.getElementById("blogTitleError");
+        const shortDescriptionError = document.getElementById("shortDescriptionError");
+        const authorNameError = document.getElementById("authorNameError");
+        const editorError = document.getElementById("editorError");
+
+        // Global Variables
+        let editor;
+        let uploadedImages = [];
+
+        // Initialize CKEditor
+        ClassicEditor.create(document.querySelector("#editorContainer"), {
+            toolbar: [
+                "heading",
+                "|",
+                "bold",
+                "italic",
+                "link",
+                "bulletedList",
+                "numberedList",
+                "|",
+                "outdent",
+                "indent",
+                "|",
+                "undo",
+                "redo",
+            ],
+            placeholder: "Start writing your blog content here...",
+            language: "en",
+        })
+            .then((newEditor) => {
+                editor = newEditor;
+                editor.model.document.on("change:data", () => {
+                    hideError(editorError);
+                });
+            })
+            .catch((error) => {
+                console.error(error);
+                const editorContainer = document.getElementById("editorContainer");
+                editorContainer.innerHTML = `
+                <textarea id="fallbackEditor" class="thm-input" rows="10"
+                    placeholder="Start writing your blog content here..."></textarea>
+            `;
+            });
+
+        // Image Upload Handlers
+        blogImgUploadArea.addEventListener("click", () => {
+            blogImgInput.click();
+        });
+
+        blogImgInput.addEventListener("change", (e) => {
+            handleImageFiles(Array.from(e.target.files));
+            blogImgInput.value = "";
+        });
+
+        // Drag and Drop Handlers
+        blogImgUploadArea.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            blogImgUploadArea.style.borderColor = "var(--secondary-color)";
+            blogImgUploadArea.style.backgroundColor = "rgba(16, 16, 22, 0.4)";
+        });
+
+        blogImgUploadArea.addEventListener("dragleave", () => {
+            blogImgUploadArea.style.borderColor = "rgba(255, 255, 255, 0.25)";
+            blogImgUploadArea.style.backgroundColor = "rgba(16, 16, 22, 0.2)";
+        });
+
+        blogImgUploadArea.addEventListener("drop", (e) => {
+            e.preventDefault();
+            blogImgUploadArea.style.borderColor = "rgba(255, 255, 255, 0.25)";
+            blogImgUploadArea.style.backgroundColor = "rgba(16, 16, 22, 0.2)";
+            handleImageFiles(Array.from(e.dataTransfer.files));
+        });
+
+        // Cancel Button Handler
+        cancelBtn.addEventListener("click", () => {
+            if (confirm("Are you sure you want to cancel? All unsaved changes will be lost.")) {
+                resetForm();
+                window.location.href = "./Blogs.html";
+            }
+        });
+
+        // Form Submission Handler
+        adminBlogFrom.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            if (!validateForm()) {
+                const firstError = document.querySelector('.error-message[style*="display: block"]');
+                if (firstError) {
+                    firstError.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                    });
+                }
+                return;
+            }
+
+            // Get JWT token from localStorage
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Please login first!");
+                window.location.href = "./login.html";
+                return;
+            }
+
+            // Prepare FormData
+            const formData = new FormData();
+
+            // Add text fields
+            formData.append("title", blogTitleInput.value.trim());
+            formData.append("shortDescription", shortDescriptionInput.value.trim());
+
+            // Get CKEditor content
+            let blogContent = "";
+            if (editor) {
+                blogContent = editor.getData();
+            } else {
+                const fallbackEditor = document.getElementById("fallbackEditor");
+                if (fallbackEditor) {
+                    blogContent = fallbackEditor.value;
+                }
+            }
+            formData.append("content", blogContent);
+
+            formData.append("authorName", authorNameInput.value.trim());
+            formData.append("authorQuote", authorQuoteInput.value.trim());
+
+            // Add multiple images
+            uploadedImages.forEach((image) => {
+                formData.append("images", image.file);
+            });
+
+            // Show loading state
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Publishing...';
+            submitBtn.disabled = true;
+            submitBtn.classList.add("disable");
+
+            try {
+                // API Call
+                const response = await fetch("http://localhost:5001/api/addBlog", {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        // Don't set Content-Type for FormData
+                    },
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                // Reset button state
+                submitBtn.innerHTML = "Publish Blog";
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("disable");
+
+                if (!response.ok) {
+                    throw new Error(result.message || "Failed to publish blog");
+                }
+
+                // Success
+                alert("✅ Blog published successfully!");
+                resetForm();
+
+                // Redirect after 1 second
+                setTimeout(() => {
+                    window.location.href = "./Blogs.html";
+                }, 1000);
+
+            } catch (error) {
+                console.error("Error:", error);
+                alert(`❌ Error: ${error.message}`);
+
+                // Reset button on error
+                submitBtn.innerHTML = "Publish Blog";
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("disable");
+            }
+        });
+
+        // Image Handling Functions
+        function handleImageFiles(files) {
+            files.forEach((file) => {
+                if (file.type.startsWith("image/")) {
+                    // Check file size (5MB limit)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert(`File ${file.name} is too large. Max size is 5MB.`);
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const imageId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                        uploadedImages.push({
+                            id: imageId,
+                            src: event.target.result,
+                            name: file.name,
+                            file: file,
+                        });
+                        updateImagePreviews();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert(`File ${file.name} is not an image. Please upload only image files.`);
+                }
+            });
+        }
+
+        function updateImagePreviews() {
+            blogImgPreviewContainer.innerHTML = "";
+
+            if (uploadedImages.length === 0) {
+                return;
+            }
+
+            uploadedImages.forEach((image) => {
+                const previewDiv = document.createElement("div");
+                previewDiv.className = "admin-blog-ImagePreview";
+                previewDiv.innerHTML = `
+                    <img src="${image.src}" alt="${image.name}" class="admin-blog-preview-img">
+                    <button type="button" class="admin-blog-remove-img" data-id="${image.id}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                blogImgPreviewContainer.appendChild(previewDiv);
+            });
+
+            // Add remove event listeners
+            document.querySelectorAll(".admin-blog-remove-img").forEach((button) => {
+                button.addEventListener("click", removeImageHandler);
+            });
+        }
+
+        function removeImageHandler(e) {
+            e.stopPropagation();
+            const id = e.currentTarget.getAttribute("data-id");
+            uploadedImages = uploadedImages.filter((img) => img.id !== id);
+            updateImagePreviews();
+        }
+
+        // Form Validation Functions
+        function showError(element, message) {
+            element.textContent = message;
+            element.style.display = "block";
+            element.parentElement.classList.add("has-error");
+        }
+
+        function hideError(element) {
+            element.style.display = "none";
+            element.parentElement.classList.remove("has-error");
+        }
+
+        function validateField(input, errorElement, fieldName) {
+            const value = input.value.trim();
+            if (!value) {
+                showError(errorElement, `Please enter ${fieldName}`);
+                return false;
+            }
+            hideError(errorElement);
+            return true;
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+            // Validate required fields
+            if (!validateField(blogTitleInput, blogTitleError, "a blog title")) {
+                isValid = false;
+            }
+
+            if (!validateField(shortDescriptionInput, shortDescriptionError, "a short description")) {
+                isValid = false;
+            }
+
+            if (!validateField(authorNameInput, authorNameError, "author name")) {
+                isValid = false;
+            }
+
+            // Validate CKEditor content
+            let editorContent = "";
+            if (editor) {
+                editorContent = editor.getData().trim();
+            } else {
+                const fallbackEditor = document.getElementById("fallbackEditor");
+                if (fallbackEditor) {
+                    editorContent = fallbackEditor.value.trim();
+                }
+            }
+
+            if (!editorContent) {
+                showError(editorError, "Please enter blog content");
+                isValid = false;
+            } else {
+                hideError(editorError);
+            }
+
+            return isValid;
+        }
+
+        // Real-time validation
+        blogTitleInput.addEventListener("input", () => {
+            validateField(blogTitleInput, blogTitleError, "a blog title");
+        });
+
+        shortDescriptionInput.addEventListener("input", () => {
+            validateField(shortDescriptionInput, shortDescriptionError, "a short description");
+        });
+
+        authorNameInput.addEventListener("input", () => {
+            validateField(authorNameInput, authorNameError, "author name");
+        });
+
+        // Form Reset Function
+        function resetForm() {
+            // Reset form fields
+            adminBlogFrom.reset();
+
+            // Clear CKEditor
+            if (editor) {
+                editor.setData("");
+            }
+
+            // Clear image previews
+            uploadedImages = [];
+            blogImgPreviewContainer.innerHTML = "";
+
+            // Clear error messages
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.style.display = 'none';
+                error.parentElement.classList.remove('has-error');
+            });
+        }
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Please login to access this page.");
+                window.location.href = "./login.html";
+            }
+        });
+    </script>
+</body>
+
+</html>
