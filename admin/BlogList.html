@@ -542,10 +542,8 @@
             const formattedDate = formatDate(blog.createdAt || blog.updatedAt);
 
             colDiv.innerHTML = `
-                    < div class="blog-card" >
-                    <div class="blog-status status-published">
-                        <i class="fas fa-check-circle"></i> Published
-                    </div>
+                    <div class="blog-card">
+                   
                     
                     <div class="blog-image-container">
                         <img src="${blogImage}" alt="${blog.title}" class="blog-image" 
