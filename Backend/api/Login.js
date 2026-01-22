@@ -4,27 +4,43 @@ const { UserDetails } = require("../model/UserDetails");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// Login
+// Login with Email OR Phone
 router.post("/login", async (req, res) => {
   try {
-    const { phone, password } = req.body;
+    const { phone, email, password } = req.body;
 
-    if (!phone || !password) {
-      return res.status(400).json({ error: "Phone and password required" });
+    // Validation
+    if ((!phone && !email) || !password) {
+      return res
+        .status(400)
+        .json({ error: "Email or Phone and password required" });
     }
 
-    const user = await UserDetails.findOne({ phone });
+    // Find user by phone OR email
+    const user = await UserDetails.findOne({
+      $or: [
+        phone ? { phone } : null,
+        email ? { email: email.toLowerCase() } : null,
+      ].filter(Boolean),
+    });
+
     if (!user) {
       return res.status(400).json({ error: "User not found" });
     }
 
+    // Password check
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: "Invalid password" });
     }
 
+    // JWT
     const token = jwt.sign(
-      { id: user._id, phone: user.phone },
+      {
+        id: user._id,
+        phone: user.phone,
+        email: user.email,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
