@@ -482,7 +482,7 @@
 
                 const response = await fetch(`${config.backendBaseUrl}/api/allBlogs`, {
                     headers: {
-                        'Authorization': `Bearer ${ token }`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
@@ -530,6 +530,8 @@
         function createBlogCard(blog) {
             const colDiv = document.createElement('div');
             colDiv.className = 'col-md-6 col-lg-4 mb-4';
+
+            // console.log(blog.images)
 
             // Get first image or default
             const blogImage = blog.images && blog.images.length > 0
@@ -581,11 +583,20 @@
             return colDiv;
         }
 
+
+
         // Edit Blog - Redirect to edit page
+        // function editBlog(blogId) {
+        //     console.log(blogId)
+        //     // You can create an edit-blog.html page or use the same Blogs.html with query param
+        //     window.location.href = `./ edit - blog.html ? id = ${blogId} `;
+        // }
+
         function editBlog(blogId) {
-            // You can create an edit-blog.html page or use the same Blogs.html with query param
-            window.location.href = `./ edit - blog.html ? id = ${ blogId } `;
+            // console.log(blogId);
+            window.location.href = `./edit-blog.html?id=${blogId}`;
         }
+
 
         // Show delete confirmation modal
         function showDeleteModal(blogId) {
@@ -601,26 +612,26 @@
 
             try {
                 const response = await fetch(`${config.backendBaseUrl}/api/deleteBlog/${blogId}`, {
-                method: 'DELETE',
+                    method: 'DELETE',
                     headers: {
-                    'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete blog');
                 }
-            });
 
-            if (!response.ok) {
-                throw new Error('Failed to delete blog');
+                const result = await response.json();
+                alert(result.message || 'Blog deleted successfully');
+
+                // Reload blogs after deletion
+                loadBlogs();
+
+            } catch (error) {
+                console.error('Error deleting blog:', error);
+                alert('Error deleting blog: ' + error.message);
             }
-
-            const result = await response.json();
-            alert(result.message || 'Blog deleted successfully');
-
-            // Reload blogs after deletion
-            loadBlogs();
-
-        } catch (error) {
-            console.error('Error deleting blog:', error);
-            alert('Error deleting blog: ' + error.message);
-        }
         }
 
         // Confirm delete button handler
@@ -643,6 +654,8 @@
             loadBlogs();
         });
     </script>
+    <script src="./assets/js/config.js"></script>
+
 </body>
 
 </html>

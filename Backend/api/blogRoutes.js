@@ -13,7 +13,16 @@ router.post("/addBlog", checkAuth, blogUpload.array("images", 10), async (req, r
             return res.status(400).json({ message: "All required fields missing" });
         }
 
-        const images = req.files ? req.files.map(f => f.path) : [];
+        // const images = req.files ? req.files.map(f => f.path) : [];
+
+        const BASE_URL = `${req.protocol}://${req.get("host")}`;
+
+        const images = req.files
+            ? req.files.map(file =>
+                `${BASE_URL}/${file.path.replace(/\\/g, "/")}`
+            )
+            : [];
+
 
         const blog = new Blog({
             title,
@@ -47,9 +56,18 @@ router.put("/updateBlog/:id", checkAuth, blogUpload.array("images", 10), async (
 
         Object.assign(blog, req.body);
 
+        // if (req.files?.length) {
+        //     blog.images.push(...req.files.map(f => f.path));
+        // }
         if (req.files?.length) {
-            blog.images.push(...req.files.map(f => f.path));
+            const BASE_URL = `${req.protocol}://${req.get("host")}`;
+            blog.images.push(
+                ...req.files.map(f =>
+                    `${BASE_URL}/${f.path.replace(/\\/g, "/")}`
+                )
+            );
         }
+
 
         await blog.save();
         res.json({ message: "Blog updated successfully", data: blog });

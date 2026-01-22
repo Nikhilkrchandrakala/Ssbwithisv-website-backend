@@ -576,7 +576,7 @@
         cancelBtn.addEventListener("click", () => {
             if (confirm("Are you sure you want to cancel? All unsaved changes will be lost.")) {
                 resetForm();
-                window.location.href = "./Blogs.html";
+                window.location.href = "./BlogList.html";
             }
         });
 
@@ -659,11 +659,12 @@
 
                 // Success
                 alert("✅ Blog published successfully!");
+                window.location.href = "./BlogList.html";
                 resetForm();
 
                 // Redirect after 1 second
                 setTimeout(() => {
-                    window.location.href = "./Blogs.html";
+
                 }, 1000);
 
             } catch (error) {
@@ -839,6 +840,8 @@
             }
         });
     </script>
+    <script src="./assets/js/config.js"></script>
+
 </body>
 
 </html>
