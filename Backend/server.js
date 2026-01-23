@@ -12,6 +12,11 @@ const verifyOtp = require("./api/VerifyOtp");
 const userProfile = require("./api/UserProfile");
 const blogRoutes = require("./api/blogRoutes");
 
+const candidateRoutes = require("./api/candidateRoutes");
+
+
+
+
 
 // const sendOtp = require("./api/sendOtp");
 const leads = require("./api/Leads");
@@ -45,6 +50,8 @@ app.use("/api", sendEmail);
 app.use("/api", leads);
 app.use("/api", userProfile);
 app.use("/api", blogRoutes);
+
+app.use("/api", candidateRoutes);
 // app.use("/api", sendOtp);
 
 // app.use(bodyParser.json({ limit: '100mb' })); 

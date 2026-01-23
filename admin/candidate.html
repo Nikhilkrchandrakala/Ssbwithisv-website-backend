@@ -1,0 +1,1063 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - Candidate Management</title>
+
+    <link rel="stylesheet" href="./assets/css/admin-header.css" />
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --theme-color: #715c20;
+            --secondary-color: #e3c607;
+            --theme-white: #c6c5af;
+            --dark-gray: #1f1f1f;
+            --gray: #3b3930;
+            --light-gray: #f2f0e1;
+            --white: #ffffff;
+
+            /* Gradients */
+            --gradient-overlay: linear-gradient(0deg,
+                    rgba(0, 0, 0, 0.3),
+                    rgba(0, 0, 0, 0.3));
+
+            --gradient-dark: linear-gradient(291.97deg,
+                    #0b0b0b 0.67%,
+                    rgba(31, 31, 31, 0.3) 50%,
+                    #0b0b0b 99.33%);
+
+            --gradient-gold: linear-gradient(90deg,
+                    #e0c214 0%,
+                    #d2a100 100%);
+
+            /* Spacing Scale */
+            --space-20: 20px;
+            --space-40: 40px;
+            --space-60: 60px;
+            --space-80: 80px;
+            --space-100: 100px;
+
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+
+            /* Transition */
+            --transition-fast: 0.2s ease;
+            --transition-medium: 0.4s ease;
+
+            /* font family */
+            --font-family: "Inter", sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background-color: var(--dark-gray);
+            color: var(--theme-white);
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .admin-candidate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-40);
+            padding-bottom: var(--space-20);
+            border-bottom: 1px solid var(--theme-color);
+        }
+
+        .admin-candidate-header h1 {
+            color: var(--secondary-color);
+            font-weight: 600;
+            font-size: 2.2rem;
+            margin-bottom: 0;
+        }
+
+        /* Button Styles */
+        .thm-btn1 {
+            position: relative;
+            background: transparent;
+            color: var(--secondary-color);
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 0px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: var(--transition-medium);
+        }
+
+        .thm-btn1::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            padding: 2.5px;
+            background: var(--gradient-gold);
+            -webkit-mask:
+                linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            border-radius: 0px;
+        }
+
+        .thm-btn1.disable {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .thm-btn1:hover {
+            color: #000;
+            background: var(--gradient-gold);
+        }
+
+        .thm-btn1.small {
+            padding: 8px 20px;
+            font-size: 14px;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            background: var(--gradient-dark);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-md);
+            color: var(--theme-white);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .modal-title {
+            color: var(--secondary-color);
+        }
+
+        .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* Custom Input Styles */
+        .thm-input {
+            background: rgba(16, 16, 22, 0.376) !important;
+            border: 2px solid rgba(255, 255, 255, 0.25) !important;
+            color: var(--theme-white) !important;
+            padding: 12px 20px !important;
+            font-size: 16px !important;
+            letter-spacing: 0.001rem !important;
+            border-radius: var(--radius-sm) !important;
+            margin-bottom: 5px !important;
+            width: 100% !important;
+            transition: var(--transition-medium) !important;
+        }
+
+        .thm-input::placeholder {
+            color: #9a9a9a !important;
+        }
+
+        .thm-input:focus {
+            background: rgba(16, 16, 22, 0.8) !important;
+            border-color: var(--secondary-color) !important;
+            box-shadow: 0 0 0 0.2rem rgba(227, 198, 7, 0.25) !important;
+            outline: none !important;
+        }
+
+        /* Label styling */
+        .form-label {
+            color: var(--theme-white);
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .required::after {
+            content: " *";
+            color: #ff6b6b;
+        }
+
+        /* Image Upload Area - FIXED */
+        .candidate-image-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.25);
+            border-radius: var(--radius-sm);
+            padding: var(--space-40);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-medium);
+            margin-bottom: var(--space-20);
+            background: rgba(16, 16, 22, 0.2);
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .candidate-image-upload-area:hover {
+            border-color: var(--secondary-color);
+            background: rgba(16, 16, 22, 0.4);
+        }
+
+        .candidate-image-upload-icon {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        .candidate-image-upload-text {
+            color: var(--theme-white);
+            margin-bottom: 10px;
+        }
+
+        .candidate-image-upload-subtext {
+            color: var(--theme-white);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* FIXED: Hidden file input inside upload area */
+        .candidate-image-upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Image Preview */
+        .candidate-image-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            display: none;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .status-inactive {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: var(--gradient-dark);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-md);
+            padding: var(--space-20);
+            margin-top: var(--space-20);
+        }
+
+        table.dataTable {
+            color: var(--theme-white);
+            border-collapse: collapse;
+        }
+
+        table.dataTable thead th {
+            border-bottom: 2px solid var(--theme-color);
+            color: var(--secondary-color);
+            font-weight: 600;
+            padding: 15px;
+        }
+
+        table.dataTable tbody td {
+            border-bottom: 1px solid var(--gray);
+            padding: 15px;
+            vertical-align: middle;
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: rgba(113, 92, 32, 0.1);
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            color: var(--theme-white) !important;
+            border: 1px solid var(--theme-color) !important;
+            background: transparent !important;
+            border-radius: var(--radius-sm) !important;
+            margin: 0 2px !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: var(--theme-color) !important;
+            color: white !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: var(--theme-color) !important;
+            color: white !important;
+            border-color: var(--theme-color) !important;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            border: none;
+        }
+
+        .action-btn.edit {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+
+        .action-btn.edit:hover {
+            background: #2196f3;
+            color: white;
+        }
+
+        .action-btn.delete {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .action-btn.delete:hover {
+            background: #f44336;
+            color: white;
+        }
+
+        /* Loading Spinner */
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 8px;
+        }
+
+        /* Candidate Image in Table */
+        .candidate-table-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--theme-color);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="admin-dashboard-navbar">
+        <div class="admin-dashboard-left">
+            <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
+            Hi Admin;👋🏻
+        </div>
+        <div class="admin-dashboard-right">
+            <a href="./dashboard.html" class="admin-dashboard-link ">DashBoard</a>
+            <a href="./magazine.html" class="admin-dashboard-link ">Magazine</a>
+            <a href="./BlogList.html" class="admin-dashboard-link">Blogs</a>
+            <a href="./candidate.html" class="admin-dashboard-link active">Candidates</a>
+            <a href="./leads.html" class="admin-dashboard-link">Leads</a>
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="admin-candidate-header">
+            <h1>Candidate Management</h1>
+            <button class="thm-btn1" data-bs-toggle="modal" data-bs-target="#addCandidateModal">
+                <i class="fas fa-plus me-2"></i>Add New Candidate
+            </button>
+        </div>
+
+        <!-- Candidates Table -->
+        <div class="table-container">
+            <table id="candidatesTable" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Entry No</th>
+                        <th>Board</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be loaded via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Candidate Modal -->
+    <div class="modal fade" id="addCandidateModal" tabindex="-1" aria-labelledby="addCandidateModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCandidateModalLabel">Add New Candidate</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- FIXED: Form tag with proper action and onsubmit -->
+                <form id="addCandidateForm" onsubmit="return false;">
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <!-- Name -->
+                                <div class="mb-3">
+                                    <label for="name" class="form-label required">Name</label>
+                                    <input type="text" class="thm-input" id="name" name="name" required>
+                                </div>
+
+                                <!-- Entry Number -->
+                                <div class="mb-3">
+                                    <label for="entry" class="form-label required">Entry Number</label>
+                                    <input type="text" class="thm-input" id="entry" name="entry" required>
+                                </div>
+
+                                <!-- Board -->
+                                <div class="mb-3">
+                                    <label for="board" class="form-label required">Board</label>
+                                    <input type="text" class="thm-input" id="board" name="board" required>
+                                </div>
+
+                                <!-- Status -->
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="thm-input" id="status" name="status">
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Right Column - Image Upload -->
+                            <div class="col-md-6">
+                                <label class="form-label required">Candidate Image</label>
+                                <!-- FIXED: Image upload area with proper structure -->
+                                <div class="candidate-image-upload-area" id="imageUploadArea">
+                                    <div class="candidate-image-upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="candidate-image-upload-text">
+                                        Click to upload image
+                                    </div>
+                                    <div class="candidate-image-upload-subtext">
+                                        PNG, JPG up to 5MB
+                                    </div>
+                                    <!-- FIXED: File input inside the upload area -->
+                                    <input type="file" id="imageInput" accept="image/*">
+                                </div>
+                                <img id="imagePreview" class="candidate-image-preview" src="" alt="Preview">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="thm-btn1 small" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="thm-btn1 small" id="submitCandidateBtn">
+                            <span id="submitBtnText">Add Candidate</span>
+                            <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Candidate Modal -->
+    <div class="modal fade" id="editCandidateModal" tabindex="-1" aria-labelledby="editCandidateModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCandidateModalLabel">Edit Candidate</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- FIXED: Form tag with proper action -->
+                <form id="editCandidateForm" onsubmit="return false;">
+                    <input type="hidden" id="editCandidateId">
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <!-- Name -->
+                                <div class="mb-3">
+                                    <label for="editName" class="form-label required">Name</label>
+                                    <input type="text" class="thm-input" id="editName" name="name" required>
+                                </div>
+
+                                <!-- Entry Number -->
+                                <div class="mb-3">
+                                    <label for="editEntry" class="form-label required">Entry Number</label>
+                                    <input type="text" class="thm-input" id="editEntry" name="entry" required>
+                                </div>
+
+                                <!-- Board -->
+                                <div class="mb-3">
+                                    <label for="editBoard" class="form-label required">Board</label>
+                                    <input type="text" class="thm-input" id="editBoard" name="board" required>
+                                </div>
+
+                                <!-- Status -->
+                                <div class="mb-3">
+                                    <label for="editStatus" class="form-label">Status</label>
+                                    <select class="thm-input" id="editStatus" name="status">
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Right Column - Image Upload -->
+                            <div class="col-md-6">
+                                <label class="form-label">Candidate Image</label>
+                                <!-- FIXED: Edit image upload area -->
+                                <div class="candidate-image-upload-area" id="editImageUploadArea">
+                                    <div class="candidate-image-upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="candidate-image-upload-text">
+                                        Click to change image
+                                    </div>
+                                    <div class="candidate-image-upload-subtext">
+                                        PNG, JPG up to 5MB
+                                    </div>
+                                    <!-- FIXED: File input inside the upload area -->
+                                    <input type="file" id="editImageInput" accept="image/*">
+                                </div>
+                                <img id="editImagePreview" class="candidate-image-preview" src="" alt="Preview">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="thm-btn1 small" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="thm-btn1 small" id="updateCandidateBtn">
+                            <span id="updateBtnText">Update Candidate</span>
+                            <span id="updateSpinner" class="spinner-border spinner-border-sm d-none" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        // API Base URL
+        const API_BASE_URL = config.backendBaseUrl;
+
+        console.log('API Base URL:', API_BASE_URL);
+
+        // DOM Elements
+        const candidatesTable = $('#candidatesTable');
+        let dataTable = null;
+
+        // Variables
+        let currentImageFile = null;
+        let currentEditImageFile = null;
+
+        // Initialize DataTable
+        function initializeDataTable() {
+            if (dataTable) {
+                dataTable.destroy();
+            }
+
+            dataTable = candidatesTable.DataTable({
+                "order": [[5, 'desc']],
+                "pageLength": 10,
+                "language": {
+                    "search": "Search:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                    "infoEmpty": "Showing 0 to 0 of 0 entries",
+                    "infoFiltered": "(filtered from _MAX_ total entries)",
+                    "paginate": {
+                        "first": "First",
+                        "last": "Last",
+                        "next": "Next",
+                        "previous": "Previous"
+                    }
+                }
+            });
+        }
+
+        // Load Candidates
+        async function loadCandidates() {
+            try {
+                console.log('Loading candidates from:', `${API_BASE_URL}/api/candidates/allCandidates`);
+                const response = await fetch(`${API_BASE_URL}/api/candidates/allCandidates`);
+                const candidates = await response.json();
+
+                console.log('Candidates loaded:', candidates);
+
+                const tbody = candidatesTable.find('tbody');
+                tbody.empty();
+
+                if (candidates.length === 0) {
+                    tbody.append(`
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <i class="fas fa-users fa-3x mb-3" style="color: var(--theme-color);"></i>
+                                <p class="mb-0">No candidates found. Add your first candidate!</p>
+                            </td>
+                        </tr>
+                    `);
+                    return;
+                }
+
+                candidates.forEach(candidate => {
+                    const date = new Date(candidate.createdAt);
+                    const formattedDate = date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+
+                    const row = `
+                        <tr data-id="${candidate._id}">
+                            <td>
+                                <img src="${candidate.img}" alt="${candidate.name}" class="candidate-table-img" 
+                                     onerror="this.src='https://via.placeholder.com/50?text=No+Image'">
+                            </td>
+                            <td>${candidate.name}</td>
+                            <td>${candidate.entry}</td>
+                            <td>${candidate.board}</td>
+                            <td>
+                                <span class="status-badge ${candidate.status === 'active' ? 'status-active' : 'status-inactive'}">
+                                    ${candidate.status}
+                                </span>
+                            </td>
+                            <td>${formattedDate}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn edit" onclick="editCandidate('${candidate._id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" onclick="deleteCandidate('${candidate._id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+
+                initializeDataTable();
+            } catch (error) {
+                console.error('Error loading candidates:', error);
+                showAlert('Error loading candidates', 'error');
+            }
+        }
+
+        // Setup image upload handlers
+        function setupImageUploadHandlers() {
+            console.log('Setting up image upload handlers...');
+
+            // Main image upload - SIMPLE VERSION
+            const imageInput = document.getElementById('imageInput');
+            const imagePreview = document.getElementById('imagePreview');
+            const imageUploadArea = document.getElementById('imageUploadArea');
+
+            // Edit image upload
+            const editImageInput = document.getElementById('editImageInput');
+            const editImagePreview = document.getElementById('editImagePreview');
+            const editImageUploadArea = document.getElementById('editImageUploadArea');
+
+            // FIXED: Direct event listeners
+            if (imageInput) {
+                imageInput.addEventListener('change', function (e) {
+                    console.log('Image selected:', e.target.files[0]);
+                    if (e.target.files.length > 0) {
+                        const file = e.target.files[0];
+                        handleImageUpload(file, imagePreview, imageUploadArea);
+                        currentImageFile = file;
+                    }
+                });
+            }
+
+            if (editImageInput) {
+                editImageInput.addEventListener('change', function (e) {
+                    console.log('Edit image selected:', e.target.files[0]);
+                    if (e.target.files.length > 0) {
+                        const file = e.target.files[0];
+                        handleImageUpload(file, editImagePreview, editImageUploadArea);
+                        currentEditImageFile = file;
+                    }
+                });
+            }
+        }
+
+        // Handle image upload
+        function handleImageUpload(file, previewElement, uploadArea) {
+            console.log('Handling image upload:', file.name);
+
+            if (!file.type.startsWith('image/')) {
+                showAlert('Please select an image file (PNG, JPG, JPEG)', 'error');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('Image size should be less than 5MB', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewElement.src = e.target.result;
+                previewElement.style.display = 'block';
+                uploadArea.style.display = 'none';
+                console.log('Image preview updated');
+            };
+            reader.onerror = (error) => {
+                console.error('Error reading file:', error);
+                showAlert('Error reading image file', 'error');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // FIXED: Add candidate
+        document.getElementById('submitCandidateBtn').addEventListener('click', async function () {
+            const name = document.getElementById('name').value.trim();
+            const entry = document.getElementById('entry').value.trim();
+            const board = document.getElementById('board').value.trim();
+            const status = document.getElementById('status').value;
+
+            if (!name || !entry || !board) {
+                showAlert('Please fill all required fields', 'error');
+                return;
+            }
+
+            if (!currentImageFile) {
+                showAlert('Please select an image', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('entry', entry);
+            formData.append('board', board);
+            formData.append('status', status);
+            formData.append('img', currentImageFile);
+
+            // Show loading state
+            const submitBtnText = document.getElementById('submitBtnText');
+            const submitSpinner = document.getElementById('submitSpinner');
+            const submitCandidateBtn = document.getElementById('submitCandidateBtn');
+
+            submitBtnText.textContent = 'Adding...';
+            submitSpinner.classList.remove('d-none');
+            submitCandidateBtn.disabled = true;
+
+            try {
+                console.log('Adding candidate...');
+                const response = await fetch(`${API_BASE_URL}/api/candidates/addCandidate`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                console.log('Add response:', result);
+
+                if (response.ok) {
+                    showAlert('Candidate added successfully!', 'success');
+                    $('#addCandidateModal').modal('hide');
+                    resetAddForm();
+                    loadCandidates();
+                } else {
+                    throw new Error(result.message || 'Failed to add candidate');
+                }
+            } catch (error) {
+                console.error('Add candidate error:', error);
+                showAlert(error.message, 'error');
+            } finally {
+                // Reset button state
+                submitBtnText.textContent = 'Add Candidate';
+                submitSpinner.classList.add('d-none');
+                submitCandidateBtn.disabled = false;
+            }
+        });
+
+        // Edit Candidate
+        async function editCandidate(id) {
+            try {
+                console.log('Editing candidate:', id);
+                const response = await fetch(`${API_BASE_URL}/api/candidates/candidate/${id}`);
+                const candidate = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('editCandidateId').value = candidate._id;
+                    document.getElementById('editName').value = candidate.name;
+                    document.getElementById('editEntry').value = candidate.entry;
+                    document.getElementById('editBoard').value = candidate.board;
+                    document.getElementById('editStatus').value = candidate.status;
+
+                    // Set image preview
+                    const editImagePreview = document.getElementById('editImagePreview');
+                    const editImageUploadArea = document.getElementById('editImageUploadArea');
+
+                    editImagePreview.src = candidate.img;
+                    editImagePreview.style.display = 'block';
+                    editImageUploadArea.style.display = 'none';
+
+                    currentEditImageFile = null;
+
+                    $('#editCandidateModal').modal('show');
+                }
+            } catch (error) {
+                console.error('Edit candidate error:', error);
+                showAlert('Error loading candidate details', 'error');
+            }
+        }
+
+        // FIXED: Update candidate
+        document.getElementById('updateCandidateBtn').addEventListener('click', async function () {
+            const id = document.getElementById('editCandidateId').value;
+            const name = document.getElementById('editName').value.trim();
+            const entry = document.getElementById('editEntry').value.trim();
+            const board = document.getElementById('editBoard').value.trim();
+            const status = document.getElementById('editStatus').value;
+
+            if (!name || !entry || !board) {
+                showAlert('Please fill all required fields', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('entry', entry);
+            formData.append('board', board);
+            formData.append('status', status);
+
+            // Add image only if changed
+            if (currentEditImageFile) {
+                formData.append('img', currentEditImageFile);
+            }
+
+            // Show loading state
+            const updateBtnText = document.getElementById('updateBtnText');
+            const updateSpinner = document.getElementById('updateSpinner');
+            const updateCandidateBtn = document.getElementById('updateCandidateBtn');
+
+            updateBtnText.textContent = 'Updating...';
+            updateSpinner.classList.remove('d-none');
+            updateCandidateBtn.disabled = true;
+
+            try {
+                console.log('Updating candidate:', id);
+                const response = await fetch(`${API_BASE_URL}/api/candidates/updateCandidate/${id}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+
+                const result = await response.json();
+                console.log('Update response:', result);
+
+                if (response.ok) {
+                    showAlert('Candidate updated successfully!', 'success');
+                    $('#editCandidateModal').modal('hide');
+                    resetEditForm();
+                    loadCandidates();
+                } else {
+                    throw new Error(result.message || 'Failed to update candidate');
+                }
+            } catch (error) {
+                console.error('Update candidate error:', error);
+                showAlert(error.message, 'error');
+            } finally {
+                // Reset button state
+                updateBtnText.textContent = 'Update Candidate';
+                updateSpinner.classList.add('d-none');
+                updateCandidateBtn.disabled = false;
+            }
+        });
+
+        // Delete Candidate
+        async function deleteCandidate(id) {
+            if (!confirm('Are you sure you want to delete this candidate?')) {
+                return;
+            }
+
+            try {
+                console.log('Deleting candidate:', id);
+                const response = await fetch(`${API_BASE_URL}/api/candidates/deleteCandidate/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                console.log('Delete response:', result);
+
+                if (response.ok) {
+                    showAlert('Candidate deleted successfully!', 'success');
+                    loadCandidates();
+                } else {
+                    throw new Error(result.message || 'Failed to delete candidate');
+                }
+            } catch (error) {
+                console.error('Delete candidate error:', error);
+                showAlert(error.message, 'error');
+            }
+        }
+
+        // Reset Forms
+        function resetAddForm() {
+            const name = document.getElementById('name');
+            const entry = document.getElementById('entry');
+            const board = document.getElementById('board');
+            const status = document.getElementById('status');
+            const imagePreview = document.getElementById('imagePreview');
+            const imageUploadArea = document.getElementById('imageUploadArea');
+            const imageInput = document.getElementById('imageInput');
+
+            if (name) name.value = '';
+            if (entry) entry.value = '';
+            if (board) board.value = '';
+            if (status) status.value = 'active';
+            if (imagePreview) imagePreview.style.display = 'none';
+            if (imageUploadArea) imageUploadArea.style.display = 'flex';
+            if (imageInput) imageInput.value = '';
+
+            currentImageFile = null;
+            console.log('Add form reset');
+        }
+
+        function resetEditForm() {
+            const editImagePreview = document.getElementById('editImagePreview');
+            const editImageUploadArea = document.getElementById('editImageUploadArea');
+            const editImageInput = document.getElementById('editImageInput');
+
+            if (editImagePreview) editImagePreview.style.display = 'none';
+            if (editImageUploadArea) editImageUploadArea.style.display = 'flex';
+            if (editImageInput) editImageInput.value = '';
+
+            currentEditImageFile = null;
+            console.log('Edit form reset');
+        }
+
+        // Show Alert
+        function showAlert(message, type = 'success') {
+            // Remove existing alerts
+            const existingAlert = document.querySelector('.alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+
+            // Create alert
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+            alert.style.position = 'fixed';
+            alert.style.top = '20px';
+            alert.style.right = '20px';
+            alert.style.zIndex = '9999';
+            alert.style.minWidth = '300px';
+            alert.style.backgroundColor = type === 'success' ? '#155724' : '#721c24';
+            alert.style.borderColor = type === 'success' ? '#c3e6cb' : '#f5c6cb';
+            alert.style.color = 'white';
+
+            alert.innerHTML = `
+                <strong>${type === 'success' ? 'Success!' : 'Error!'}</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+
+            document.body.appendChild(alert);
+
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 3000);
+        }
+
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = './login.html';
+            }
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = './login.html';
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing...');
+
+            checkAuth();
+            setupImageUploadHandlers();
+            loadCandidates();
+
+            // Reset forms when modal is closed
+            $('#addCandidateModal').on('hidden.bs.modal', resetAddForm);
+            $('#editCandidateModal').on('hidden.bs.modal', resetEditForm);
+
+            // Debug
+            console.log('Image input exists:', !!document.getElementById('imageInput'));
+            console.log('Image upload area exists:', !!document.getElementById('imageUploadArea'));
+        });
+    </script>
+
+    <script src="./assets/js/config.js"></script>
+</body>
+
+</html>
