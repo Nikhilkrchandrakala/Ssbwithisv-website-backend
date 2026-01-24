@@ -3,6 +3,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const tableBody = document.getElementById("magazineTableBody");
     const uploadPdfForm = document.getElementById("uploadPdfForm");
 
+    const modal = document.getElementById("editMagazineModal");
+    const closeBtn = document.querySelector(".close-button");
+
+    // Close modal on X button click
+    closeBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
+
+    // Optional: click outside modal to close
+    window.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+
+
     /* ================= SPINNER ================= */
     function showSpinner() {
         document.getElementById("overlay").style.display = "block";
@@ -35,7 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
                   <a href="${config.backendBaseUrl}/${pdf.pdfFilePath}" target="_blank">View PDF</a>
                 </td>
                 <td>
-                  <button onclick="editMagazinePdf('${pdf._id}', '${pdf.pdfTitle}')">Edit</button>
+                 
+                  <button onclick="editMagazinePdf('${pdf._id}', '${pdf.pdfTitle}', '${pdf.tags}')">Edit</button>
+
                   <button onclick="deleteMagazinePdf('${pdf._id}')">Delete</button>
                 </td>
             `;
@@ -83,8 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /* ================= EDIT ================= */
-    window.editMagazinePdf = (id, currentTitle) => {
+    window.editMagazinePdf = (id, currentTitle, currentTags) => {
         document.getElementById("newTitle").value = currentTitle;
+        document.getElementById("newTags").value = currentTags; // ✅ set existing tag
+
         const modal = document.getElementById("editMagazineModal");
         modal.style.display = "block";
 
@@ -94,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const formData = new FormData();
             formData.append("pdfTitle", document.getElementById("newTitle").value);
+            formData.append("tags", document.getElementById("newTags").value); // ✅ add tags
 
             const pdf = document.getElementById("newmagazinePdf").files[0];
             const img = document.getElementById("newmagazineImage").files[0];

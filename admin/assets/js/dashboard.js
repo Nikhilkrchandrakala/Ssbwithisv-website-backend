@@ -46,11 +46,14 @@ document.addEventListener("DOMContentLoaded", () => {
       facultyExperience,
       totalFaculty,
     };
-console.log("id= ",id)
+
+    const token = localStorage.getItem("token"); // ensure token exists
+    console.log("TOKEN:", token);
+
     const response = await fetch(`${config.backendBaseUrl}/api/updateNumberMonitor/${id}`, {
       method: 'PUT',
       headers: {
-        'token': `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`,   // ✅ correct header
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(updatedEntry),
@@ -60,7 +63,7 @@ console.log("id= ",id)
 
     if (response.ok) {
       alert('Entry updated successfully!');
-      fetchEntries(); // Refresh entries after update
+      fetchEntries();
     } else {
       alert(result.message || 'Failed to update entry');
     }

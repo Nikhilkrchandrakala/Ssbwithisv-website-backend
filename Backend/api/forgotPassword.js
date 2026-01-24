@@ -1,19 +1,28 @@
 const express = require("express");
 const router = express.Router();
 const { UserDetails } = require("../model/UserDetails");
+const bcrypt = require("bcryptjs"); // password encrypt karna best practice
 
-// Forgot Password
 router.post("/forgot-password", async (req, res) => {
     try {
-        const { phone, newPassword } = req.body;
+        const { phone, email, newPassword } = req.body;
 
-        if (!phone || !newPassword) {
+        if ((!phone && !email) || !newPassword) {
             return res.status(400).json({
-                error: "Phone and new password are required",
+                error: "Phone or Email and new password are required",
             });
         }
 
-        const user = await UserDetails.findOne({ phone });
+        let user;
+
+        // ✅ CASE 1: PHONE
+        if (phone) {
+            user = await UserDetails.findOne({ phone });
+        }
+        // ✅ CASE 2: EMAIL
+        else if (email) {
+            user = await UserDetails.findOne({ email });
+        }
 
         if (!user) {
             return res.status(404).json({
@@ -21,16 +30,23 @@ router.post("/forgot-password", async (req, res) => {
             });
         }
 
-       
-        user.password = newPassword;
+        // 🔐 hash password (recommended)
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        user.password = hashedPassword;
         await user.save();
 
         res.status(200).json({
-            status: "ok",
+            success: true,
             message: "Password reset successfully",
         });
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Forgot password error:", error);
+        res.status(500).json({
+            success: false,
+            error: "Server error",
+        });
     }
 });
 

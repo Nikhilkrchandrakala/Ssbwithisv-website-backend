@@ -70,53 +70,61 @@ router.post(
 
 
 // --- PUT: Update an existing Magazine PDF and Front Image ---
-router.put("/updateMagazinePdf/:id", checkAuth, magazineUpload.fields([
-  { name: 'magazinePdf', maxCount: 1 },
-  { name: 'magazineFrontImage', maxCount: 1 }
-]), async (req, res) => {
-  const pdfTitle = req.body.pdfTitle;
-  const id = req.params.id;
+router.put(
+  "/updateMagazinePdf/:id",
+  checkAuth,
+  magazineUpload.fields([
+    { name: "magazinePdf", maxCount: 1 },
+    { name: "magazineFrontImage", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    const { pdfTitle, tags } = req.body;   // ✅ tags bhi lo
+    const id = req.params.id;
 
-  try {
-    const existingPdf = await MagazinePdf.findById(id);
-    if (!existingPdf) {
-      return res.status(404).send({ message: "Magazine PDF not found" });
-    }
+    try {
+      const existingPdf = await MagazinePdf.findById(id);
+      if (!existingPdf) {
+        return res.status(404).send({ message: "Magazine PDF not found" });
+      }
 
-    // Delete the old PDF file if a new one is uploaded
-    if (req.files['magazinePdf']) {
-      const oldPdfPath = existingPdf.pdfFilePath;
-      fs.unlink(oldPdfPath, (err) => {
-        if (err) {
-          console.error("Error deleting old PDF:", err);
-          return res.status(500).send({ message: "Error deleting old PDF file", error: err.message });
-        }
+      // Update PDF file
+      if (req.files["magazinePdf"]) {
+        const oldPdfPath = existingPdf.pdfFilePath;
+        fs.unlink(oldPdfPath, (err) => {
+          if (err) console.error("Error deleting old PDF:", err);
+        });
+        existingPdf.pdfFilePath = req.files["magazinePdf"][0].path;
+      }
+
+      // Update Image
+      if (req.files["magazineFrontImage"]) {
+        const oldImagePath = existingPdf.magazineFrontImage;
+        fs.unlink(oldImagePath, (err) => {
+          if (err) console.error("Error deleting old image:", err);
+        });
+        existingPdf.magazineFrontImage = req.files["magazineFrontImage"][0].path;
+      }
+
+      // ✅ Update title and tags
+      if (pdfTitle) existingPdf.pdfTitle = pdfTitle;
+      if (tags) existingPdf.tags = tags;
+
+      await existingPdf.save();
+
+      res.status(200).send({
+        message: "Successfully updated the Magazine PDF and image",
+        data: existingPdf,
       });
-      existingPdf.pdfFilePath = req.files['magazinePdf'][0].path;
-    }
-
-    // Delete the old image file if a new one is uploaded
-    if (req.files['magazineFrontImage']) {
-      const oldImagePath = existingPdf.magazineFrontImage;
-      fs.unlink(oldImagePath, (err) => {
-        if (err) {
-          console.error("Error deleting old image:", err);
-          return res.status(500).send({ message: "Error deleting old image file", error: err.message });
-        }
+    } catch (error) {
+      console.error("Error updating Magazine PDF:", error);
+      res.status(500).send({
+        message: "An error occurred while updating the PDF and image",
+        error: error.message,
       });
-      existingPdf.magazineFrontImage = req.files['magazineFrontImage'][0].path;
     }
-
-    // Update the title
-    existingPdf.pdfTitle = pdfTitle;
-
-    await existingPdf.save();
-    res.status(200).send({ message: "Successfully updated the Magazine PDF and image", data: existingPdf });
-  } catch (error) {
-    console.error("Error updating Magazine PDF:", error);
-    res.status(500).send({ message: "An error occurred while updating the PDF and image", error: error.message });
   }
-});
+);
+
 
 // --- DELETE: Remove a Magazine PDF by ID ---
 router.delete("/deleteMagazinePdf/:id", checkAuth, async (req, res) => {
