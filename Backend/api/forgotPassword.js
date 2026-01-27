@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const { UserDetails } = require("../model/UserDetails");
-const bcrypt = require("bcryptjs"); // password encrypt karna best practice
 
 router.post("/forgot-password", async (req, res) => {
     try {
@@ -15,13 +14,10 @@ router.post("/forgot-password", async (req, res) => {
 
         let user;
 
-        // ✅ CASE 1: PHONE
         if (phone) {
-            user = await UserDetails.findOne({ phone });
-        }
-        // ✅ CASE 2: EMAIL
-        else if (email) {
-            user = await UserDetails.findOne({ email });
+            user = await UserDetails.findOne({ phone: phone.toString() });
+        } else if (email) {
+            user = await UserDetails.findOne({ email: email.toLowerCase() });
         }
 
         if (!user) {
@@ -30,10 +26,8 @@ router.post("/forgot-password", async (req, res) => {
             });
         }
 
-        // 🔐 hash password (recommended)
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-        user.password = hashedPassword;
+        // ✅ DO NOT hash here (schema will hash automatically)
+        user.password = newPassword;
         await user.save();
 
         res.status(200).json({
@@ -42,10 +36,8 @@ router.post("/forgot-password", async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Forgot password error:", error);
         res.status(500).json({
-            success: false,
-            error: "Server error",
+            error: error.message,
         });
     }
 });
