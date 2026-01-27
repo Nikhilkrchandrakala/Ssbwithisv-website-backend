@@ -14,6 +14,9 @@ const userProfile = require("./api/UserProfile");
 const blogRoutes = require("./api/blogRoutes");
 const emailOtp = require("./api/emailOtp");
 
+const visitorRoute = require("./api/visitorRoute");
+
+
 const candidateRoutes = require("./api/candidateRoutes");
 // app.use("/api/email-otp", require("./routes/emailOtp"));
 
@@ -55,6 +58,7 @@ app.use("/api", leads);
 app.use("/api", userProfile);
 app.use("/api", blogRoutes);
 app.use("/api", emailOtp);
+app.use("/api", visitorRoute);
 
 app.use("/api", candidateRoutes);
 // app.use("/api", sendOtp);
