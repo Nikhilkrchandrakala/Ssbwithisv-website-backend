@@ -40,9 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         tableBody.innerHTML = "";
 
-        data.forEach((pdf) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
+        data.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate))
+            .forEach((pdf) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
                 <td>${pdf.pdfTitle}</td>
                 <td>
                   <img src="${config.backendBaseUrl}/${pdf.magazineFrontImage}" width="100"/>
@@ -57,8 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
                   <button onclick="deleteMagazinePdf('${pdf._id}')">Delete</button>
                 </td>
             `;
-            tableBody.appendChild(row);
-        });
+                tableBody.appendChild(row);
+            });
     };
 
     /* ================= UPLOAD FORM ================= */
