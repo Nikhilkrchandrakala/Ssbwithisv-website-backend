@@ -11,7 +11,6 @@ const blogSchema = new mongoose.Schema(
     shortDescription: {
       type: String,
       required: true,
-      // maxlength: 200,
     },
 
     content: {
@@ -22,6 +21,20 @@ const blogSchema = new mongoose.Schema(
     images: {
       type: [String], // array of image paths
       default: [],
+    },
+
+    // ✅ NEW FIELD: time duration (example: "5 min read")
+    timeDuration: {
+      type: String,
+      required: false,
+      default: "",
+    },
+
+    // ✅ NEW FIELD: text on the image (overlay text / caption)
+    imageText: {
+      type: String,
+      required: false,
+      default: "",
     },
 
     authorName: {
