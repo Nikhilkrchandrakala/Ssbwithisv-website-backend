@@ -21,8 +21,8 @@ router.post(
                 content,
                 authorName,
                 authorQuote,
-                timeDuration,   // ✅ new
-                imageText       // ✅ new
+                timeDuration,
+                imageTexts // 👈 expect array
             } = req.body;
 
             if (!title || !shortDescription || !content || !authorName) {
@@ -31,21 +31,25 @@ router.post(
 
             const BASE_URL = `${req.protocol}://${req.get("host")}`;
 
-            const images = req.files
-                ? req.files.map(file =>
-                    `${BASE_URL}/${file.path.replace(/\\/g, "/")}`
-                )
-                : [];
+            let images = [];
+
+            if (req.files && req.files.length > 0) {
+                images = req.files.map((file, index) => ({
+                    imageUrl: `${BASE_URL}/${file.path.replace(/\\/g, "/")}`,
+                    imageText: Array.isArray(imageTexts)
+                        ? imageTexts[index] || ""
+                        : imageTexts || ""
+                }));
+            }
 
             const blog = new Blog({
                 title,
                 shortDescription,
                 content,
-                images,
+                images, // 👈 now array of objects
                 authorName,
                 authorQuote,
-                timeDuration,   // ✅ save
-                imageText,      // ✅ save
+                timeDuration,
                 createdBy: req.user.id,
             });
 
@@ -79,25 +83,42 @@ router.put(
             const blog = await Blog.findById(req.params.id);
             if (!blog) return res.status(404).json({ message: "Blog not found" });
 
-            const { imagesToDelete, timeDuration, imageText } = req.body;
+            let {
+                title,
+                shortDescription,
+                content,
+                authorName,
+                authorQuote,
+                timeDuration,
+                imageTexts,
+                existingImageTexts,
+                imagesToDelete
+            } = req.body;
 
-            // convert to array if single string
-            const deleteImages = imagesToDelete
-                ? Array.isArray(imagesToDelete)
-                    ? imagesToDelete
-                    : [imagesToDelete]
+            // ✅ Parse arrays (FormData sends strings)
+            imagesToDelete = imagesToDelete ? JSON.parse(imagesToDelete) : [];
+            imageTexts = imageTexts ? (Array.isArray(imageTexts) ? imageTexts : [imageTexts]) : [];
+            existingImageTexts = existingImageTexts
+                ? JSON.parse(existingImageTexts)
                 : [];
 
-            // remove old images
-            if (deleteImages.length > 0) {
-                blog.images = blog.images.filter(img => !deleteImages.includes(img));
+            /* ===== 1. DELETE OLD IMAGES ===== */
+            /* ===== 1. DELETE OLD IMAGES (FULL OBJECT) ===== */
+            if (imagesToDelete.length > 0) {
 
-                deleteImages.forEach(imgUrl => {
-                    const filePath = path.join(
-                        __dirname,
-                        "../uploads/blogs/images",
-                        path.basename(imgUrl)
-                    );
+                blog.images = blog.images.filter(img => {
+                    const imgFile = img.imageUrl.split("/").pop(); // abc.jpg
+
+                    return !imagesToDelete.some(delUrl => {
+                        const delFile = delUrl.split("/").pop();
+                        return delFile === imgFile;
+                    });
+                });
+
+                // delete files from folder
+                imagesToDelete.forEach(imgUrl => {
+                    const filename = imgUrl.split("/").pop();
+                    const filePath = path.join(__dirname, "../uploads/blogs/images", filename);
 
                     if (fs.existsSync(filePath)) {
                         fs.unlinkSync(filePath);
@@ -105,36 +126,54 @@ router.put(
                 });
             }
 
-            // ✅ update fields
-            blog.title = req.body.title;
-            blog.shortDescription = req.body.shortDescription;
-            blog.content = req.body.content;
-            blog.authorName = req.body.authorName;
-            blog.authorQuote = req.body.authorQuote;
-            blog.timeDuration = timeDuration; // ✅ new
-            blog.imageText = imageText;       // ✅ new
 
-            // add new images
+            /* ===== 2. UPDATE EXISTING IMAGE TEXTS ===== */
+            /* ===== 2. UPDATE EXISTING IMAGE TEXTS ===== */
+            if (existingImageTexts.length > 0) {
+                blog.images = blog.images.map(img => {
+                    const found = existingImageTexts.find(e => e.imageUrl === img.imageUrl);
+                    return found
+                        ? { ...img._doc, imageText: found.imageText }
+                        : img;
+                });
+            }
+
+
+            /* ===== 3. UPDATE NORMAL FIELDS ===== */
+            blog.title = title;
+            blog.shortDescription = shortDescription;
+            blog.content = content;
+            blog.authorName = authorName;
+            blog.authorQuote = authorQuote;
+            blog.timeDuration = timeDuration;
+
+            /* ===== 4. ADD NEW IMAGES ===== */
             if (req.files?.length) {
                 const BASE_URL = `${req.protocol}://${req.get("host")}`;
-                blog.images.push(
-                    ...req.files.map(f =>
-                        `${BASE_URL}/${f.path.replace(/\\/g, "/")}`
-                    )
-                );
+
+                const newImages = req.files.map((file, index) => ({
+                    imageUrl: `${BASE_URL}/${file.path.replace(/\\/g, "/")}`,
+                    imageText: imageTexts[index] || ""
+                }));
+
+                blog.images.push(...newImages);
             }
 
             await blog.save();
 
             res.json({
                 message: "Blog updated successfully",
-                data: blog,
+                data: blog
             });
+
         } catch (err) {
+            console.error(err);
             res.status(500).json({ message: err.message });
         }
     }
 );
+
+
 
 
 

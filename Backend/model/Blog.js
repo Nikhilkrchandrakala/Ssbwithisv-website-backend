@@ -14,26 +14,26 @@ const blogSchema = new mongoose.Schema(
     },
 
     content: {
-      type: String, // CKEditor HTML
+      type: String,
       required: true,
     },
 
-    images: {
-      type: [String], // array of image paths
-      default: [],
-    },
+    // ✅ Each image has its own text
+    images: [
+      {
+        imageUrl: {
+          type: String,
+          required: true,
+        },
+        imageText: {
+          type: String,
+          default: "",
+        },
+      },
+    ],
 
-    // ✅ NEW FIELD: time duration (example: "5 min read")
     timeDuration: {
       type: String,
-      required: false,
-      default: "",
-    },
-
-    // ✅ NEW FIELD: text on the image (overlay text / caption)
-    imageText: {
-      type: String,
-      required: false,
       default: "",
     },
 

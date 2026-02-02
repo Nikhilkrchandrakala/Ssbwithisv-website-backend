@@ -533,15 +533,17 @@
             const colDiv = document.createElement('div');
             colDiv.className = 'col-md-6 col-lg-4 mb-4';
 
-            // console.log(blog.images)
+            console.log(blog?.images)
 
-            // Get first image or default
-            const blogImage = blog.images && blog.images.length > 0
-                ? blog.images[0]
+            // Get first image URL or use default
+            const blogImage = blog?.images && blog.images.length > 0 && blog.images[0].imageUrl
+                ? blog.images[0].imageUrl
                 : 'https://via.placeholder.com/400x200/1f1f1f/715c20?text=No+Image';
 
             // Format date
             const formattedDate = formatDate(blog.createdAt || blog.updatedAt);
+
+            console.log(blogImage)
 
             colDiv.innerHTML = `
                     <div class="blog-card">
@@ -573,6 +575,10 @@
                         <button class="action-btn edit-btn" onclick="editBlog('${blog._id}')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
+
+                        <a href="Blogs.html?id=${blog._id}" class="btn btn-warning btn-sm">
+    <i class="fas fa-edit"></i> Edit
+</a>
                         <button class="action-btn delete-btn" onclick="showDeleteModal('${blog._id}')">
                             <i class="fas fa-trash"></i> Delete
                         </button>
