@@ -16,6 +16,8 @@ router.post("/login", async (req, res) => {
 
     let user;
 
+    // console.log(user)
+
     if (phone) {
       user = await UserDetails.findOne({ phone: phone.toString() });
     } else if (email) {

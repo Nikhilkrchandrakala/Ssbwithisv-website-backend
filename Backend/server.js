@@ -6,7 +6,9 @@ const morgan = require("morgan"); // For logging
 const numberMonitor = require("./api/NumberMonitor");
 const magazinePdf = require("./api/MagazinePdf");
 const Register = require("./api/Register");
+const AdminRegister = require("./api/AdminRegister");
 const loginUsers = require("./api/Login");
+const AdminLoginUsers = require("./api/AdminLogin");
 const forgotPassword = require("./api/forgotPassword");
 const sendEmail = require("./api/SendEmail");
 const verifyOtp = require("./api/VerifyOtp");
@@ -51,7 +53,9 @@ app.use("/api", verifyOtp);
 app.use("/api", numberMonitor);
 app.use("/api", magazinePdf);
 app.use("/api", Register);
+app.use("/api", AdminRegister);
 app.use("/api", loginUsers);
+app.use("/api", AdminLoginUsers);
 app.use("/api", forgotPassword);
 app.use("/api", sendEmail);
 app.use("/api", leads);
@@ -79,6 +83,8 @@ app.use((err, req, res, next) => {
 });
 
 // Connect to the Database
+
+
 
 connectDB();
 
