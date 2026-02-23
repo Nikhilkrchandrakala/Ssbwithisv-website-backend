@@ -23,10 +23,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  Address:{
+  Address: {
     type: String,
-    
+  },
+  profileImage: {   // 👈 ADD THIS
+    type: String,
   }
+  
 }, { timestamps: true });
 
 /* 🔐 Password hash */

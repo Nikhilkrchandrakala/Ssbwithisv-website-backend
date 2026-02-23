@@ -47,6 +47,8 @@ app.use(cors({
     credentials: true,
 }));
 
+
+
 // Middleware: Connecting different Routes
 
 app.use("/api", verifyOtp);
@@ -72,6 +74,7 @@ app.use("/api", candidateRoutes);
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 app.use('/uploads', express.static(__dirname + '/uploads'));
+app.use("/uploads", express.static("uploads"));
 app.get("/", (req, res) => {
     res.status(200).send("Welcome to the API");
 });
