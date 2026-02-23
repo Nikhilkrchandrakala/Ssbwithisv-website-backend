@@ -72,6 +72,32 @@ router.get("/allBlogs", async (req, res) => {
     res.json(blogs);
 });
 
+
+/* GET BLOG DETAIL BY ID */
+router.get("/blogDetail/:id", async (req, res) => {
+    try {
+        const blog = await Blog.findById(req.params.id);
+
+        if (!blog) {
+            return res.status(404).json({
+                status: "error",
+                message: "Blog not found",
+            });
+        }
+
+        res.status(200).json({
+            status: "ok",
+            data: blog,
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            status: "error",
+            message: err.message,
+        });
+    }
+});
+
 /* UPDATE BLOG */
 
 router.put(

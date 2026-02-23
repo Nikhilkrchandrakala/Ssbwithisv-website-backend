@@ -9,7 +9,7 @@ loginForm.addEventListener('submit', async (e) => {
   const password = document.getElementById('password').value;
 
   try {
-    const response = await fetch(`${config.backendBaseUrl}/api/AdminLogin`, {
+    const response = await fetch(`${config.backendBaseUrl}/api/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
