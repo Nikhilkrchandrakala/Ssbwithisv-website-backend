@@ -33,15 +33,93 @@ router.post("/send-otp", async (req, res) => {
             { upsert: true }
         );
 
+        // await transporter.sendMail({
+        //     from: `"SSB With ISV" <${process.env.EMAIL_USER}>`,
+        //     to: email,
+        //     subject: "Your OTP Code",
+        //     html: `
+        //         <div style="font-family: Arial">
+        //          <p>OTP to download SSB with ISV current affairs magazine is ${otp}. Check out ROGER THAT WITH NKC on YouTube. Regards, Team SSB with ISV, a unit of CS Joint Services Academy.</p>
+        //         </div>
+        //     `,
+        // });
+
         await transporter.sendMail({
             from: `"SSB With ISV" <${process.env.EMAIL_USER}>`,
+
             to: email,
-            subject: "Your OTP Code",
+            subject: "SSB with ISV - OTP Verification",
             html: `
-                <div style="font-family: Arial">
-                 <p>OTP to download SSB with ISV current affairs magazine is ${otp}. Check out ROGER THAT WITH NKC on YouTube. Regards, Team SSB with ISV, a unit of CS Joint Services Academy.</p>
+    <html>
+        <head>
+            <style>
+                body{
+                    font-family: Arial, sans-serif;
+                    background:#f4f4f4;
+                    padding:20px;
+                }
+                .container{
+                    max-width:600px;
+                    margin:auto;
+                    background:#ffffff;
+                    padding:30px;
+                    border-radius:8px;
+                    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+                    text-align:center;
+                }
+                .title{
+                    font-size:22px;
+                    font-weight:bold;
+                    margin-bottom:20px;
+                }
+                .otp{
+                    font-size:32px;
+                    font-weight:bold;
+                    color:#00bfa5;
+                    letter-spacing:5px;
+                    margin:20px 0;
+                }
+                .text{
+                    font-size:16px;
+                    color:#555;
+                    line-height:1.6;
+                }
+                .footer{
+                    margin-top:30px;
+                    font-size:14px;
+                    color:#888;
+                }
+            </style>
+        </head>
+
+        <body>
+            <div class="container">
+                <div class="title">SSB with ISV OTP Verification</div>
+
+                <p class="text">
+                   Your OTP to reset your account password is:
+                </p>
+
+                <div class="otp">${otp}</div>
+
+                <p class="text">
+                    Please use this OTP to complete your verification. 
+                    This OTP is valid for a limited time.
+                </p>
+
+                <p class="text">
+                    Check out <b>ROGER THAT WITH NKC</b> on YouTube.
+                </p>
+
+                <div class="footer">
+                    Regards,<br/>
+                    <b>Team SSB with ISV</b><br/>
+                    A Unit of CS Joint Services Academy
                 </div>
-            `,
+            </div>
+        </body>
+    </html>
+    `,
         });
 
         res.json({ success: true, message: "OTP sent" });
