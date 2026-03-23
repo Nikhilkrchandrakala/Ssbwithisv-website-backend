@@ -3,12 +3,225 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Magazine Upload Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Magazine Leads Dashboard | Date Filter & Export</title>
   <link rel="stylesheet" href="./assets/css/leads.css" />
   <link rel="stylesheet" href="./assets/css/admin-header.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <style>
+    /* Additional styles for date filter section and responsive design */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      background: #f9fafb;
+      padding: 1rem 1.5rem;
+      border-radius: 20px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
 
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .filter-group label {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #1e293b;
+      letter-spacing: 0.3px;
+    }
+
+    .filter-group input {
+      padding: 0.6rem 0.8rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background: white;
+      transition: 0.2s;
+    }
+
+    .filter-group input:focus {
+      outline: none;
+      border-color: #4CAF50;
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+    }
+
+    .date-filter-actions {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    .btn-filter {
+      background: #4CAF50;
+      border: none;
+      padding: 0.6rem 1.3rem;
+      border-radius: 40px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-filter:hover {
+      background: #3e8e41;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: white;
+      border: 1px solid #cbd5e1;
+      color: #1f2937;
+      box-shadow: none;
+    }
+
+    .btn-outline:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+      transform: none;
+    }
+
+    .export-date-btn {
+      background: #2563eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .export-date-btn img {
+      width: 18px;
+      filter: brightness(0) invert(1);
+    }
+
+    .range-badge {
+      background: #eef2ff;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #1e40af;
+    }
+
+    .no-data-msg {
+      text-align: center;
+      padding: 2.5rem;
+      font-size: 1rem;
+      color: #64748b;
+      background: #f8fafc;
+      border-radius: 24px;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 1300px;
+      margin: 20px auto;
+      padding: 24px;
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      border-radius: 28px;
+      overflow-x: auto;
+    }
+
+    h1 {
+      text-align: left;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.25rem;
+    }
+
+    .subhead {
+      color: #475569;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #4CAF50;
+      padding-left: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background-color: #1e293b;
+      color: white;
+      font-weight: 600;
+      padding: 14px 12px;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #1e293b;
+    }
+
+    tr:hover td {
+      background-color: #f1f5f9;
+    }
+
+    #excelDownloadBtn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      background: white;
+      border: none;
+      border-radius: 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+      transition: 0.2s;
+      z-index: 100;
+    }
+
+    #excelDownloadBtn img {
+      width: 32px;
+    }
+
+    #excelDownloadBtn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 720px) {
+      .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .date-filter-actions {
+        margin-left: 0;
+        justify-content: space-between;
+      }
+
+      .container {
+        padding: 16px;
+      }
+
+      th,
+      td {
+        font-size: 0.8rem;
+        padding: 8px 6px;
+      }
+    }
+
+    .clear-filter-btn {
+      background: #f1f5f9;
+      color: #334155;
+    }
+  </style>
 </head>
 
 <body>
@@ -18,43 +231,299 @@
       Hi Admin;👋🏻
     </div>
     <div class="admin-dashboard-right">
-      <a href="./dashboard.html" class="admin-dashboard-link ">DashBoard</a>
+      <a href="./dashboard.html" class="admin-dashboard-link">DashBoard</a>
       <a href="./magazine.html" class="admin-dashboard-link">Magazine</a>
-      <a href="./BlogList.html" class="admin-dashboard-link ">Blogs</a>
-      <a href="./candidate.html" class="admin-dashboard-link ">Candidates</a>
-
-
+      <a href="./BlogList.html" class="admin-dashboard-link">Blogs</a>
+      <a href="./candidate.html" class="admin-dashboard-link">Candidates</a>
       <a href="./leads.html" class="admin-dashboard-link active">Leads</a>
       <button id="logoutBtn">Logout</button>
     </div>
   </header>
+
   <section class="all-lead-container">
     <div class="container">
-      <h1>All Leads</h1>
-      <table id="leadsTable">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Date</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone Number</th>
-          </tr>
-        </thead>
-        <tbody id="leadsTableBody">
-          <!-- Lead data will be inserted here dynamically -->
-        </tbody>
-      </table>
+      <h1>📋 All Leads</h1>
+      <div class="subhead">Manage & export lead data — filter by date range</div>
+
+      <!-- NEW: Date Range Filter Section -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>📅 From Date</label>
+          <input type="date" id="fromDate" value="">
+        </div>
+        <div class="filter-group">
+          <label>📅 To Date</label>
+          <input type="date" id="toDate" value="">
+        </div>
+        <div class="date-filter-actions">
+          <button id="applyDateFilterBtn" class="btn-filter">🔍 Apply Filter</button>
+          <button id="clearDateFilterBtn" class="btn-filter btn-outline clear-filter-btn">🗑️ Clear</button>
+          <button id="exportFilteredExcelBtn" class="btn-filter export-date-btn">
+            📎 Download Excel (filtered)
+          </button>
+        </div>
+      </div>
+
+      <!-- Leads table -->
+      <div style="overflow-x: auto;">
+        <table id="leadsTable">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Date</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone Number</th>
+            </tr>
+          </thead>
+          <tbody id="leadsTableBody">
+            <tr>
+              <td colspan="5" style="text-align:center;">Loading leads...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="filterInfoMsg" style="margin-top: 1rem; font-size: 0.8rem; color: #4b5563; text-align: right;"></div>
     </div>
   </section>
-  <button id="excelDownloadBtn" title="Download as Excel">
+
+  <!-- Global Excel download (ALL leads) button -->
+  <button id="excelDownloadBtn" title="Download all leads as Excel">
     <img src="./assets/imgs/xls.png" alt="Download Excel" />
   </button>
 
-
   <script src="./assets/js/admin-header.js"></script>
   <script src="./assets/js/config.js"></script>
-  <script src="./assets/js/leads.js"></script>
+  <script>
+    // -------------------------------
+    // LEADS MODULE with DATE FILTER (Between Dates)
+    // -------------------------------
+    let allLeadsData = [];           // store original leads from API
+    let currentlyFilteredLeads = []; // filtered leads based on date range
+
+    // Helper: format date to YYYY-MM-DD for input comparison
+    function formatYMD(date) {
+      let d = new Date(date);
+      let year = d.getFullYear();
+      let month = String(d.getMonth() + 1).padStart(2, '0');
+      let day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // Filter leads by date range (inclusive)
+    function filterLeadsByDateRange(leads, fromDateStr, toDateStr) {
+      console.log(leads, fromDateStr, toDateStr)
+      if (!fromDateStr && !toDateStr) return leads;
+
+      return leads.filter(lead => {
+        // convert lead date to YYYY-MM-DD (local)
+        const leadDate = new Date(lead.date);
+        const leadYMD = leadDate.toISOString().split("T")[0];
+
+        if (fromDateStr && toDateStr) {
+          return leadYMD >= fromDateStr && leadYMD <= toDateStr;
+        }
+        if (fromDateStr) {
+          return leadYMD >= fromDateStr;
+        }
+        if (toDateStr) {
+          return leadYMD <= toDateStr;
+        }
+        return true;
+      });
+    }
+
+    // Render table based on currentlyFilteredLeads
+    function renderLeadsTable(leadsArray) {
+      const tableBody = document.getElementById("leadsTableBody");
+      if (!tableBody) return;
+      if (!leadsArray || leadsArray.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="5" class="no-data-msg" style="text-align:center;">📭 No leads found for selected date range.</td></tr>`;
+        return;
+      }
+      tableBody.innerHTML = "";
+      leadsArray.forEach(lead => {
+        const row = document.createElement("tr");
+        const dateObj = new Date(lead.date);
+
+        // Time cell (HH:MM AM/PM)
+        const timeCell = document.createElement("td");
+        timeCell.textContent = dateObj.toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true
+        });
+        row.appendChild(timeCell);
+
+        // Date cell (DD/MM/YYYY)
+        const dateCell = document.createElement("td");
+        dateCell.textContent = dateObj.toLocaleDateString("en-GB");
+        row.appendChild(dateCell);
+
+        // Name
+        const nameCell = document.createElement("td");
+        nameCell.textContent = lead.name || "-";
+        row.appendChild(nameCell);
+
+        // Email
+        const emailCell = document.createElement("td");
+        emailCell.textContent = lead.email || "-";
+        row.appendChild(emailCell);
+
+        // Phone
+        const phoneCell = document.createElement("td");
+        phoneCell.textContent = lead.phoneNumber || "-";
+        row.appendChild(phoneCell);
+
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Update UI after filter change
+    function updateUIWithFilter() {
+      const fromDateInput = document.getElementById("fromDate").value;
+      const toDateInput = document.getElementById("toDate").value;
+      const filtered = filterLeadsByDateRange(allLeadsData, fromDateInput, toDateInput);
+      currentlyFilteredLeads = filtered;
+      renderLeadsTable(currentlyFilteredLeads);
+
+      // display info message about filter range
+      const infoSpan = document.getElementById("filterInfoMsg");
+      if (fromDateInput || toDateInput) {
+        let rangeText = "";
+        if (fromDateInput && toDateInput) rangeText = `${fromDateInput} → ${toDateInput}`;
+        else if (fromDateInput) rangeText = `from ${fromDateInput}`;
+        else if (toDateInput) rangeText = `until ${toDateInput}`;
+        infoSpan.innerHTML = `📌 Showing ${currentlyFilteredLeads.length} lead(s) (${rangeText})`;
+      } else {
+        infoSpan.innerHTML = `📌 Showing all ${allLeadsData.length} leads`;
+      }
+    }
+
+    // Clear date filters and reset table
+    function clearDateFilters() {
+      document.getElementById("fromDate").value = "";
+      document.getElementById("toDate").value = "";
+      currentlyFilteredLeads = [...allLeadsData];
+      renderLeadsTable(currentlyFilteredLeads);
+      const infoSpan = document.getElementById("filterInfoMsg");
+      infoSpan.innerHTML = `📌 Showing all ${allLeadsData.length} leads`;
+    }
+
+    // Helper: generate Excel from given leads array (for filtered export)
+    function generateExcelFromLeads(leadsArray, fileName = "LeadsData.xlsx") {
+      if (!leadsArray.length) {
+        alert("⚠️ No leads data available for the selected range. Nothing to export.");
+        return;
+      }
+      const mappedData = leadsArray.map(lead => {
+        const dateObj = new Date(lead.date);
+        return {
+          Time: dateObj.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }),
+          Date: dateObj.toLocaleDateString("en-GB"),
+          Name: lead.name || "-",
+          Email: lead.email || "-",
+          Phone: lead.phoneNumber || "-"
+        };
+      });
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(mappedData);
+      XLSX.utils.book_append_sheet(wb, ws, "LeadsData");
+      XLSX.writeFile(wb, fileName);
+    }
+
+    // Fetch leads from API (backendBaseUrl from config.js)
+    async function fetchLeadsAndInitialize() {
+      try {
+        // Ensure config is loaded. config.js exposes config object with backendBaseUrl
+        if (typeof config === 'undefined') {
+          console.warn("config.js not loaded? Using fallback, but ensure it exists.");
+          window.config = window.config || { backendBaseUrl: "https://your-backend-url.com" };
+        }
+        const response = await fetch(`${config.backendBaseUrl}/api/allLeads`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        allLeadsData = data.map(lead => ({ ...lead })); // clone
+        currentlyFilteredLeads = [...allLeadsData];
+        renderLeadsTable(currentlyFilteredLeads);
+        const infoSpan = document.getElementById("filterInfoMsg");
+        infoSpan.innerHTML = `📌 Showing all ${allLeadsData.length} leads`;
+      } catch (error) {
+        console.error("Error fetching leads:", error);
+        document.getElementById("leadsTableBody").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">⚠️ Failed to load leads. Check API connection.</td></tr>`;
+      }
+    }
+
+    // Event Listeners for date filter and export
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchLeadsAndInitialize();
+
+      // Apply filter button
+      const applyBtn = document.getElementById("applyDateFilterBtn");
+      if (applyBtn) {
+        applyBtn.addEventListener("click", () => {
+          updateUIWithFilter();
+        });
+      }
+
+      // Clear filter button
+      const clearBtn = document.getElementById("clearDateFilterBtn");
+      if (clearBtn) {
+        clearBtn.addEventListener("click", () => {
+          clearDateFilters();
+        });
+      }
+
+      // NEW: Export filtered (by date) Excel button
+      const exportFilteredBtn = document.getElementById("exportFilteredExcelBtn");
+      if (exportFilteredBtn) {
+        exportFilteredBtn.addEventListener("click", () => {
+
+          const fromDate = document.getElementById("fromDate").value;
+          const toDate = document.getElementById("toDate").value;
+
+          // 🔥 IMPORTANT: fresh filter here
+          const filteredLeads = filterLeadsByDateRange(allLeadsData, fromDate, toDate);
+
+          console.log("Filtered Leads:", filteredLeads);
+
+          if (!filteredLeads.length) {
+            alert("📭 No leads to export in the current filtered view.");
+            return;
+          }
+
+          let fileName = "Leads_Filtered.xlsx";
+
+          if (fromDate && toDate) fileName = `Leads_${fromDate}_to_${toDate}.xlsx`;
+          else if (fromDate) fileName = `Leads_from_${fromDate}.xlsx`;
+          else if (toDate) fileName = `Leads_until_${toDate}.xlsx`;
+          else fileName = "Leads_All.xlsx";
+
+          generateExcelFromLeads(filteredLeads, fileName);
+        });
+      }
+
+      // Original ALL leads download button (bottom right)
+      const globalExcelBtn = document.getElementById("excelDownloadBtn");
+      if (globalExcelBtn) {
+        globalExcelBtn.addEventListener("click", () => {
+          if (!allLeadsData.length) {
+            alert("No lead data available to export.");
+            return;
+          }
+          generateExcelFromLeads(allLeadsData, "All_Leads_Complete.xlsx");
+        });
+      }
+
+      // Optional: set default date range for better UX (last 7 days) but not mandatory
+      // just to give hint, we don't auto-apply, but we can set placeholder
+      const today = new Date();
+      const lastWeek = new Date();
+      lastWeek.setDate(today.getDate() - 7);
+      // setting default values to last 7 days example? we can keep empty for clarity
+      // But to demonstrate "between dates" we keep empty.
+    });
+  </script>
 </body>
 
 </html>
