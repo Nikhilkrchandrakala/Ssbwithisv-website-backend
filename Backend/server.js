@@ -49,7 +49,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: '*',
+    origin: "https://ssbwithisv.in",
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: ["Content-Type", "token", "authorization", "Authorization"],
     credentials: true,
