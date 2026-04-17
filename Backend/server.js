@@ -48,12 +48,24 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const allowedOrigins = [
+    "https://ssbwithisv.in",
+    "http://localhost:3000",
+    "http://localhost:5500"
+];
+
 app.use(cors({
-    origin: "https://ssbwithisv.in",
-    methods: ["GET", "POST", "DELETE", "PUT"],
-    allowedHeaders: ["Content-Type", "token", "authorization", "Authorization"],
-    credentials: true,
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true
 }));
+
+app.options('*', cors());
 
 
 
