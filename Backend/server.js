@@ -15,6 +15,14 @@ const verifyOtp = require("./api/VerifyOtp");
 const userProfile = require("./api/UserProfile");
 const blogRoutes = require("./api/blogRoutes");
 const emailOtp = require("./api/emailOtp");
+const GalleryRoute = require("./api/GalleryRoute");
+const coursesRoute = require("./api/courseRoutes");
+const orderRoutes = require("./api/orderRoutes");
+const franchiseRoutes = require("./api/franchiseRoutes");
+
+const couponRoutes = require("./api/couponRoutes");
+
+
 
 const visitorRoute = require("./api/visitorRoute");
 
@@ -57,7 +65,10 @@ app.use("/api", magazinePdf);
 app.use("/api", Register);
 app.use("/api", AdminRegister);
 app.use("/api", loginUsers);
+
 app.use("/api", AdminLoginUsers);
+
+
 app.use("/api", forgotPassword);
 app.use("/api", sendEmail);
 app.use("/api", leads);
@@ -67,6 +78,12 @@ app.use("/api", emailOtp);
 app.use("/api", visitorRoute);
 
 app.use("/api", candidateRoutes);
+app.use("/api", GalleryRoute);
+app.use("/api", coursesRoute);
+app.use("/api", orderRoutes);
+app.use("/api", franchiseRoutes);
+app.use("/api", couponRoutes);
+
 // app.use("/api", sendOtp);
 
 // app.use(bodyParser.json({ limit: '100mb' })); 

@@ -9,6 +9,7 @@ const fs = require("fs");
 const path = require("path");
 
 const { UserDetails } = require("../model/UserDetails");
+const Order = require("../model/Order");
 
 
 // GET logged-in user details
@@ -70,6 +71,35 @@ router.put(
 );
 
 
+
+router.get("/user/purchasedCourses", authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.id || req.user._id;
+
+        const orders = await Order.find({
+            userId,
+            status: "paid",
+        })
+            .populate("courseId", "title price thumbnail")
+            .sort({ createdAt: -1 });
+
+        res.json({
+            status: "ok",
+            total: orders.length,
+            orders,
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            status: "error",
+            message: err.message,
+        });
+    }
+});
+
+
+// 👇 last me export
+// module.exports = router;
 
 
 module.exports = router;

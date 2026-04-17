@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Sales & Orders Management</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --theme-color: #715c20;
+            --secondary-color: #e3c607;
+            --theme-white: #c6c5af;
+            --dark-gray: #1f1f1f;
+            --gray: #3b3930;
+            --light-gray: #f2f0e1;
+            --white: #ffffff;
+            --gradient-dark: linear-gradient(291.97deg, #0b0b0b 0.67%, rgba(31, 31, 31, 0.3) 50%, #0b0b0b 99.33%);
+            --gradient-gold: linear-gradient(90deg, #e0c214 0%, #d2a100 100%);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+        }
+
+        body {
+            background-color: var(--dark-gray);
+            color: var(--theme-white);
+        }
+
+        /* Navbar Styles */
+        .admin-dashboard-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #000080;
+            padding: 10px 20px;
+            color: #fff;
+        }
+
+        .admin-dashboard-left {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            color: #c8baba;
+            font-weight: 700;
+            font-family: sans-serif;
+        }
+
+        .admin-dashboard-image {
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .admin-dashboard-right {
+            display: flex;
+            gap: 20px;
+        }
+
+        .admin-dashboard-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .admin-dashboard-link:hover,
+        .admin-dashboard-link.active {
+            color: white;
+        }
+
+        .active {
+            color: #f0c040;
+        }
+
+        #logoutBtn {
+            background-color: #dc3545;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .admin-dashboard-navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .admin-dashboard-right {
+                flex-direction: column;
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        /* Page Header */
+        .orders-header {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--theme-color);
+        }
+
+        .orders-header h1 {
+            color: var(--secondary-color);
+            font-weight: 700;
+            font-size: 2.2rem;
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            background: var(--gradient-dark);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--theme-white);
+        }
+
+        .stat-label {
+            color: var(--theme-white);
+            opacity: 0.7;
+            font-size: 0.85rem;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--gradient-dark);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .filter-select,
+        .search-input {
+            background: #2c2c2c;
+            border: 1px solid var(--gray);
+            color: var(--theme-white);
+            padding: 10px 15px;
+            border-radius: var(--radius-sm);
+            width: 100%;
+        }
+
+        .filter-select:focus,
+        .search-input:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+        }
+
+        /* Orders Table */
+        .orders-table-container {
+            background: var(--gradient-dark);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            color: var(--theme-white);
+            border-color: var(--gray);
+        }
+
+        .custom-table thead th {
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--theme-color);
+            padding: 15px;
+        }
+
+        .custom-table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-color: var(--gray);
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-completed {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+
+        .status-pending {
+            background: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+            border: 1px solid #f39c12;
+        }
+
+        .status-processing {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+
+        .status-cancelled {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .spinner-custom {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(227, 198, 7, 0.2);
+            border-top: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        /* Modal */
+        .modal-content {
+            background: var(--dark-gray);
+            border: 1px solid var(--gray);
+            color: var(--theme-white);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .modal-title {
+            color: var(--secondary-color);
+        }
+
+        .order-detail-item {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .product-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 10px;
+        }
+
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid var(--secondary-color);
+            color: var(--secondary-color);
+            padding: 8px 20px;
+            border-radius: 40px;
+            transition: 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: var(--secondary-color);
+            color: #000;
+        }
+
+        .franchise-badge {
+            background: rgba(227, 198, 7, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="admin-dashboard-navbar">
+        <div class="admin-dashboard-left">
+            <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
+            Hi Admin; 👋🏻
+        </div>
+        <div class="admin-dashboard-right">
+            <a href="./dashboard.html" class="admin-dashboard-link">Dashboard</a>
+            <a href="./magazine.html" class="admin-dashboard-link">Magazine</a>
+            <a href="./BlogList.html" class="admin-dashboard-link">Blogs</a>
+            <a href="./candidate.html" class="admin-dashboard-link">Candidates</a>
+            <a href="./Gallery.html" class="admin-dashboard-link">Gallery</a>
+            <a href="./Courses.html" class="admin-dashboard-link">Courses</a>
+            <a href="./franchise.html" class="admin-dashboard-link">Franchise</a>
+            <a href="./TotalSales.html" class="admin-dashboard-link active">TotalSales</a>
+
+            <!-- <a href="./orders.html" class="admin-dashboard-link ">Orders</a> -->
+            <a href="./leads.html" class="admin-dashboard-link">Leads</a>
+
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="orders-header">
+            <div class="row align-items-center">
+                <div class="col-md-8 mt-4">
+                    <h1><i class="fas fa-shopping-cart me-3"></i>Sales & Orders Management</h1>
+                    <p>Track all customer purchases - View total sales and franchise-wise breakdown</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Stats Cards -->
+        <div class="row mb-4" id="globalStatsRow">
+            <div class="col-md-3 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="stat-value" id="totalOrders">0</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="stat-value" id="totalRevenue">$0</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-store"></i></div>
+                    <div class="stat-value" id="franchiseOrders">0</div>
+                    <div class="stat-label">Franchise Orders</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-user"></i></div>
+                    <div class="stat-value" id="directOrders">0</div>
+                    <div class="stat-label">Direct Orders</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <input type="text" id="searchInput" class="search-input"
+                        placeholder="Search by customer, email, order ID...">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select id="typeFilter" class="filter-select">
+                        <option value="all">All Orders</option>
+                        <option value="franchise">Franchise Orders</option>
+                        <option value="direct">Direct Orders (No Franchise)</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select id="franchiseFilter" class="filter-select">
+                        <option value="all">All Franchises</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <select id="statusFilter" class="filter-select">
+                        <option value="all">All Status</option>
+                        <option value="completed">Completed</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+            <div class="spinner-custom"></div>
+            <p>Loading orders...</p>
+        </div>
+
+        <div class="orders-table-container">
+            <h3><i class="fas fa-list me-2"></i>All Orders</h3>
+            <div id="ordersTableWrapper">
+                <table class="table custom-table" id="ordersTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Product</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody"></tbody>
+                </table>
+            </div>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon"><i class="fas fa-shopping-bag"></i></div>
+                <h3>No Orders Found</h3>
+                <p>No purchases have been made yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-receipt me-2"></i>Order Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="orderDetailBody"></div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./assets/js/config.js"></script>
+    <script>
+        const API_BASE = config?.backendBaseUrl || 'http://localhost:5001';
+        let allOrders = [];
+        let franchisesList = [];
+
+        // DOM Elements
+        const ordersTableBody = document.getElementById('ordersTableBody');
+        const ordersTable = document.getElementById('ordersTable');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const emptyState = document.getElementById('emptyState');
+        const searchInput = document.getElementById('searchInput');
+        const typeFilter = document.getElementById('typeFilter');
+        const franchiseFilter = document.getElementById('franchiseFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const orderDetailModal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+
+        // Stats Elements
+        const totalOrdersEl = document.getElementById('totalOrders');
+        const totalRevenueEl = document.getElementById('totalRevenue');
+        const franchiseOrdersEl = document.getElementById('franchiseOrders');
+        const directOrdersEl = document.getElementById('directOrders');
+
+        function getToken() {
+            const token = localStorage.getItem('token');
+            if (!token) return null;
+            return token;
+        }
+
+        // Load all franchises for filter dropdown
+        async function loadFranchisesForFilter() {
+            try {
+                const token = getToken();
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                const response = await fetch(`${API_BASE}/api/allFranchise`, { method: 'GET', headers });
+                if (response.ok) {
+                    franchisesList = await response.json();
+                    let options = '<option value="all">All Franchises</option>';
+                    franchisesList.forEach(f => {
+                        options += `<option value="${f.referralCode}">${f.name} (${f.referralCode})</option>`;
+                    });
+                    franchiseFilter.innerHTML = options;
+                }
+            } catch (err) {
+                console.error('Error loading franchises:', err);
+            }
+        }
+
+        // Load all orders from /api/allOrders
+        async function loadAllOrders() {
+            try {
+                loadingSpinner.style.display = 'block';
+                ordersTable.style.display = 'none';
+                emptyState.style.display = 'none';
+                ordersTableBody.innerHTML = '';
+
+                // const token = getToken();
+                // const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                // const response = await fetch(`${API_BASE}/api/allOrders`, { method: 'GET', headers });
+
+                const token = localStorage.getItem("token");
+
+                const response = await fetch(`${API_BASE}/api/allOrders`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`, // ✅ MUST
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch orders');
+                }
+
+                allOrders = await response.json();
+                if (!Array.isArray(allOrders)) allOrders = [];
+
+                if (allOrders.length === 0) {
+                    emptyState.style.display = 'block';
+                    updateGlobalStats([]);
+                    return;
+                }
+
+                updateGlobalStats(allOrders);
+                filterAndRenderOrders();
+
+            } catch (error) {
+                console.error(error);
+                ordersTableBody.innerHTML = `<tr><td colspan="9" class="text-center text-warning">${error.message}</td></tr>`;
+                ordersTable.style.display = 'table';
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        // Update Global Stats (Total + Franchise vs Direct)
+        function updateGlobalStats(orders) {
+            const total = orders.length;
+            const totalRevenue = orders.reduce((sum, o) => sum + (parseFloat(o.price) || 0), 0);
+
+            // Franchise orders: those with referralCode present
+            const franchiseOrders = orders.filter(o => o.referralCode && o.referralCode !== '');
+            const directOrdersList = orders.filter(o => !o.referralCode || o.referralCode === '');
+
+            totalOrdersEl.textContent = total;
+            totalRevenueEl.textContent = `₹${totalRevenue.toFixed(2)}`;
+            franchiseOrdersEl.textContent = franchiseOrders.length;
+            directOrdersEl.textContent = directOrdersList.length;
+        }
+
+        // Filter and Render Orders
+        function filterAndRenderOrders() {
+            let filtered = [...allOrders];
+
+            // Search filter
+            const searchTerm = searchInput.value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(o => {
+                    const customer = (o.customerName || o.name || '').toLowerCase();
+                    const email = (o.email || o.customerEmail || '').toLowerCase();
+                    const orderId = (o._id || '').toLowerCase();
+                    return customer.includes(searchTerm) || email.includes(searchTerm) || orderId.includes(searchTerm);
+                });
+            }
+
+            // Type filter (Franchise vs Direct)
+            const typeVal = typeFilter.value;
+            if (typeVal === 'franchise') {
+                filtered = filtered.filter(o => o.referralCode && o.referralCode !== '');
+            } else if (typeVal === 'direct') {
+                filtered = filtered.filter(o => !o.referralCode || o.referralCode === '');
+            }
+
+            // Franchise specific filter (by referral code)
+            const franchiseVal = franchiseFilter.value;
+            if (franchiseVal !== 'all') {
+                filtered = filtered.filter(o => o.referralCode === franchiseVal);
+            }
+
+            // Status filter
+            const statusVal = statusFilter.value;
+            if (statusVal !== 'all') {
+                filtered = filtered.filter(o => (o.status || '').toLowerCase() === statusVal);
+            }
+
+            if (filtered.length === 0) {
+                ordersTable.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            ordersTable.style.display = 'table';
+            renderOrdersTable(filtered);
+        }
+
+        function renderOrdersTable(orders) {
+            ordersTableBody.innerHTML = '';
+            orders.forEach((order, idx) => {
+                const row = document.createElement('tr');
+                const orderId = order._id || `ORD${idx + 1}`;
+                const customerName = order.customerName || order.name || 'Guest';
+                const customerEmail = order.email || order.customerEmail || '—';
+                const productTitle = order.courseTitle || order.productName || order.courseId?.title || 'Course';
+                const amount = parseFloat(order.price) || 0;
+                const isFranchise = order.referralCode && order.referralCode !== '';
+                const franchiseName = isFranchise ? order.referralCode : 'Direct Sale';
+                const orderStatus = order.status || 'pending';
+                const statusClass = getStatusClass(orderStatus);
+                const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A';
+
+                row.innerHTML = `
+                    <td><code>${orderId.substring(0, 10)}...</code></td>
+                    <td><strong>${escapeHtml(customerName)}</strong></td>
+                    <td>${escapeHtml(customerEmail)}</td>
+                    <td>${escapeHtml(productTitle)}</td>
+                    <td class="text-warning fw-bold">₹${amount.toFixed(2)}</td>
+                    <td><span class="franchise-badge"><i class="fas ${isFranchise ? 'fa-store' : 'fa-user'}"></i> ${escapeHtml(franchiseName)}</span></td>
+                    <td><span class="status-badge ${statusClass}">${orderStatus.toUpperCase()}</span></td>
+                    <td>${orderDate}</td>
+                    <td><button class="btn btn-sm btn-outline-info view-order-btn" data-order='${JSON.stringify(order).replace(/'/g, "&#39;")}'><i class="fas fa-eye"></i></button></td>
+                `;
+                ordersTableBody.appendChild(row);
+            });
+
+            document.querySelectorAll('.view-order-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const orderData = JSON.parse(btn.getAttribute('data-order'));
+                    showOrderDetails(orderData);
+                });
+            });
+        }
+
+        function getStatusClass(status) {
+            const s = (status || '').toLowerCase();
+            if (s === 'completed') return 'status-completed';
+            if (s === 'pending') return 'status-pending';
+            if (s === 'processing') return 'status-processing';
+            if (s === 'cancelled') return 'status-cancelled';
+            return 'status-pending';
+        }
+
+        function showOrderDetails(order) {
+            const orderId = order._id || 'N/A';
+            const customerName = order.customerName || order.name || 'Guest';
+            const customerEmail = order.email || order.customerEmail || '—';
+            const productTitle = order.courseTitle || order.productName || order.courseId?.title || 'Course';
+            const amount = parseFloat(order.price) || 0;
+            const isFranchise = order.referralCode && order.referralCode !== '';
+            const referralCode = order.referralCode || 'None (Direct Sale)';
+            const orderStatus = order.status || 'pending';
+            const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A';
+
+            document.getElementById('orderDetailBody').innerHTML = `
+                <div class="order-detail-item"><strong>Order ID:</strong> <code>${orderId}</code></div>
+                <div class="order-detail-item"><strong>Customer:</strong> ${escapeHtml(customerName)}</div>
+                <div class="order-detail-item"><strong>Email:</strong> ${escapeHtml(customerEmail)}</div>
+                <div class="order-detail-item"><strong>Product:</strong> ${escapeHtml(productTitle)}</div>
+                <div class="order-detail-item"><strong>Amount:</strong> <span class="fw-bold text-warning">₹${amount.toFixed(2)}</span></div>
+                <div class="order-detail-item"><strong>Order Type:</strong> ${isFranchise ? '<span class="franchise-badge"><i class="fas fa-store"></i> Franchise Order</span>' : '<span class="franchise-badge"><i class="fas fa-user"></i> Direct Sale</span>'}</div>
+                <div class="order-detail-item"><strong>Referral Code:</strong> ${escapeHtml(referralCode)}</div>
+                <div class="order-detail-item"><strong>Status:</strong> <span class="status-badge ${getStatusClass(orderStatus)}">${orderStatus.toUpperCase()}</span></div>
+                <div class="order-detail-item"><strong>Order Date:</strong> ${orderDate}</div>
+                ${order.courseId ? `<div class="order-detail-item"><strong>Course ID:</strong> ${order.courseId._id || order.courseId}</div>` : ''}
+            `;
+            orderDetailModal.show();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, function (m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Event Listeners
+        searchInput.addEventListener('input', () => filterAndRenderOrders());
+        typeFilter.addEventListener('change', () => filterAndRenderOrders());
+        franchiseFilter.addEventListener('change', () => filterAndRenderOrders());
+        statusFilter.addEventListener('change', () => filterAndRenderOrders());
+        refreshBtn.addEventListener('click', () => { loadAllOrders(); loadFranchisesForFilter(); });
+
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = './login.html';
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFranchisesForFilter();
+            loadAllOrders();
+        });
+    </script>
+</body>
+
+</html>

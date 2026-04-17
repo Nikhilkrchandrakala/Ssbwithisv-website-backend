@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const { AdminUser } = require("../model/AdminUser");
+const Franchise = require("../model/Franchise"); // ✅ ADD THIS
+
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -15,31 +18,59 @@ router.post("/AdminLogin", async (req, res) => {
         }
 
         let user;
+        let role = "";
 
+        // =========================
+        // 1️⃣ ADMIN CHECK
+        // =========================
         if (phone) {
             user = await AdminUser.findOne({ phone: phone.toString() });
         } else if (email) {
             user = await AdminUser.findOne({ email: email.toLowerCase() });
         }
 
+        if (user) {
+            role = "admin";
+        } else {
+            // =========================
+            // 2️⃣ FRANCHISE CHECK
+            // =========================
+            if (phone) {
+                user = await Franchise.findOne({ phone: phone.toString() });
+            } else if (email) {
+                user = await Franchise.findOne({ email: email.toLowerCase() });
+            }
+
+            if (user) {
+                role = "franchise";
+            }
+        }
+
+        // ❌ NOT FOUND
         if (!user) {
             return res.status(400).json({ error: "User not found" });
         }
 
+        // 🔐 PASSWORD CHECK
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(400).json({ error: "Invalid password" });
         }
 
+        // 🔑 TOKEN
         const token = jwt.sign(
-            { id: user._id, phone: user.phone, email: user.email },
+            {
+                id: user._id,
+                role, // 🔥 important
+            },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
         res.status(200).json({
             status: "ok",
+            role, // 🔥 frontend use karega
             token,
             user: {
                 name: user.name,

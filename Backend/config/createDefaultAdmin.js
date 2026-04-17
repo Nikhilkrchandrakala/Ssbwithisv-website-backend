@@ -3,13 +3,14 @@ const { AdminUser } = require("../model/AdminUser");
 const createDefaultAdmin = async () => {
     try {
         const existingAdmin = await AdminUser.findOne({
-            email: "info@ssbwithisv.in"
+            email: "info@ssbwithisvs.in"
         });
 
         if (!existingAdmin) {
             const admin = new AdminUser({
-                email: "info@ssbwithisv.in",
-                password: "1234"
+                email: "info@ssbwithisvs.in",
+                password: "1234",
+                role:"admin"
             });
 
             await admin.save();

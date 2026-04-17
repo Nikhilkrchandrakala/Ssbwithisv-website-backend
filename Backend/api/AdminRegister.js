@@ -5,7 +5,7 @@ const { AdminUser } = require("../model/AdminUser");
 // Register
 router.post("/AdminRegister", async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password  } = req.body;
 
         if (!email || !password) {
             return res.status(400).json({ error: "All fields are required" });
@@ -24,6 +24,7 @@ router.post("/AdminRegister", async (req, res) => {
         const newUser = new UserDetails({
 
             email,
+            // role:'admin',
             // phone,
             password, // 👈 plain password (hash auto hoga)
         });

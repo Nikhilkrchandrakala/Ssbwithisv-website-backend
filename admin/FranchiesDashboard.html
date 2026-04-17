@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Franchise Dashboard - SSB With ISV</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --theme-color: #715c20;
+            --secondary-color: #e3c607;
+            --theme-white: #c6c5af;
+            --dark-gray: #1f1f1f;
+            --gray: #3b3930;
+            --light-gray: #f2f0e1;
+            --white: #ffffff;
+            --gradient-dark: linear-gradient(291.97deg, #0b0b0b 0.67%, rgba(31, 31, 31, 0.3) 50%, #0b0b0b 99.33%);
+            --gradient-gold: linear-gradient(90deg, #e0c214 0%, #d2a100 100%);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+        }
+
+        body {
+            background-color: var(--dark-gray);
+            color: var(--theme-white);
+        }
+
+        /* Navbar Styles */
+        .franchise-navbar {
+            background: #0a0a0a;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--gray);
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            color: var(--secondary-color);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-link-custom {
+            color: var(--theme-white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-link-custom:hover {
+            color: var(--secondary-color);
+        }
+
+        #logoutBtn {
+            background: transparent;
+            border: 1.5px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 6px 20px;
+            border-radius: 40px;
+            transition: 0.3s;
+        }
+
+        #logoutBtn:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            margin-bottom: 30px;
+        }
+
+        .welcome-card {
+            background: var(--gradient-dark);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .welcome-title {
+            color: var(--secondary-color);
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .referral-code-box {
+            background: rgba(227, 198, 7, 0.1);
+            border: 1px solid var(--secondary-color);
+            border-radius: var(--radius-sm);
+            padding: 10px 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .referral-code {
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            letter-spacing: 2px;
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            background: var(--gradient-dark);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-md);
+            padding: 25px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-color);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--theme-white);
+        }
+
+        .stat-label {
+            color: var(--theme-white);
+            opacity: 0.7;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        /* Chart Container */
+        .chart-card {
+            background: var(--gradient-dark);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card h4 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        /* Orders Table */
+        .orders-container {
+            background: var(--gradient-dark);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .orders-container h4 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        .custom-table {
+            color: var(--theme-white);
+            border-color: var(--gray);
+        }
+
+        .custom-table thead th {
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--theme-color);
+            padding: 12px;
+        }
+
+        .custom-table tbody td {
+            padding: 12px;
+            vertical-align: middle;
+            border-color: var(--gray);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+            border: 1px solid #f39c12;
+        }
+
+        .status-completed {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+
+        .status-processing {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+
+        /* Loading */
+        .loading-spinner {
+            text-align: center;
+            padding: 60px;
+        }
+
+        .spinner-custom {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(227, 198, 7, 0.2);
+            border-top: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Copy Button */
+        .copy-btn {
+            background: transparent;
+            border: 1px solid var(--secondary-color);
+            color: var(--secondary-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-left: 10px;
+        }
+
+        .copy-btn:hover {
+            background: var(--secondary-color);
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .franchise-navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="franchise-navbar">
+        <div class="logo-area">
+            <i class="fas fa-store logo-icon"></i>
+            <span class="logo-text">Franchise Dashboard</span>
+        </div>
+
+
+        <div class="nav-links">
+            <a href="./FranchiesDashboard.html" class="nav-link-custom active">Dashboard</a>
+            <a href="./CouponManagement.html" class="nav-link-custom ">Coupons</a>
+            <!-- <a href="./franchise-orders.html" class="nav-link-custom">Orders</a>
+            <a href="./franchise-profile.html" class="nav-link-custom">Profile</a> -->
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-spinner">
+            <div class="spinner-custom"></div>
+            <p>Loading dashboard data...</p>
+        </div>
+
+        <!-- Dashboard Content (Hidden initially) -->
+        <div id="dashboardContent" style="display: none;">
+            <!-- Welcome Section -->
+            <div class="dashboard-header">
+                <div class="welcome-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <h1 class="welcome-title">
+                                <i class="fas fa-hand-wave me-2"></i>Welcome back, <span
+                                    id="franchiseName">Loading...</span>
+                            </h1>
+                            <p class="mt-2">Track your sales, earnings, and manage your franchise performance.</p>
+                        </div>
+                        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                            <div class="referral-code-box">
+                                <!-- <i class="fas fa-qrcode fa-lg"></i> -->
+                                <!-- <span>Your Referral Code:</span> -->
+                                <strong class="referral-code" id="referralCode">------</strong>
+                                <button class="copy-btn" onclick="copyReferralCode()">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards Row -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="stat-value" id="totalSales">$0</div>
+                        <div class="stat-label">Total Sales Revenue</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <div class="stat-value" id="totalOrders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-indian-rupee-sign"></i></div>
+                        <div class="stat-value" id="commissionEarned">₹ 0</div>
+                        <div class="stat-label">Commission Earned (<span id="commissionPercent">20</span>%)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Row -->
+
+
+            <!-- Recent Orders Table -->
+            <div class="orders-container">
+                <h4><i class="fas fa-clock me-2"></i>Recent Orders</h4>
+                <div id="ordersTableWrapper">
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Course</th>
+
+                                <th>Original Price</th>
+                                <th>Discount</th>
+                                <th>Final Price</th>
+
+                                <th>Coupon</th>
+                                <th>Referral</th>
+
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center">No orders found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./assets/js/config.js"></script>
+    <script>
+        // DOM Elements
+        const loadingState = document.getElementById('loadingState');
+        const dashboardContent = document.getElementById('dashboardContent');
+        const franchiseNameSpan = document.getElementById('franchiseName');
+        const referralCodeSpan = document.getElementById('referralCode');
+        const totalSalesSpan = document.getElementById('totalSales');
+        const totalOrdersSpan = document.getElementById('totalOrders');
+        const commissionEarnedSpan = document.getElementById('commissionEarned');
+        const commissionPercentSpan = document.getElementById('commissionPercent');
+        const ordersTableBody = document.getElementById('ordersTableBody');
+
+        let revenueChart = null;
+        let performanceChart = null;
+
+        // API Base URL
+        const API_BASE = config?.backendBaseUrl || 'http://localhost:5001';
+
+        // Get token from localStorage
+        function getToken() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please admin to access dashboard');
+                window.location.href = './admin.html';
+                return null;
+            }
+            return token;
+        }
+
+        // Copy referral code
+        window.copyReferralCode = () => {
+            const code = referralCodeSpan.innerText;
+            console.log(referralCodeSpan.innerText
+
+            )
+            if (code && code !== '------') {
+                navigator.clipboard.writeText(code).then(() => {
+                    // alert('Referral code copied: ' + code);
+                }).catch(() => {
+                    // alert('Copy manually: ' + code);
+                });
+            }
+        };
+
+        // Load dashboard data
+        async function loadDashboard() {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                loadingState.style.display = 'block';
+                dashboardContent.style.display = 'none';
+
+                const response = await fetch(`${API_BASE}/api/myDashboard`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        window.location.href = './admin.html';
+                        return;
+                    }
+                    throw new Error('Failed to load dashboard data');
+                }
+
+                const data = await response.json();
+                console.log('Dashboard Data:', data);
+                renderDashboard(data);
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                // alert('Error loading dashboard: ' + error.message);
+                loadingState.innerHTML = `
+                    <div class="spinner-custom"></div>
+                    <p class="text-danger">Failed to load dashboard. Please try again.</p>
+                    <button class="btn btn-warning mt-3" onclick="location.reload()">Retry</button>
+                `;
+            } finally {
+                loadingState.style.display = 'none';
+                dashboardContent.style.display = 'block';
+            }
+        }
+
+        // Render all dashboard data
+        function renderDashboard(data) {
+            // Franchise Info
+            const franchise = data.franchise;
+            if (franchise) {
+                franchiseNameSpan.textContent = franchise.name || 'Franchise Partner';
+                // referralCodeSpan.textContent = franchise.referralCode || 'N/A';
+                if (franchise.referralCode) {
+                    referralCodeSpan.textContent = `https://ssbwithisv.in/?ref=${franchise.referralCode}`;
+                } else {
+                    referralCodeSpan.textContent = 'N/A';
+                }
+                commissionPercentSpan.textContent = franchise.commissionPercent || 20;
+            }
+
+            // Stats
+            const totalSales = data.totalSales || 0;
+            const totalOrders = data.totalOrders || 0;
+            const commission = data.commission || 0;
+
+            totalSalesSpan.textContent = `₹${totalSales.toFixed(2)}`;
+            totalOrdersSpan.textContent = totalOrders;
+            commissionEarnedSpan.textContent = `₹${commission.toFixed(2)}`;
+
+            // Orders Table
+            const orders = data.orders || [];
+            renderOrdersTable(orders);
+
+            // Charts
+            const commissionPercent = franchise?.commissionPercent || 20;
+            renderCharts(totalSales, commission, commissionPercent);
+        }
+
+        // Render orders table
+        function renderOrdersTable(orders) {
+            if (!orders || orders.length === 0) {
+                ordersTableBody.innerHTML = `
+            <tr>
+                <td colspan="9" class="text-center text-muted py-4">
+                    No orders found
+                </td>
+            </tr>
+        `;
+                return;
+            }
+
+            ordersTableBody.innerHTML = '';
+
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+
+                const orderId = order._id?.substring(0, 8) || 'N/A';
+                const courseTitle = order.courseTitle || order.courseId?.title || 'Course';
+
+                const original = order.originalAmount || 0;
+                const discount = order.discount || 0;
+                const final = order.price || 0;
+
+                const coupon = order.couponCode || '-';
+                const referral = order.referralCode || '-';
+
+                const status = order.status || 'pending';
+                const orderDate = new Date(order.createdAt).toLocaleDateString();
+
+                row.innerHTML = `
+            <td>${orderId}</td>
+            <td>${courseTitle}</td>
+
+            <td>₹${original.toFixed(2)}</td>
+            <td class="text-danger">-₹${discount.toFixed(2)}</td>
+            <td class="text-success">₹${final.toFixed(2)}</td>
+
+            <td><span class="badge bg-warning">${coupon}</span></td>
+            <td><small>${referral}</small></td>
+
+            <td>${status}</td>
+            <td>${orderDate}</td>
+        `;
+
+                ordersTableBody.appendChild(row);
+            });
+        }
+
+        function getStatusClass(status) {
+            const s = (status || '').toLowerCase();
+            if (s === 'completed') return 'status-completed';
+            if (s === 'processing') return 'status-processing';
+            return 'status-pending';
+        }
+
+        // Render Charts
+        function renderCharts(totalSales, commission, commissionPercent) {
+            // Revenue Chart (Pie Chart)
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            if (revenueChart) revenueChart.destroy();
+
+            revenueChart = new Chart(revenueCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Your Commission', 'Platform Share'],
+                    datasets: [{
+                        data: [commission, totalSales - commission],
+                        backgroundColor: ['#e3c607', '#715c20'],
+                        borderColor: '#1f1f1f',
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#c6c5af' }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const percentage = ((value / totalSales) * 100).toFixed(1);
+                                    return `${label}: ₹${value.toFixed(2)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Performance Chart (Bar Chart - Orders per month simulation)
+            // Since we have orders data, we can create a monthly breakdown
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            if (performanceChart) performanceChart.destroy();
+
+            // Get orders from data (need to access from global or re-fetch)
+            // For now, create sample monthly data based on total orders
+            performanceChart = new Chart(performanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Total Orders', 'Total Sales ($)', 'Commission ($)'],
+                    datasets: [{
+                        label: 'Amount',
+                        data: [totalSales > 0 ? totalOrders : 0, totalSales, commission],
+                        backgroundColor: ['#e3c607', '#715c20', '#c6c5af'],
+                        borderRadius: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { labels: { color: '#c6c5af' } }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#c6c5af' },
+                            grid: { color: '#3b3930' }
+                        },
+                        x: {
+                            ticks: { color: '#c6c5af' },
+                            grid: { color: '#3b3930' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, function (m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Logout
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/admin.html';
+        });
+
+        // Load dashboard on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+        });
+    </script>
+</body>
+
+</html>

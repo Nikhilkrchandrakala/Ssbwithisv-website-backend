@@ -21,8 +21,22 @@ loginForm.addEventListener('submit', async (e) => {
 
     if (response.ok) {
       alert('Login successful!');
-      localStorage.setItem('token', result.token); // Store token in local storage
-      window.location.href = './admin/dashboard.html'; // Redirect to admin dashboard (adjust the route)
+
+      // ✅ Save token
+      localStorage.setItem('token', result.token);
+
+      // ✅ Save role (important)
+      localStorage.setItem('role', result.role);
+
+      // ✅ Role-based redirect
+      if (result.role === "admin") {
+        window.location.href = "./admin/dashboard.html";
+      } else if (result.role === "franchise") {
+        window.location.href = "./admin/FranchiesDashboard.html";
+      } else {
+        window.location.href = "/";
+      }
+
     } else {
       errorMessage.textContent = result.error || 'An error occurred';
     }
@@ -30,3 +44,5 @@ loginForm.addEventListener('submit', async (e) => {
     errorMessage.textContent = 'Failed to login. Please try again.';
   }
 });
+
+

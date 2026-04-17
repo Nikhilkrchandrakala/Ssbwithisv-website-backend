@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - Gallery Management</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --theme-color: #715c20;
+            --secondary-color: #e3c607;
+            --theme-white: #c6c5af;
+            --dark-gray: #1f1f1f;
+            --gray: #3b3930;
+            --light-gray: #f2f0e1;
+            --white: #ffffff;
+            --gradient-dark: linear-gradient(291.97deg, #0b0b0b 0.67%, rgba(31, 31, 31, 0.3) 50%, #0b0b0b 99.33%);
+            --gradient-gold: linear-gradient(90deg, #e0c214 0%, #d2a100 100%);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+        }
+
+        body {
+            background-color: var(--dark-gray);
+            color: var(--theme-white);
+            /* min-height: 100vh; */
+        }
+
+        .admin-dashboard-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #000080;
+            padding: 10px 20px;
+            color: #fff;
+        }
+
+        .admin-dashboard-left {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            color: #c8baba;
+            font-weight: 700;
+            font-family: sans-serif;
+        }
+
+        .admin-dashboard-image {
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .admin-dashboard-right {
+            display: flex;
+            gap: 20px;
+        }
+
+        .admin-dashboard-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .admin-dashboard-link:hover {
+            color: white;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .admin-dashboard-navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .admin-dashboard-right {
+                flex-direction: column;
+                width: 100%;
+                text-align: center;
+            }
+
+            .admin-dashboard-link {
+                padding: 10px 0;
+                width: 100%;
+                border-top: 1px solid #444;
+            }
+
+            .admin-dashboard-left {
+                margin-bottom: 10px;
+            }
+
+            .admin-dashboard-image {
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-dashboard-link {
+                font-size: 14px;
+            }
+
+            .admin-dashboard-image {
+                height: 30px;
+            }
+        }
+
+        .active {
+            color: #f0c040;
+        }
+
+        #logoutBtn {
+            background-color: #dc3545;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .admin-gallery-header h1 {
+            color: var(--secondary-color);
+            font-weight: 600;
+            font-size: 2.2rem;
+        }
+
+        .add-gallery-btn {
+            background: transparent;
+            color: var(--secondary-color);
+            padding: 12px 30px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .add-gallery-btn::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            padding: 2.5px;
+            background: var(--gradient-gold);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .add-gallery-btn:hover {
+            color: #000;
+            background: var(--gradient-gold);
+        }
+
+        /* Gallery Card Styles */
+        .gallery-card {
+            background: var(--gradient-dark);
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gallery-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary-color);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .gallery-image-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 75%;
+            /* 4:3 aspect */
+            overflow: hidden;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: #2a2a2a;
+        }
+
+        .gallery-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-card:hover .gallery-img {
+            transform: scale(1.03);
+        }
+
+        .img-caption {
+            color: var(--theme-white);
+            font-size: 0.9rem;
+            margin: 10px 0;
+            text-align: center;
+            word-break: break-word;
+            opacity: 0.9;
+        }
+
+        .gallery-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            justify-content: center;
+        }
+
+        .delete-img-btn {
+            background: transparent;
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+
+        .delete-img-btn:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            opacity: 0.6;
+            margin-bottom: 20px;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(227, 198, 7, 0.2);
+            border-top: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .modal-content {
+            background: var(--dark-gray);
+            border: 1px solid var(--gray);
+            color: var(--theme-white);
+        }
+
+        .modal-header,
+        .modal-footer {
+            border-color: var(--gray);
+        }
+
+        .form-control,
+        .form-control:focus {
+            background: #2c2c2c;
+            border: 1px solid var(--gray);
+            color: var(--theme-white);
+        }
+
+        .form-label {
+            color: var(--secondary-color);
+        }
+
+        .btn-close-white {
+            filter: invert(1);
+        }
+
+        .preview-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin: 5px;
+            border: 1px solid var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            .admin-dashboard-navbar {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="admin-dashboard-navbar">
+        <div class="admin-dashboard-left">
+            <!-- <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin" class="admin-dashboard-image"> -->
+            <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
+
+            Hi Admin; 👋🏻
+        </div>
+        <div class="admin-dashboard-right">
+            <a href="./dashboard.html" class="admin-dashboard-link">Dashboard</a>
+            <a href="./magazine.html" class="admin-dashboard-link">Magazine</a>
+            <a href="./BlogList.html" class="admin-dashboard-link">Blogs</a>
+            <a href="./candidate.html" class="admin-dashboard-link">Candidates</a>
+            <a href="./Gallery.html" class="admin-dashboard-link active">Gallery</a>
+            <a href="./Courses.html" class="admin-dashboard-link ">Courses</a>
+            <a href="./franchise.html" class="admin-dashboard-link ">Franchise</a>
+            <a href="./TotalSales.html" class="admin-dashboard-link ">TotalSales</a>
+
+
+            <a href="./leads.html" class="admin-dashboard-link">Leads</a>
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </header>
+
+
+
+    <div class="container">
+        <div class="admin-gallery-header">
+            <div class="row align-items-center">
+                <div class="col-md-8 mt-4">
+                    <h1><i class="fas fa-images me-2"></i> Gallery Management</h1>
+                    <p>Manage all uploaded images across galleries</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="add-gallery-btn" id="openAddGalleryModalBtn">
+                        <i class="fas fa-plus-circle"></i> Add Images
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading gallery...</p>
+        </div>
+
+        <!-- Gallery items will be displayed as cards grid -->
+        <div class="row" id="galleryGrid"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon"><i class="fas fa-image"></i></div>
+            <h3>No Images Found</h3>
+            <p>Start by adding your first gallery image!</p>
+            <button class="add-gallery-btn" id="emptyAddBtn"><i class="fas fa-plus"></i> Add Images</button>
+        </div>
+    </div>
+
+    <!-- ======================= MODAL FOR ADDING NEW IMAGES (NO TITLE) ======================= -->
+    <div class="modal fade" id="addGalleryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Upload New Gallery Images</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addGalleryForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Select Images (max 20)</label>
+                            <input type="file" class="form-control" id="galleryImagesInput" accept="image/*" multiple
+                                required>
+                            <div class="form-text text-muted">You can select multiple images. Each image can have an
+                                optional caption.</div>
+                        </div>
+                        <div id="imagePreviews" class="d-flex flex-wrap gap-2 mb-3"
+                            style="max-height: 200px; overflow-y: auto;"></div>
+
+                        <div id="captionsContainer" style="display: none;">
+                            <label class="form-label">Image Captions (optional)</label>
+                            <div id="dynamicCaptions"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="submitGalleryBtn">Upload Images</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Delete single image confirmation (delete from gallery document) -->
+    <div class="modal fade" id="deleteImageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this image? This action cannot be undone.</p>
+                    <input type="hidden" id="deleteGalleryId">
+                    <input type="hidden" id="deleteImageUrl">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger" id="confirmImageDeleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./assets/js/config.js"></script>
+    <script>
+        // ------------------------- DOM Elements -------------------------
+        const galleryGrid = document.getElementById('galleryGrid');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const emptyStateDiv = document.getElementById('emptyState');
+        const addModal = new bootstrap.Modal(document.getElementById('addGalleryModal'));
+        const deleteImageModal = new bootstrap.Modal(document.getElementById('deleteImageModal'));
+
+        const openModalBtn = document.getElementById('openAddGalleryModalBtn');
+        const emptyAddBtn = document.getElementById('emptyAddBtn');
+        const submitGalleryBtn = document.getElementById('submitGalleryBtn');
+        const galleryImagesInput = document.getElementById('galleryImagesInput');
+        const imagePreviewsDiv = document.getElementById('imagePreviews');
+        const captionsContainer = document.getElementById('captionsContainer');
+        const dynamicCaptions = document.getElementById('dynamicCaptions');
+
+        let currentDeleteTarget = { galleryId: null, imageUrl: null };
+
+        // Auth helper
+        function getToken() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login again');
+                window.location.href = './login.html';
+                return null;
+            }
+            return token;
+        }
+
+        // Load all galleries (documents containing images array)
+        async function loadAllGalleries() {
+            const token = getToken();
+            if (!token) return;
+            try {
+                loadingSpinner.style.display = 'block';
+                galleryGrid.innerHTML = '';
+                emptyStateDiv.style.display = 'none';
+
+                const response = await fetch(`${config.backendBaseUrl}/api/allGallery`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error('Failed to fetch galleries');
+                const galleries = await response.json();
+
+                // Flatten: Show each image as separate card but grouped per gallery? To match "show images" requirement, 
+                // we will display each image as an individual card with its caption. Provide delete per image.
+                if (!galleries.length || galleries.every(g => g.images.length === 0)) {
+                    emptyStateDiv.style.display = 'block';
+                    galleryGrid.style.display = 'none';
+                    loadingSpinner.style.display = 'none';
+                    return;
+                }
+
+                renderAllImagesAsCards(galleries);
+            } catch (err) {
+                console.error(err);
+                galleryGrid.innerHTML = `<div class="col-12"><div class="alert alert-danger">Error loading images: ${err.message}</div></div>`;
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        // Render each image from all gallery documents as a card
+        function renderAllImagesAsCards(galleries) {
+            galleryGrid.style.display = 'flex';
+            galleryGrid.innerHTML = '';
+            let totalImages = 0;
+            galleries.forEach(gallery => {
+                if (gallery.images && gallery.images.length) {
+                    gallery.images.forEach((img, idx) => {
+                        totalImages++;
+                        const col = document.createElement('div');
+                        col.className = 'col-md-6 col-lg-4 mb-4';
+                        const captionText = img.imageText || 'No caption';
+                        const imageUrl = img.imageUrl;
+                        col.innerHTML = `
+                        <div class="gallery-card">
+                            <div class="gallery-image-wrapper">
+                                <img src="${imageUrl}" class="gallery-img" alt="gallery image" onerror="this.src='https://via.placeholder.com/400x300/2a2a2a/715c20?text=Image+Error'">
+                            </div>
+                          
+                            <div class="gallery-actions">
+                                <button class="delete-img-btn" data-gallery-id="${gallery._id}" data-img-url="${imageUrl}">
+                                    <i class="fas fa-trash-alt"></i> Delete Image
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                        galleryGrid.appendChild(col);
+                    });
+                }
+            });
+
+            if (totalImages === 0) {
+                emptyStateDiv.style.display = 'block';
+                galleryGrid.style.display = 'none';
+            } else {
+                emptyStateDiv.style.display = 'none';
+            }
+
+            // Attach delete event listeners to all delete buttons
+            document.querySelectorAll('.delete-img-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const galleryId = btn.getAttribute('data-gallery-id');
+                    const imgUrl = btn.getAttribute('data-img-url');
+                    currentDeleteTarget = { galleryId, imageUrl: imgUrl };
+                    document.getElementById('deleteGalleryId').value = galleryId;
+                    document.getElementById('deleteImageUrl').value = imgUrl;
+                    deleteImageModal.show();
+                });
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function (m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function (c) {
+                return c;
+            });
+        }
+
+        // Preview images & generate caption fields dynamically
+        galleryImagesInput.addEventListener('change', function (e) {
+            const files = Array.from(e.target.files);
+            if (files.length > 20) {
+                alert('Maximum 20 images allowed');
+                galleryImagesInput.value = '';
+                return;
+            }
+            imagePreviewsDiv.innerHTML = '';
+            dynamicCaptions.innerHTML = '';
+            if (files.length === 0) {
+                captionsContainer.style.display = 'none';
+                return;
+            }
+            captionsContainer.style.display = 'block';
+            files.forEach((file, idx) => {
+                const reader = new FileReader();
+                reader.onload = function (ev) {
+                    const imgDiv = document.createElement('div');
+                    imgDiv.className = 'position-relative';
+                    imgDiv.innerHTML = `<img src="${ev.target.result}" class="preview-thumb" /><span class="badge bg-dark position-absolute top-0 start-100 translate-middle">${idx + 1}</span>`;
+                    imagePreviewsDiv.appendChild(imgDiv);
+                };
+                reader.readAsDataURL(file);
+                // create caption input
+                const captionGroup = document.createElement('div');
+                captionGroup.className = 'mb-2';
+                captionGroup.innerHTML = `
+                <label class="form-label small">Image ${idx + 1} caption</label>
+                <input type="text" class="form-control form-control-sm img-caption-input" data-index="${idx}" placeholder="Optional caption" />
+            `;
+                dynamicCaptions.appendChild(captionGroup);
+            });
+        });
+
+        // Submit new gallery (images only, no title) using /addGallery endpoint
+        submitGalleryBtn.addEventListener('click', async () => {
+            const token = getToken();
+            if (!token) return;
+            const files = galleryImagesInput.files;
+            if (!files.length) {
+                alert('Please select at least one image');
+                return;
+            }
+
+            const formData = new FormData();
+            // According to backend: expects "title" field (required), but requirement says "title nhi jayega only images jayenge".
+            // However backend code requires title, so we send a dummy title like "Gallery_"+Date.now() but user won't see it.
+            // But to match exactly "no title" we can send a default placeholder (hidden from UI). The requirement only cares that user doesn't input title.
+            formData.append('title', `Gallery_${Date.now()}`);
+
+            // Append each image
+            for (let i = 0; i < files.length; i++) {
+                formData.append('images', files[i]);
+            }
+
+            // Collect imageTexts from dynamic caption inputs
+            const captionInputs = document.querySelectorAll('.img-caption-input');
+            const imageTexts = [];
+            captionInputs.forEach(input => {
+                imageTexts.push(input.value || '');
+            });
+            // backend expects imageTexts as stringified? In backend: imageTexts can be array in req.body
+            // It handles if imageTexts is array.
+            if (imageTexts.length) {
+                formData.append('imageTexts', JSON.stringify(imageTexts));
+            } else {
+                formData.append('imageTexts', JSON.stringify([]));
+            }
+
+            try {
+                submitGalleryBtn.disabled = true;
+                submitGalleryBtn.innerHTML = 'Uploading...';
+                const response = await fetch(`${config.backendBaseUrl}/api/addGallery`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(errText || 'Upload failed');
+                }
+                const result = await response.json();
+                alert(result.message || 'Images uploaded successfully');
+                addModal.hide();
+                // reset form
+                galleryImagesInput.value = '';
+                imagePreviewsDiv.innerHTML = '';
+                dynamicCaptions.innerHTML = '';
+                captionsContainer.style.display = 'none';
+                loadAllGalleries();
+            } catch (err) {
+                console.error(err);
+                alert('Error uploading: ' + err.message);
+            } finally {
+                submitGalleryBtn.disabled = false;
+                submitGalleryBtn.innerHTML = 'Upload Images';
+            }
+        });
+
+        // Delete single image from gallery (using updateGallery endpoint with imagesToDelete)
+        async function deleteImageFromGallery(galleryId, imageUrl) {
+            const token = getToken();
+            if (!token) return;
+            try {
+                const payload = {
+                    imagesToDelete: JSON.stringify([imageUrl])
+                };
+                const response = await fetch(`${config.backendBaseUrl}/api/updateGallery/${galleryId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.message || 'Delete failed');
+                }
+                const data = await response.json();
+                alert('Image deleted successfully');
+                deleteImageModal.hide();
+                loadAllGalleries(); // refresh
+            } catch (err) {
+                console.error(err);
+                alert('Failed to delete image: ' + err.message);
+            }
+        }
+
+        // confirm delete image
+        document.getElementById('confirmImageDeleteBtn').addEventListener('click', () => {
+            const gId = document.getElementById('deleteGalleryId').value;
+            const imgUrl = document.getElementById('deleteImageUrl').value;
+            if (gId && imgUrl) {
+                deleteImageFromGallery(gId, imgUrl);
+            } else {
+                deleteImageModal.hide();
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = './login.html';
+        });
+
+        // open modal from empty state button
+        if (emptyAddBtn) emptyAddBtn.addEventListener('click', () => addModal.show());
+        openModalBtn.addEventListener('click', () => addModal.show());
+
+        // reset modal on close
+        document.getElementById('addGalleryModal').addEventListener('hidden.bs.modal', () => {
+            galleryImagesInput.value = '';
+            imagePreviewsDiv.innerHTML = '';
+            dynamicCaptions.innerHTML = '';
+            captionsContainer.style.display = 'none';
+        });
+
+        // initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllGalleries();
+        });
+    </script>
+</body>
+
+</html>
