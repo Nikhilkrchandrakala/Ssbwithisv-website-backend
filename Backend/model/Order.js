@@ -1,3 +1,4 @@
+// models/Order.js
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
@@ -5,29 +6,55 @@ const orderSchema = new mongoose.Schema(
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
+            required: true,
         },
 
-        courseId: {
+        slotId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "SSBCourses",
+            ref: "Slot",
+            required: true,
         },
 
-        courseTitle: String,
+        // 🔥 Pricing
+        price: {
+            type: Number, // final price after GST + discount
+            required: true,
+        },
 
-        // 🔥 pricing
-        price: Number,              // final amount (after discount)
-        originalAmount: Number,     // actual price before discount
-        discount: Number,           // discount applied
+        originalAmount: {
+            type: Number, // price + GST before discount
+        },
 
-        // 🔥 coupon + referral
-        couponCode: String,
-        referralCode: String,
+        discount: {
+            type: Number,
+            default: 0,
+        },
 
-        // 🔥 payment
-        paymentId: String,
-        orderId: String,
-        signature: String,
+        // 🔥 Coupon & Referral
+        couponCode: {
+            type: String,
+            default: null,
+        },
 
+        referralCode: {
+            type: String,
+            default: null,
+        },
+
+        // 🔥 Razorpay
+        orderId: {
+            type: String, // Razorpay order id
+        },
+
+        paymentId: {
+            type: String,
+        },
+
+        signature: {
+            type: String,
+        },
+
+        // 🔥 Status
         status: {
             type: String,
             enum: ["pending", "paid", "failed"],

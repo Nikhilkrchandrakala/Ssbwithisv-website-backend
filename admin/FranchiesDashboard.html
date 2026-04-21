@@ -314,7 +314,7 @@
 
         <div class="nav-links">
             <a href="./FranchiesDashboard.html" class="nav-link-custom active">Dashboard</a>
-            <a href="./CouponManagement.html" class="nav-link-custom ">Coupons</a>
+
             <!-- <a href="./franchise-orders.html" class="nav-link-custom">Orders</a>
             <a href="./franchise-profile.html" class="nav-link-custom">Profile</a> -->
             <button id="logoutBtn">Logout</button>
@@ -391,15 +391,13 @@
                         <thead>
                             <tr>
                                 <th>Order ID</th>
-                                <th>Course</th>
-
-                                <th>Original Price</th>
+                                <th>User</th>
+                                <th>Slot</th>
+                                <th>Original</th>
                                 <th>Discount</th>
-                                <th>Final Price</th>
-
+                                <th>Final</th>
                                 <th>Coupon</th>
                                 <th>Referral</th>
-
                                 <th>Status</th>
                                 <th>Date</th>
                             </tr>
@@ -539,10 +537,11 @@
 
         // Render orders table
         function renderOrdersTable(orders) {
+
             if (!orders || orders.length === 0) {
                 ordersTableBody.innerHTML = `
             <tr>
-                <td colspan="9" class="text-center text-muted py-4">
+                <td colspan="11" class="text-center text-muted py-4">
                     No orders found
                 </td>
             </tr>
@@ -556,8 +555,15 @@
                 const row = document.createElement('tr');
 
                 const orderId = order._id?.substring(0, 8) || 'N/A';
-                const courseTitle = order.courseTitle || order.courseId?.title || 'Course';
 
+                // 🔥 SLOT TITLE
+                const slotTitle = order.slotId?.title || 'Slot';
+
+                // 🔥 USER
+                const userName = order.userId?.name || 'N/A';
+                const userEmail = order.userId?.email || 'N/A';
+
+                // 🔥 PRICE
                 const original = order.originalAmount || 0;
                 const discount = order.discount || 0;
                 const final = order.price || 0;
@@ -570,16 +576,35 @@
 
                 row.innerHTML = `
             <td>${orderId}</td>
-            <td>${courseTitle}</td>
 
+            <!-- USER -->
+            <td>
+                <strong>${userName}</strong><br/>
+                <small class="text-muted">${userEmail}</small>
+            </td>
+
+            <!-- SLOT -->
+            <td>${slotTitle}</td>
+
+            <!-- PRICE -->
             <td>₹${original.toFixed(2)}</td>
             <td class="text-danger">-₹${discount.toFixed(2)}</td>
             <td class="text-success">₹${final.toFixed(2)}</td>
 
+            <!-- COUPON -->
             <td><span class="badge bg-warning">${coupon}</span></td>
+
+            <!-- REFERRAL -->
             <td><small>${referral}</small></td>
 
-            <td>${status}</td>
+            <!-- STATUS -->
+            <td>
+                <span class="badge ${status === "paid" ? "bg-success" : "bg-secondary"}">
+                    ${status}
+                </span>
+            </td>
+
+            <!-- DATE -->
             <td>${orderDate}</td>
         `;
 

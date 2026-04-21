@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Course Management</title>
+    <title>Admin Panel - Batch Management</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -72,6 +72,8 @@
         .admin-dashboard-right {
             display: flex;
             gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .admin-dashboard-link {
@@ -87,76 +89,85 @@
             color: white;
         }
 
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            .admin-dashboard-navbar {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .admin-dashboard-right {
-                flex-direction: column;
-                width: 100%;
-                text-align: center;
-            }
-
-            .admin-dashboard-link {
-                padding: 10px 0;
-                width: 100%;
-                border-top: 1px solid #444;
-            }
-
-            .admin-dashboard-left {
-                margin-bottom: 10px;
-            }
-
-            .admin-dashboard-image {
-                height: 40px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .admin-dashboard-link {
-                font-size: 14px;
-            }
-
-            .admin-dashboard-image {
-                height: 30px;
-            }
-        }
-
         .active {
             color: #f0c040;
         }
 
         #logoutBtn {
             background-color: #dc3545;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 14px;
         }
 
         button {
-            padding: 10px 15px;
+            padding: 8px 18px;
             background-color: #28a745;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 40px;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
 
+        /* Tabs Styles */
+        .batch-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--gray);
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--theme-white);
+            padding: 12px 30px;
+            border-radius: 0;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            position: relative;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .tab-btn:hover {
+            background: transparent;
+            color: var(--secondary-color);
+            opacity: 1;
+        }
+
+        .tab-btn.active {
+            color: var(--secondary-color);
+            opacity: 1;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-gold);
+            border-radius: 3px;
+        }
 
         /* Header */
-        .courses-header {
+        .slots-header {
             margin-bottom: 40px;
             padding-bottom: 20px;
             border-bottom: 1px solid var(--theme-color);
         }
 
-        .courses-header h1 {
+        .slots-header h1 {
             color: var(--secondary-color);
             font-weight: 700;
             font-size: 2.2rem;
         }
 
-        .add-course-btn {
+        .add-slot-btn {
             background: transparent;
             color: var(--secondary-color);
             padding: 12px 32px;
@@ -171,7 +182,7 @@
             position: relative;
         }
 
-        .add-course-btn::before {
+        .add-slot-btn::before {
             content: "";
             position: absolute;
             inset: 0;
@@ -183,13 +194,13 @@
             pointer-events: none;
         }
 
-        .add-course-btn:hover {
+        .add-slot-btn:hover {
             color: #000;
             background: var(--gradient-gold);
         }
 
-        /* Course Card */
-        .course-card {
+        /* Slot Card */
+        .slot-card {
             background: var(--gradient-dark);
             border: 1px solid var(--gray);
             border-radius: var(--radius-md);
@@ -200,96 +211,79 @@
             flex-direction: column;
         }
 
-        .course-card:hover {
+        .slot-card:hover {
             transform: translateY(-6px);
             border-color: var(--secondary-color);
             box-shadow: 0 20px 35px rgba(0, 0, 0, 0.4);
         }
 
-        .thumbnail-wrapper {
-            position: relative;
-            height: 220px;
-            overflow: hidden;
-            background: #2a2a2a;
-        }
-
-        .course-thumbnail {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.4s ease;
-        }
-
-        .course-card:hover .course-thumbnail {
-            transform: scale(1.05);
-        }
-
-        .price-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
+        .slot-header-badge {
             background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(4px);
-            color: var(--secondary-color);
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 1rem;
-            border: 1px solid var(--secondary-color);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--gray);
         }
 
-        .course-info {
+        .slot-title {
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .batch-type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .morning-badge {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+
+        .evening-badge {
+            background: rgba(155, 89, 182, 0.2);
+            color: #9b59b6;
+            border: 1px solid #9b59b6;
+        }
+
+        .slot-info {
             padding: 20px;
             flex: 1;
         }
 
-        .course-title {
-            color: var(--secondary-color);
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .course-description {
-            color: var(--theme-white);
-            opacity: 0.85;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 16px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .course-meta {
+        .info-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin: 15px 0;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.85rem;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
         }
 
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .info-label {
+            color: var(--theme-white);
+            opacity: 0.7;
+            font-weight: 500;
         }
 
-        .meta-item i {
+        .info-value {
             color: var(--secondary-color);
+            font-weight: 600;
         }
 
-        .course-actions {
+        .price-tag {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #ffd966;
+        }
+
+        .slot-actions {
             display: flex;
             gap: 12px;
-            margin-top: 10px;
+            margin-top: 20px;
         }
 
         .action-btn {
@@ -304,24 +298,24 @@
             border: none;
         }
 
-        .edit-course {
+        .edit-slot {
             background: transparent;
             border: 1px solid var(--secondary-color);
             color: var(--secondary-color);
         }
 
-        .edit-course:hover {
+        .edit-slot:hover {
             background: var(--secondary-color);
             color: #000;
         }
 
-        .delete-course {
+        .delete-slot {
             background: transparent;
             border: 1px solid #ff6b6b;
             color: #ff6b6b;
         }
 
-        .delete-course:hover {
+        .delete-slot:hover {
             background: #ff6b6b;
             color: white;
         }
@@ -377,10 +371,6 @@
             font-weight: 600;
         }
 
-        .modal-footer {
-            border-top: 1px solid var(--gray);
-        }
-
         .form-label {
             color: var(--secondary-color);
             font-weight: 500;
@@ -401,35 +391,34 @@
             color: white;
         }
 
-        .image-preview-area {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 10px;
-        }
-
-        .preview-img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid var(--gray);
-        }
-
         .btn-close-white {
             filter: invert(1);
         }
 
         @media (max-width: 768px) {
-            .admin-navbar {
+            .admin-dashboard-navbar {
                 flex-direction: column;
                 gap: 12px;
+                align-items: stretch;
             }
 
-            .courses-header .row {
+            .admin-dashboard-right {
+                justify-content: center;
+            }
+
+            .slots-header .row {
                 flex-direction: column;
                 text-align: center;
                 gap: 15px;
+            }
+
+            .batch-tabs {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .tab-btn {
+                text-align: center;
             }
         }
     </style>
@@ -438,14 +427,10 @@
 <body>
 
     <!-- Admin Navigation -->
-
-
-
     <header class="admin-dashboard-navbar">
         <div class="admin-dashboard-left">
-            <!-- <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin" class="admin-dashboard-image"> -->
-            <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
-
+            <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image"
+                onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
             Hi Admin; 👋🏻
         </div>
         <div class="admin-dashboard-right">
@@ -453,127 +438,121 @@
             <a href="./magazine.html" class="admin-dashboard-link">Magazine</a>
             <a href="./BlogList.html" class="admin-dashboard-link">Blogs</a>
             <a href="./candidate.html" class="admin-dashboard-link">Candidates</a>
-            <a href="./Gallery.html" class="admin-dashboard-link ">Gallery</a>
+            <a href="./Gallery.html" class="admin-dashboard-link">Gallery</a>
             <a href="./Courses.html" class="admin-dashboard-link active">Courses</a>
-            <a href="./Franchise.html" class="admin-dashboard-link ">Franchise</a>
-            <a href="./TotalSales.html" class="admin-dashboard-link ">TotalSales</a>
-
-
+            <a href="./Franchise.html" class="admin-dashboard-link">Franchise</a>
+            <a href="./TotalSales.html" class="admin-dashboard-link">Total Sales</a>
             <a href="./leads.html" class="admin-dashboard-link">Leads</a>
             <button id="logoutBtn">Logout</button>
         </div>
     </header>
 
-    <div class="container">
-        <div class="courses-header">
+    <div class="container mt-4">
+        <div class="slots-header">
             <div class="row align-items-center">
                 <div class="col-md-7">
-                    <h1><i class="fas fa-graduation-cap me-3"></i>Course Management</h1>
-                    <p>Create, manage and organize all your educational courses</p>
+                    <h1><i class="fas fa-calendar-alt me-3"></i>Batch Management</h1>
+                    <p>Manage Morning and Evening batches - set schedule, capacity, pricing</p>
                 </div>
                 <div class="col-md-5 text-md-end mt-3 mt-md-0">
-                    <button class="add-course-btn" id="openAddCourseModalBtn">
-                        <i class="fas fa-plus-circle"></i> Add New Course
+                    <button class="add-slot-btn" id="openAddSlotModalBtn">
+                        <i class="fas fa-plus-circle"></i> Add New Batch
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- Tabs for Morning/Evening Batch Filter -->
+        <!-- <div class="batch-tabs">
+            <button class="tab-btn active" data-batch-type="all">
+                <i class="fas fa-layer-group"></i> All Batches
+            </button>
+            <button class="tab-btn" data-batch-type="morning">
+                <i class="fas fa-sun"></i> Morning Batch
+            </button>
+            <button class="tab-btn" data-batch-type="evening">
+                <i class="fas fa-moon"></i> Evening Batch
+            </button>
+        </div> -->
+
         <!-- Loading -->
         <div id="loadingSpinner" class="loading-spinner" style="display: none;">
             <div class="spinner-custom"></div>
-            <p>Loading courses...</p>
+            <p>Loading Batches...</p>
         </div>
 
-        <!-- Courses Grid -->
-        <div class="row" id="coursesGrid"></div>
+        <!-- Batches Grid -->
+        <div class="row" id="slotsGrid"></div>
 
         <!-- Empty State -->
         <div id="emptyState" class="empty-state" style="display: none;">
-            <div class="empty-icon"><i class="fas fa-chalkboard-user"></i></div>
-            <h3>No Courses Yet</h3>
-            <p>Start building your course library by adding your first course.</p>
-            <button class="add-course-btn" id="emptyAddCourseBtn"><i class="fas fa-plus"></i> Create Course</button>
+            <div class="empty-icon"><i class="fas fa-clock"></i></div>
+            <h3>No Batches Created Yet</h3>
+            <p>Start by adding a new batch. Select Morning or Evening batch type.</p>
+            <button class="add-slot-btn" id="emptyAddSlotBtn"><i class="fas fa-plus"></i> Create Batch</button>
         </div>
     </div>
 
-    <!-- ========================= ADD / EDIT COURSE MODAL ========================= -->
-    <div class="modal fade" id="courseModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+    <!-- ========================= ADD / EDIT BATCH MODAL ========================= -->
+    <div class="modal fade" id="slotModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle"><i class="fas fa-plus-circle me-2"></i>Add New Course</h5>
+                    <h5 class="modal-title" id="modalTitle"><i class="fas fa-plus-circle me-2"></i>Add New Batch</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="courseForm" enctype="multipart/form-data">
-                        <input type="hidden" id="courseId" name="courseId">
+                    <form id="slotForm">
+                        <input type="hidden" id="slotId" name="slotId">
+
+                        <div class="mb-3">
+                            <label class="form-label">Batch Type *</label>
+                            <select class="form-select" id="batchType" name="batchType" required>
+                                <option value="">Select Batch Type</option>
+                                <option value="morning">Morning Batch</option>
+                                <option value="evening">Evening Batch</option>
+                            </select>
+                        </div>
 
                         <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label">Course Title *</label>
-                                <input type="text" class="form-control" id="title" name="title" required
-                                    placeholder="e.g., Advanced Web Development">
-                            </div>
-
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label">Description</label>
-                                <textarea class="form-control" id="description" name="description" rows="3"
-                                    placeholder="Detailed course description..."></textarea>
-                            </div>
-
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Price ( ₹ )</label>
-                                <input type="number" step="0.01" class="form-control" id="price" name="price"
-                                    placeholder="49.99">
+                                <label class="form-label">Start Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="startTime" name="startTime"
+                                    required>
                             </div>
-
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Duration</label>
-                                <input type="text" class="form-control" id="duration" name="duration"
-                                    placeholder="e.g., 8 weeks, 20 hours">
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Category</label>
-                                <select class="form-select" id="category" name="category">
-                                    <option value="">Select Category</option>
-                                    <option value="Development">Development</option>
-                                    <option value="Design">Design</option>
-                                    <option value="Marketing">Marketing</option>
-                                    <option value="Business">Business</option>
-                                    <option value="Photography">Photography</option>
-                                    <option value="Music">Music</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Thumbnail Image</label>
-                                <input type="file" class="form-control" id="thumbnail" accept="image/*">
-                                <small class="text-muted">Recommended: 16:9 ratio, max 2MB</small>
-                                <div id="thumbnailPreview" class="mt-2"></div>
-                            </div>
-
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label">Additional Images (Max 10)</label>
-                                <input type="file" class="form-control" id="additionalImages" accept="image/*" multiple>
-                                <small class="text-muted">You can select multiple images for course gallery</small>
-                                <div id="additionalImagesPreview" class="image-preview-area"></div>
+                                <label class="form-label">End Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="endTime" name="endTime" required>
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Max Students</label>
+                                <input type="number" class="form-control" id="maxStudents" name="maxStudents"
+                                    placeholder="e.g., 20" min="1" value="10">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Price (₹)</label>
+                                <input type="number" step="0.01" class="form-control" id="price" name="price"
+                                    placeholder="499" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-text text-muted">Note: GST (18%) will be applied during checkout.</div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-warning" id="saveCourseBtn">Save Course</button>
+                    <button type="button" class="btn btn-warning" id="saveSlotBtn">Save Batch</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteCourseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="deleteSlotModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -581,36 +560,44 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete this course? All associated images will be removed. This action
-                        is permanent.</p>
-                    <input type="hidden" id="deleteCourseId">
+                    <p>Are you sure you want to delete this batch? This action cannot be undone, and any pending
+                        bookings
+                        will be affected.</p>
+                    <input type="hidden" id="deleteSlotId">
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-danger" id="confirmDeleteCourseBtn">Delete Permanently</button>
+                    <button class="btn btn-danger" id="confirmDeleteSlotBtn">Delete Permanently</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="./assets/js/config.js"></script>
     <script>
+        // ----------------------------- CONFIG (backend base URL) -------------------------
+        const config = window.config || {};
+        const BACKEND_URL = config.backendBaseUrl || (() => {
+            return "http://localhost:5001";
+        })();
+
         // DOM Elements
-        const coursesGrid = document.getElementById('coursesGrid');
+        const slotsGrid = document.getElementById('slotsGrid');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const emptyState = document.getElementById('emptyState');
-        const courseModal = new bootstrap.Modal(document.getElementById('courseModal'));
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteCourseModal'));
+        const slotModalObj = new bootstrap.Modal(document.getElementById('slotModal'));
+        const deleteModalObj = new bootstrap.Modal(document.getElementById('deleteSlotModal'));
         const modalTitle = document.getElementById('modalTitle');
-        const saveBtn = document.getElementById('saveCourseBtn');
-        const courseIdField = document.getElementById('courseId');
-        const thumbnailInput = document.getElementById('thumbnail');
-        const additionalImagesInput = document.getElementById('additionalImages');
-        const thumbnailPreviewDiv = document.getElementById('thumbnailPreview');
-        const additionalPreviewDiv = document.getElementById('additionalImagesPreview');
+        const saveSlotBtn = document.getElementById('saveSlotBtn');
+        const slotIdField = document.getElementById('slotId');
+        const batchTypeSelect = document.getElementById('batchType');
+        const startTimeInput = document.getElementById('startTime');
+        const endTimeInput = document.getElementById('endTime');
+        const maxStudentsInput = document.getElementById('maxStudents');
+        const priceInput = document.getElementById('price');
 
-        let currentEditId = null;
+        let currentEditSlotId = null;
+        let currentBatchFilter = 'all';
 
         // Helper: get auth token
         function getToken() {
@@ -623,85 +610,138 @@
             return token;
         }
 
-        // Load all courses
-        async function loadCourses() {
+        // Helper: format date for display
+        function formatDateTime(isoString) {
+            if (!isoString) return 'N/A';
+            const date = new Date(isoString);
+            return date.toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Get batch title based on type
+        function getBatchTitle(batchType) {
+            if (batchType === 'morning') return 'Morning Batch';
+            if (batchType === 'evening') return 'Evening Batch';
+            return 'Batch';
+        }
+
+        // Load all slots from backend
+        async function loadSlots() {
             const token = getToken();
             if (!token) return;
 
             try {
                 loadingSpinner.style.display = 'block';
-                coursesGrid.innerHTML = '';
+                slotsGrid.innerHTML = '';
                 emptyState.style.display = 'none';
 
-                const response = await fetch(`${config.backendBaseUrl}/api/allCourses`, {
+                const response = await fetch(`${BACKEND_URL}/api/allSlots`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                if (!response.ok) throw new Error('Failed to fetch courses');
-                const courses = await response.json();
+                if (!response.ok) throw new Error('Failed to fetch batches');
+                const slots = await response.json();
 
-                if (!courses.length) {
+                if (!slots || slots.length === 0) {
                     emptyState.style.display = 'block';
-                    coursesGrid.style.display = 'none';
+                    slotsGrid.style.display = 'none';
                     return;
                 }
 
-                renderCourses(courses);
+                // Filter based on selected tab
+                let filteredSlots = slots;
+                if (currentBatchFilter !== 'all') {
+                    filteredSlots = slots.filter(slot => slot.batchType === currentBatchFilter);
+                }
+
+                if (filteredSlots.length === 0) {
+                    emptyState.style.display = 'block';
+                    slotsGrid.style.display = 'none';
+                    return;
+                }
+
+                renderSlots(filteredSlots);
             } catch (err) {
                 console.error(err);
-                coursesGrid.innerHTML = `<div class="col-12"><div class="alert alert-danger">Error: ${err.message}</div></div>`;
+                slotsGrid.innerHTML = `<div class="col-12"><div class="alert alert-danger">Error loading batches: ${err.message}</div></div>`;
             } finally {
                 loadingSpinner.style.display = 'none';
             }
         }
 
-        // Render courses as cards
-        function renderCourses(courses) {
-            coursesGrid.style.display = 'flex';
-            coursesGrid.innerHTML = '';
+        // Render slots as cards
+        function renderSlots(slots) {
+            slotsGrid.style.display = 'flex';
+            slotsGrid.innerHTML = '';
 
-            courses.forEach(course => {
-                const thumbnail = course.thumbnail || 'https://via.placeholder.com/400x220/2a2a2a/715c20?text=No+Thumbnail';
-                const priceDisplay = course.price ? `₹ ${course.price}` : 'Free';
+            slots.forEach(slot => {
+                const startDisplay = formatDateTime(slot.startTime);
+                const endDisplay = formatDateTime(slot.endTime);
+                const priceDisplay = slot.price ? `₹ ${Number(slot.price).toFixed(2)}` : 'Free';
+                const maxStudents = slot.maxStudents || 'Unlimited';
+                const bookedCount = slot.bookedStudents ? slot.bookedStudents.length : 0;
+                const available = (slot.maxStudents - bookedCount) > 0 ? (slot.maxStudents - bookedCount) : 0;
+                const availabilityStatus = (slot.maxStudents && bookedCount >= slot.maxStudents) ?
+                    '<span class="badge bg-danger">Full</span>' :
+                    `<span class="badge bg-success">${available} spots left</span>`;
+
+                const batchTitle = getBatchTitle(slot.batchType);
+                const batchTypeClass = slot.batchType === 'morning' ? 'morning-badge' : 'evening-badge';
+                const batchIcon = slot.batchType === 'morning' ? 'fa-sun' : 'fa-moon';
 
                 const col = document.createElement('div');
                 col.className = 'col-md-6 col-lg-4 mb-4';
                 col.innerHTML = `
-                <div class="course-card">
-                    <div class="thumbnail-wrapper">
-                        <img src="${thumbnail}" class="course-thumbnail" alt="${escapeHtml(course.title)}" onerror="this.src='https://via.placeholder.com/400x220/2a2a2a/715c20?text=Image+Error'">
-                        <span class="price-badge">${priceDisplay}</span>
-                    </div>
-                    <div class="course-info">
-                        <h3 class="course-title">${escapeHtml(course.title)}</h3>
-                        <p class="course-description">${escapeHtml(course.description?.substring(0, 120) || 'No description provided')}${course.description?.length > 120 ? '...' : ''}</p>
-                        <div class="course-meta">
-                            <span class="meta-item"><i class="fas fa-clock"></i> ${course.duration || 'Self-paced'}</span>
-                            <span class="meta-item"><i class="fas fa-tag"></i> ${course.category || 'General'}</span>
+                    <div class="slot-card">
+                        <div class="slot-header-badge">
+                          
+                            <span class="batch-type-badge ${batchTypeClass}">
+                                <i class="fas ${batchIcon}"></i> ${slot.title}
+                            </span>
                         </div>
-                        <div class="course-actions">
-                            <button class="action-btn edit-course" data-id="${course._id}"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="action-btn delete-course" data-id="${course._id}"><i class="fas fa-trash-alt"></i> Delete</button>
+                        <div class="slot-info">
+                            <div class="info-row">
+                                <span class="info-label"><i class="far fa-calendar-alt"></i> Start:</span>
+                                <span class="info-value">${startDisplay}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="far fa-calendar-check"></i> End:</span>
+                                <span class="info-value">${endDisplay}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="fas fa-users"></i> Capacity:</span>
+                                <span class="info-value">${maxStudents} students (${bookedCount} booked)</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="fas fa-tag"></i> Price:</span>
+                                <span class="info-value price-tag">${priceDisplay}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="fas fa-chair"></i> Availability:</span>
+                                <span class="info-value">${availabilityStatus}</span>
+                            </div>
+                            <div class="slot-actions">
+                                <button class="action-btn edit-slot" data-id="${slot._id}"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="action-btn delete-slot" data-id="${slot._id}"><i class="fas fa-trash-alt"></i> Delete</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-                coursesGrid.appendChild(col);
+                `;
+                slotsGrid.appendChild(col);
             });
 
-            // Attach event listeners
-            document.querySelectorAll('.edit-course').forEach(btn => {
+            // Attach event listeners for edit/delete buttons
+            document.querySelectorAll('.edit-slot').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const id = btn.getAttribute('data-id');
-                    openEditCourseModal(id);
+                    openEditSlotModal(id);
                 });
             });
 
-            document.querySelectorAll('.delete-course').forEach(btn => {
+            document.querySelectorAll('.delete-slot').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const id = btn.getAttribute('data-id');
-                    document.getElementById('deleteCourseId').value = id;
-                    deleteModal.show();
+                    document.getElementById('deleteSlotId').value = id;
+                    deleteModalObj.show();
                 });
             });
         }
@@ -716,146 +756,109 @@
             });
         }
 
-        // Open Add Course Modal
-        function openAddCourseModal() {
-            currentEditId = null;
-            courseIdField.value = '';
-            document.getElementById('courseForm').reset();
-            thumbnailPreviewDiv.innerHTML = '';
-            additionalPreviewDiv.innerHTML = '';
-            modalTitle.innerHTML = '<i class="fas fa-plus-circle me-2"></i>Add New Course';
-            courseModal.show();
+        // Open Add Slot Modal
+        function openAddSlotModal() {
+            currentEditSlotId = null;
+            slotIdField.value = '';
+            document.getElementById('slotForm').reset();
+            batchTypeSelect.value = '';
+            // Set default datetime-local values: start now + 1 hour, end now + 2 hours
+            const now = new Date();
+            const startDefault = new Date(now.getTime() + 60 * 60 * 1000);
+            const endDefault = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+            startTimeInput.value = startDefault.toISOString().slice(0, 16);
+            endTimeInput.value = endDefault.toISOString().slice(0, 16);
+            maxStudentsInput.value = 10;
+            priceInput.value = 0;
+            modalTitle.innerHTML = '<i class="fas fa-plus-circle me-2"></i>Add New Batch';
+            slotModalObj.show();
         }
 
-        // Open Edit Course Modal (fetch details)
-        async function openEditCourseModal(courseId) {
+        // Open Edit Slot Modal (fetch details)
+        async function openEditSlotModal(slotId) {
             const token = getToken();
             if (!token) return;
 
             try {
-                const response = await fetch(`${config.backendBaseUrl}/api/courseDetail/${courseId}`, {
+                const response = await fetch(`${BACKEND_URL}/api/slotDetail/${slotId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                if (!response.ok) throw new Error('Cannot fetch course details');
-                const course = await response.json();
+                if (!response.ok) throw new Error('Cannot fetch batch details');
+                const slot = await response.json();
 
-                currentEditId = course._id;
-                courseIdField.value = course._id;
-                document.getElementById('title').value = course.title || '';
-                document.getElementById('description').value = course.description || '';
-                document.getElementById('price').value = course.price || '';
-                document.getElementById('duration').value = course.duration || '';
-                document.getElementById('category').value = course.category || '';
-
-                // show existing thumbnail preview
-                thumbnailPreviewDiv.innerHTML = '';
-                if (course.thumbnail) {
-                    thumbnailPreviewDiv.innerHTML = `<img src="${course.thumbnail}" class="preview-img" style="width:120px; height:80px; object-fit:cover; border-radius:8px;"> <small>Current Thumbnail</small>`;
+                currentEditSlotId = slot._id;
+                slotIdField.value = slot._id;
+                batchTypeSelect.value = slot.batchType || '';
+                // Format datetime-local from ISO
+                if (slot.startTime) {
+                    startTimeInput.value = new Date(slot.startTime).toISOString().slice(0, 16);
                 }
-
-                additionalPreviewDiv.innerHTML = '';
-                if (course.images && course.images.length) {
-                    course.images.forEach(img => {
-                        additionalPreviewDiv.innerHTML += `<img src="${img.imageUrl}" class="preview-img" title="existing image">`;
-                    });
+                if (slot.endTime) {
+                    endTimeInput.value = new Date(slot.endTime).toISOString().slice(0, 16);
                 }
+                maxStudentsInput.value = slot.maxStudents || 10;
+                priceInput.value = slot.price || 0;
 
-                modalTitle.innerHTML = '<i class="fas fa-edit me-2"></i>Edit Course';
-                courseModal.show();
+                modalTitle.innerHTML = '<i class="fas fa-edit me-2"></i>Edit Batch';
+                slotModalObj.show();
             } catch (err) {
-                alert('Error loading course details: ' + err.message);
+                alert('Error loading batch details: ' + err.message);
             }
         }
 
-        // Preview Thumbnail
-        thumbnailInput.addEventListener('change', (e) => {
-            thumbnailPreviewDiv.innerHTML = '';
-            if (e.target.files && e.target.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    thumbnailPreviewDiv.innerHTML = `<img src="${ev.target.result}" class="preview-img" style="width:120px; height:80px; object-fit:cover; border-radius:8px;"> <small>New thumbnail</small>`;
-                };
-                reader.readAsDataURL(e.target.files[0]);
-            }
-        });
-
-        // Preview additional images
-        additionalImagesInput.addEventListener('change', (e) => {
-            additionalPreviewDiv.innerHTML = '';
-            if (e.target.files.length) {
-                Array.from(e.target.files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        const img = document.createElement('img');
-                        img.src = ev.target.result;
-                        img.className = 'preview-img';
-                        img.style.width = '80px';
-                        img.style.height = '80px';
-                        img.style.objectFit = 'cover';
-                        img.style.borderRadius = '6px';
-                        additionalPreviewDiv.appendChild(img);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-        });
-
-        // let currentEditId = null;
-        let imagesToDelete = [];
-
-        // Save course (Create or Update)
-        saveBtn.addEventListener('click', async () => {
+        // Save slot (Create or Update)
+        saveSlotBtn.addEventListener('click', async () => {
             const token = getToken();
             if (!token) return;
 
-            const title = document.getElementById('title').value.trim();
-            if (!title) {
-                alert('Course title is required');
+            const batchType = batchTypeSelect.value;
+            if (!batchType) {
+                alert('Please select batch type (Morning or Evening)');
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('description', document.getElementById('description').value);
-            formData.append('price', document.getElementById('price').value);
-            formData.append('duration', document.getElementById('duration').value);
-            formData.append('category', document.getElementById('category').value);
-
-            // ✅ thumbnail
-            if (thumbnailInput.files[0]) {
-                formData.append('thumbnail', thumbnailInput.files[0]);
+            const startTime = startTimeInput.value;
+            const endTime = endTimeInput.value;
+            if (!startTime || !endTime) {
+                alert('Please select both start and end time');
+                return;
+            }
+            if (new Date(startTime) >= new Date(endTime)) {
+                alert('End time must be after start time');
+                return;
             }
 
-            // ✅ multiple images
-            if (additionalImagesInput.files.length) {
-                for (let i = 0; i < additionalImagesInput.files.length; i++) {
-                    formData.append('images', additionalImagesInput.files[i]);
-                }
-            }
+            const batchTitle = getBatchTitle(batchType);
 
-            const isEdit = currentEditId !== null;
+            const payload = {
+                title: batchTitle,
+                batchType: batchType,
+                startTime: new Date(startTime).toISOString(),
+                endTime: new Date(endTime).toISOString(),
+                maxStudents: parseInt(maxStudentsInput.value) || 0,
+                price: parseFloat(priceInput.value) || 0
+            };
 
-            let url = `${config.backendBaseUrl}/api/addCourse`;
+            const isEdit = currentEditSlotId !== null;
+            let url = `${BACKEND_URL}/api/addSlot`;
             let method = 'POST';
 
             if (isEdit) {
-                url = `${config.backendBaseUrl}/api/updateCourse/${currentEditId}`;
+                url = `${BACKEND_URL}/api/updateSlot/${currentEditSlotId}`;
                 method = 'PUT';
-
-                // ✅ optional: delete old images (if you track them)
-                if (imagesToDelete.length > 0) {
-                    formData.append('imagesToDelete', JSON.stringify(imagesToDelete));
-                }
             }
 
             try {
-                saveBtn.disabled = true;
-                saveBtn.innerHTML = 'Saving...';
+                saveSlotBtn.disabled = true;
+                saveSlotBtn.innerHTML = 'Saving...';
 
                 const response = await fetch(url, {
                     method: method,
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) {
@@ -864,54 +867,62 @@
                 }
 
                 const result = await response.json();
-                alert(result.message || (isEdit ? 'Course updated' : 'Course created'));
+                alert(result.message || (isEdit ? 'Batch updated successfully' : 'Batch created successfully'));
 
-                courseModal.hide();
-                loadCourses();
+                slotModalObj.hide();
+                loadSlots(); // refresh list
 
-                // reset edit state
-                currentEditId = null;
-                imagesToDelete = [];
-
+                // reset
+                currentEditSlotId = null;
             } catch (err) {
                 alert('Error: ' + err.message);
             } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = 'Save Course';
+                saveSlotBtn.disabled = false;
+                saveSlotBtn.innerHTML = 'Save Batch';
             }
         });
 
-
-        // Delete course
-        async function deleteCourse(courseId) {
+        // Delete slot
+        async function deleteSlot(slotId) {
             const token = getToken();
             if (!token) return;
 
             try {
-                const response = await fetch(`${config.backendBaseUrl}/api/deleteCourse/${courseId}`, {
+                const response = await fetch(`${BACKEND_URL}/api/deleteSlot/${slotId}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!response.ok) throw new Error('Delete failed');
-                alert('Course deleted successfully');
-                deleteModal.hide();
-                loadCourses();
+                alert('Batch deleted successfully');
+                deleteModalObj.hide();
+                loadSlots();
             } catch (err) {
-                alert('Error deleting course: ' + err.message);
+                alert('Error deleting batch: ' + err.message);
             }
         }
 
-        document.getElementById('confirmDeleteCourseBtn').addEventListener('click', () => {
-            const id = document.getElementById('deleteCourseId').value;
-            if (id) deleteCourse(id);
+        document.getElementById('confirmDeleteSlotBtn').addEventListener('click', () => {
+            const id = document.getElementById('deleteSlotId').value;
+            if (id) deleteSlot(id);
         });
 
-        // Modal reset on close
-        document.getElementById('courseModal').addEventListener('hidden.bs.modal', () => {
-            document.getElementById('courseForm').reset();
-            thumbnailPreviewDiv.innerHTML = '';
-            additionalPreviewDiv.innerHTML = '';
-            currentEditId = null;
+        // Reset modal on close
+        document.getElementById('slotModal').addEventListener('hidden.bs.modal', () => {
+            document.getElementById('slotForm').reset();
+            currentEditSlotId = null;
+        });
+
+        // Tab functionality
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Get filter type
+                currentBatchFilter = btn.getAttribute('data-batch-type');
+                loadSlots();
+            });
         });
 
         // Logout
@@ -921,12 +932,12 @@
         });
 
         // Event listeners for add buttons
-        document.getElementById('openAddCourseModalBtn').addEventListener('click', openAddCourseModal);
-        document.getElementById('emptyAddCourseBtn').addEventListener('click', openAddCourseModal);
+        document.getElementById('openAddSlotModalBtn').addEventListener('click', openAddSlotModal);
+        document.getElementById('emptyAddSlotBtn').addEventListener('click', openAddSlotModal);
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            loadCourses();
+            loadSlots();
         });
     </script>
 </body>

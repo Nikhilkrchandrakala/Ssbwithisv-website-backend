@@ -22,7 +22,7 @@ const couponSchema = new mongoose.Schema({
     franchiseId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Franchise",
-        required: true,
+        // required: true,
     },
 
     expiry: Date,

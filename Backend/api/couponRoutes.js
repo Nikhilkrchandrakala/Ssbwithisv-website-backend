@@ -24,17 +24,17 @@ router.post("/createCoupon", CheckAuth, async (req, res) => {
         }
 
         // ✅ franchise verify
-        const franchise = await Franchise.findById(req.user.id);
-        if (!franchise) {
-            return res.status(404).json({ message: "Franchise not found" });
-        }
+        // const franchise = await Franchise.findById(req.user.id);
+        // if (!franchise) {
+        //     return res.status(404).json({ message: "Franchise not found" });
+        // }
 
         const coupon = new Coupon({
             code: code.toUpperCase(),
             discountType,
             discountValue,
             expiry,
-            franchiseId: franchise._id,
+            // franchiseId: franchise._id,
         });
 
         await coupon.save();
@@ -53,13 +53,28 @@ router.post("/createCoupon", CheckAuth, async (req, res) => {
 // ========================================
 // ✅ GET ALL COUPONS (Franchise)
 // ========================================
+// router.get("/myCoupons", CheckAuth, async (req, res) => {
+//     try {
+//         const coupons = await .find({
+//             franchiseId: req.user.id,
+//         }).sort({ createdAt: -1 });
+
+//         res.json(coupons);
+
+//     } catch (err) {
+//         res.status(500).json({ message: err.message });
+//     }
+// });
+
 router.get("/myCoupons", CheckAuth, async (req, res) => {
     try {
-        const coupons = await Coupon.find({
-            franchiseId: req.user.id,
-        }).sort({ createdAt: -1 });
+        const coupons = await Coupon.find()
+            .sort({ createdAt: -1 });
 
-        res.json(coupons);
+        res.json({
+            total: coupons.length,
+            coupons,
+        });
 
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -70,12 +85,27 @@ router.get("/myCoupons", CheckAuth, async (req, res) => {
 // ========================================
 // ✅ GET SINGLE COUPON
 // ========================================
+// router.get("/coupon/:id", CheckAuth, async (req, res) => {
+//     try {
+//         const coupon = await Coupon.findOne({
+//             _id: req.params.id,
+//             franchiseId: req.user.id,
+//         });
+
+//         if (!coupon) {
+//             return res.status(404).json({ message: "Coupon not found" });
+//         }
+
+//         res.json(coupon);
+
+//     } catch (err) {
+//         res.status(500).json({ message: err.message });
+//     }
+// });
+
 router.get("/coupon/:id", CheckAuth, async (req, res) => {
     try {
-        const coupon = await Coupon.findOne({
-            _id: req.params.id,
-            franchiseId: req.user.id,
-        });
+        const coupon = await Coupon.findById(req.params.id);
 
         if (!coupon) {
             return res.status(404).json({ message: "Coupon not found" });
@@ -96,11 +126,8 @@ router.put("/updateCoupon/:id", CheckAuth, async (req, res) => {
     try {
         const { discountType, discountValue, expiry, isActive } = req.body;
 
-        const coupon = await Coupon.findOneAndUpdate(
-            {
-                _id: req.params.id,
-                franchiseId: req.user.id, // 🔥 security
-            },
+        const coupon = await Coupon.findByIdAndUpdate(
+            req.params.id,
             {
                 discountType,
                 discountValue,
@@ -130,10 +157,7 @@ router.put("/updateCoupon/:id", CheckAuth, async (req, res) => {
 // ========================================
 router.delete("/deleteCoupon/:id", CheckAuth, async (req, res) => {
     try {
-        const coupon = await Coupon.findOneAndDelete({
-            _id: req.params.id,
-            franchiseId: req.user.id, // 🔥 security
-        });
+        const coupon = await Coupon.findByIdAndDelete(req.params.id);
 
         if (!coupon) {
             return res.status(404).json({ message: "Coupon not found" });

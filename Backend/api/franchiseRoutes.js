@@ -74,22 +74,26 @@ router.get("/franchiseDetails/:code", async (req, res) => {
             referralCode: req.params.code,
         });
 
-        console.log("kljhgfdghjkl", franchise)
-
         if (!franchise) {
             return res.status(404).json({ message: "Not found" });
         }
 
+        // 🔥 SLOT BASED ORDERS
         const orders = await Order.find({
             referralCode: req.params.code,
-            // status: "paid",
+            status: "paid", // ✅ only paid orders
         })
             .populate("userId", "name email")
-            .populate("courseId", "title price")
+            .populate("slotId", "title price startTime endTime")
             .sort({ createdAt: -1 });
 
-        const totalSales = orders.reduce((sum, o) => sum + o.price, 0);
+        // 🔥 total sales
+        const totalSales = orders.reduce(
+            (sum, o) => sum + (o.price || 0),
+            0
+        );
 
+        // 🔥 commission
         const commission =
             (totalSales * franchise.commissionPercent) / 100;
 
@@ -111,32 +115,33 @@ router.get("/franchiseDetails/:code", async (req, res) => {
 // ✅ GET LOGGED-IN FRANCHISE DASHBOARD
 router.get("/myDashboard", CheckAuth, async (req, res) => {
     try {
-        const userId = req.user.id; // 🔥 from token
+        const userId = req.user.id;
 
-        console.log(userId)
-
-        // ✅ find franchise by user id
+        // 🔥 find franchise (ensure userId == franchise _id OR use owner field if you have)
         const franchise = await Franchise.findById(userId);
 
         if (!franchise) {
             return res.status(404).json({ message: "Franchise not found" });
         }
 
-        // ✅ get orders using referralCode
+        // 🔥 get slot orders via referral
         const orders = await Order.find({
             referralCode: franchise.referralCode,
-            status: "paid", // optional (recommended)
+            status: "paid", // ✅ important
         })
             .populate("userId", "name email")
-            .populate("courseId", "title price")
+            .populate("slotId", "title price startTime endTime")
             .sort({ createdAt: -1 });
 
-        // ✅ total sales
-        const totalSales = orders.reduce((sum, o) => sum + o.price, 0);
+        // 🔥 total sales (safe)
+        const totalSales = orders.reduce(
+            (sum, o) => sum + (o.price || 0),
+            0
+        );
 
-        // ✅ commission
-        const commission =
-            (totalSales * franchise.commissionPercent) / 100;
+        // 🔥 commission calculation
+        const commissionPercent = franchise.commissionPercent || 0;
+        const commission = (totalSales * commissionPercent) / 100;
 
         res.json({
             franchise,
@@ -147,6 +152,7 @@ router.get("/myDashboard", CheckAuth, async (req, res) => {
         });
 
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: err.message });
     }
 });

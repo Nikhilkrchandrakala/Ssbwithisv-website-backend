@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const razorpay = require("../config/razorpay");
 const Order = require("../model/Order");
 const Coupon = require("../model/Coupon");
+const Slot = require("../model/Slot");
 const checkAuth = require("../middlewares/CheckAuth");
 
 // Helper function to calculate GST (18%)
@@ -15,33 +16,33 @@ const calculateGST = (amount) => {
 };
 
 // ✅ CREATE ORDER (UPDATED)
+// routes/orderRoutes.js
+
 router.post("/createOrder", checkAuth, async (req, res) => {
     try {
         const {
-            courseId,
-            amount,        // This should be the base course price
-            courseTitle,
+            slotId,          // 🔥 CHANGE
+            amount,
             referralCode,
             couponCode
         } = req.body;
 
         const userId = req.user.id;
 
-        // Calculate GST on the base amount
+        // ✅ check slot exists
+        const slot = await Slot.findById(slotId);
+        if (!slot) {
+            return res.status(404).json({ message: "Slot not found" });
+        }
+
+        // ✅ GST
         const baseAmount = Number(amount);
-        const gstAmount = calculateGST(baseAmount);
+        const gstAmount = baseAmount * 0.18;
         let originalAmountWithGST = baseAmount + gstAmount;
         let finalAmount = originalAmountWithGST;
         let discount = 0;
 
-        console.log("Order creation request:", {
-            baseAmount,
-            gstAmount,
-            originalAmountWithGST,
-            couponCode
-        });
-
-        // ✅ If coupon applied → revalidate and apply discount on amount WITH GST
+        // ✅ COUPON APPLY (same as your code)
         if (couponCode) {
             const coupon = await Coupon.findOne({
                 code: couponCode.toUpperCase(),
@@ -52,79 +53,73 @@ router.post("/createOrder", checkAuth, async (req, res) => {
                 return res.status(400).json({ message: "Invalid coupon" });
             }
 
-            // Check expiry
             if (coupon.expiry && new Date(coupon.expiry) < new Date()) {
-                return res.status(400).json({ message: "Coupon has expired" });
+                return res.status(400).json({ message: "Coupon expired" });
             }
 
-            // Check if already used by this user
             const alreadyUsed = (coupon.usedBy || []).some(
                 (u) => u.userId.toString() === userId
             );
 
             if (alreadyUsed) {
                 return res.status(400).json({
-                    message: "You have already used this coupon",
+                    message: "Coupon already used",
                 });
             }
 
-            // Calculate discount on the amount WITH GST
             if (coupon.discountType === "percent") {
                 discount = (originalAmountWithGST * coupon.discountValue) / 100;
             } else {
-                // flat discount
                 discount = Math.min(coupon.discountValue, originalAmountWithGST);
             }
 
             finalAmount = Math.max(originalAmountWithGST - discount, 0);
-
-            console.log("Coupon applied:", {
-                discountType: coupon.discountType,
-                discountValue: coupon.discountValue,
-                discountCalculated: discount,
-                finalAmount
-            });
         }
 
-        // Ensure finalAmount is in paise for Razorpay (multiply by 100)
         const amountInPaise = Math.round(finalAmount * 100);
 
-        if (amountInPaise <= 0) {
-            return res.status(400).json({ message: "Invalid amount" });
-        }
-
-        // ✅ Razorpay order
-        const options = {
-            amount: amountInPaise,
-            currency: "INR",
-            receipt: "order_" + Date.now(),
-        };
-
-        const razorOrder = await razorpay.orders.create(options);
-
-        // ✅ Save order
+        // 🔥 CREATE ORDER FIRST (IMPORTANT FOR REFERENCE)
         const order = new Order({
             userId,
-            courseId,
-            courseTitle,
-            price: finalAmount,  // Final amount after discount (including GST)
-            originalAmount: originalAmountWithGST,  // Original amount with GST
-            discount: discount,
+            slotId,                 // 🔥 CHANGE
+            price: finalAmount,
+            originalAmount: originalAmountWithGST,
+            discount,
             couponCode: couponCode || null,
             referralCode: referralCode || null,
-            orderId: razorOrder.id,
             status: "pending",
         });
 
         await order.save();
 
+        // 🔥 RAZORPAY ORDER (WITH REFERENCE)
+        const options = {
+            amount: amountInPaise,
+            currency: "INR",
+
+            // 🔥 BEST receipt
+            receipt: "slot_" + order._id,
+
+            // 🔥 tracking
+            notes: {
+                orderId: order._id.toString(),
+                userId: userId.toString(),
+                slotId: slotId.toString(),
+            }
+        };
+
+        const razorOrder = await razorpay.orders.create(options);
+
+        order.orderId = razorOrder.id;
+        await order.save();
+
         res.json({
             orderId: razorOrder.id,
-            amount: razorOrder.amount,  // Amount in paise
+            amount: razorOrder.amount,
         });
 
     } catch (err) {
-        console.error("Create order error:", err);
+        console.error(err);
         res.status(500).json({ message: err.message });
     }
 });
@@ -145,43 +140,49 @@ router.post("/verifyPayment", checkAuth, async (req, res) => {
             .update(body)
             .digest("hex");
 
-        if (expected === razorpay_signature) {
+        // console.log(expected)
 
-            const order = await Order.findOne({ orderId: razorpay_order_id });
-
-            if (!order) {
-                return res.status(404).json({ message: "Order not found" });
-            }
-
-            order.paymentId = razorpay_payment_id;
-            order.signature = razorpay_signature;
-            order.status = "paid";
-
-            await order.save();
-
-            // 🔥 MARK COUPON USED (if coupon was applied)
-            if (order.couponCode) {
-                await Coupon.updateOne(
-                    { code: order.couponCode },
-                    {
-                        $push: {
-                            usedBy: {
-                                userId: order.userId,
-                                usedAt: new Date(),
-                            },
-                        },
-                    }
-                );
-            }
-
-            res.json({ success: true });
-
-        } else {
-            res.status(400).json({ success: false, message: "Invalid signature" });
+        if (expected !== razorpay_signature) {
+            return res.status(400).json({ message: "Invalid signature" });
         }
 
+        const order = await Order.findOne({ orderId: razorpay_order_id });
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        // ✅ mark paid
+        order.status = "paid";
+        order.paymentId = razorpay_payment_id;
+        await order.save();
+
+        // 🔥 ADD USER TO SLOT
+        const slot = await Slot.findById(order.slotId);
+
+        if (!slot.bookedStudents.includes(order.userId)) {
+            slot.bookedStudents.push(order.userId);
+            await slot.save();
+        }
+
+        // 🔥 mark coupon used
+        if (order.couponCode) {
+            await Coupon.updateOne(
+                { code: order.couponCode },
+                {
+                    $push: {
+                        usedBy: {
+                            userId: order.userId,
+                            usedAt: new Date(),
+                        },
+                    },
+                }
+            );
+        }
+
+        res.json({ success: true });
+
     } catch (err) {
-        console.error("Verify payment error:", err);
         res.status(500).json({ message: err.message });
     }
 });
@@ -200,12 +201,22 @@ router.get("/myOrders", checkAuth, async (req, res) => {
 
 // ✅ ADMIN ORDER HISTORY
 router.get("/allOrders", checkAuth, async (req, res) => {
-    const orders = await Order.find()
-        .populate("userId", "name email")
-        .populate("courseId")
-        .sort({ createdAt: -1 });
+    try {
+        const orders = await Order.find()
+            .populate("userId", "name email")
+            .populate("slotId", "title price startTime endTime maxStudents")
+            .sort({ createdAt: -1 });
 
-    res.json(orders);
+        res.json({
+            total: orders.length,
+            orders,
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            message: err.message,
+        });
+    }
 });
 
 router.get("/checkPurchase/:courseId", checkAuth, async (req, res) => {

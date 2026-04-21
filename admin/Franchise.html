@@ -428,7 +428,7 @@
             <a href="./Gallery.html" class="admin-dashboard-link">Gallery</a>
             <a href="./Courses.html" class="admin-dashboard-link">Courses</a>
             <a href="./franchise.html" class="admin-dashboard-link active">Franchise</a>
-            <a href="./TotalSales.html" class="admin-dashboard-link ">TotalSales</a>
+            <a href="./TotalSales.html" class="admin-dashboard-link ">Total Sales</a>
 
             <a href="./leads.html" class="admin-dashboard-link">Leads</a>
             <button id="logoutBtn">Logout</button>
@@ -802,14 +802,68 @@
                     const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A';
                     return `
                         <div class="order-item">
-                            <div class="row align-items-center">
-                                <div class="col-md-5"><strong><i class="fas fa-graduation-cap"></i> ${escapeHtml(courseTitle)}</strong></div>
-                                <div class="col-md-2"><span class="fw-bold text-warning">₹${price}</span></div>
-                                <div class="col-md-2"><span class="status-badge ${statusClass}">${status.toUpperCase()}</span></div>
-                                <div class="col-md-3"><small><i class="far fa-calendar"></i> ${orderDate}</small></div>
-                            </div>
-                            <div class="row mt-2"><div class="col-12"><small class="">Order ID: ${order._id}</small></div></div>
-                        </div>
+    <div class="row align-items-center">
+
+        <!-- SLOT TITLE -->
+        <div class="col-md-4">
+            <strong>
+                <i class="fas fa-clock"></i> 
+                ${escapeHtml(order.slotId?.title || "N/A")}
+            </strong>
+            <br/>
+            <small>
+                <i class="far fa-calendar-alt"></i>
+                ${new Date(order.slotId?.startTime).toLocaleString()} 
+                → 
+                ${new Date(order.slotId?.endTime).toLocaleString()}
+            </small>
+        </div>
+
+        <!-- USER -->
+        <div class="col-md-3">
+            <strong><i class="fas fa-user"></i> ${escapeHtml(order.userId?.name)}</strong>
+            <br/>
+            <small>${escapeHtml(order.userId?.email)}</small>
+        </div>
+
+        <!-- PRICE -->
+        <div class="col-md-2">
+            <span class="fw-bold text-warning">₹${order.price}</span>
+            <br/>
+            <small>GST Incl.</small>
+        </div>
+
+        <!-- STATUS -->
+        <div class="col-md-1">
+            <span class="status-badge ${statusClass}">
+                ${order.status.toUpperCase()}
+            </span>
+        </div>
+
+        <!-- DATE -->
+        <div class="col-md-2">
+            <small>
+                <i class="far fa-calendar"></i> 
+                ${new Date(order.createdAt).toLocaleDateString()}
+            </small>
+        </div>
+
+    </div>
+
+    <!-- EXTRA DETAILS -->
+    <div class="row mt-2">
+        <div class="col-md-6">
+            <small>
+                <i class="fas fa-receipt"></i> Order: ${order.orderId}
+            </small>
+        </div>
+
+       
+    </div>
+
+    <!-- REFERRAL + DISCOUNT -->
+    
+</div>
                     `;
                 }).join('');
             }

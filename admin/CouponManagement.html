@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Franchise - Coupon Management</title>
+    <title>Admin Panel - Coupon Management</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -32,8 +32,8 @@
             --white: #ffffff;
             --gradient-dark: linear-gradient(291.97deg, #0b0b0b 0.67%, rgba(31, 31, 31, 0.3) 50%, #0b0b0b 99.33%);
             --gradient-gold: linear-gradient(90deg, #e0c214 0%, #d2a100 100%);
-            --radius-sm: 8px;
-            --radius-md: 16px;
+            --radius-sm: 6px;
+            --radius-md: 12px;
         }
 
         body {
@@ -42,78 +42,104 @@
         }
 
         /* Navbar Styles */
-        .franchise-navbar {
-            background: #0a0a0a;
-            padding: 1rem 2rem;
+        .admin-dashboard-navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--gray);
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
+            background-color: #000080;
+            padding: 10px 20px;
+            color: #fff;
         }
 
-        .logo-area {
+        .admin-dashboard-left {
+            flex-shrink: 0;
             display: flex;
+            justify-content: center;
             align-items: center;
             gap: 12px;
-        }
-
-        .logo-icon {
-            font-size: 2rem;
-            color: var(--secondary-color);
-        }
-
-        .logo-text {
-            font-size: 1.5rem;
+            color: #c8baba;
             font-weight: 700;
-            color: var(--secondary-color);
+            font-family: sans-serif;
         }
 
-        .nav-links {
+        .admin-dashboard-image {
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .admin-dashboard-right {
             display: flex;
             gap: 20px;
-            align-items: center;
             flex-wrap: wrap;
+            align-items: center;
         }
 
-        .nav-link-custom {
-            color: var(--theme-white);
+        .admin-dashboard-link {
+            color: rgba(255, 255, 255, 0.6);
             text-decoration: none;
-            font-weight: 500;
-            transition: 0.3s;
+            font-size: 16px;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
         }
 
-        .nav-link-custom:hover,
-        .nav-link-custom.active {
-            color: var(--secondary-color);
-        }
-
-        #logoutBtn {
-            background: transparent;
-            border: 1.5px solid #ff6b6b;
-            color: #ff6b6b;
-            padding: 6px 20px;
-            border-radius: 40px;
-            transition: 0.3s;
-        }
-
-        #logoutBtn:hover {
-            background: #ff6b6b;
+        .admin-dashboard-link:hover,
+        .admin-dashboard-link.active {
             color: white;
         }
 
+        .active {
+            color: #f0c040;
+        }
+
+        #logoutBtn {
+            background-color: #dc3545;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        #logoutBtn:hover {
+            background-color: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            .admin-dashboard-navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .admin-dashboard-right {
+                flex-direction: column;
+                width: 100%;
+                text-align: center;
+            }
+
+            .admin-dashboard-link {
+                padding: 10px 0;
+                width: 100%;
+                border-top: 1px solid #444;
+            }
+
+            .admin-dashboard-left {
+                margin-bottom: 10px;
+            }
+        }
+
         /* Page Header */
-        .page-header {
+        .coupon-header {
             margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 1px solid var(--theme-color);
         }
 
-        .page-header h1 {
+        .coupon-header h1 {
             color: var(--secondary-color);
             font-weight: 700;
-            font-size: 2rem;
+            font-size: 2.2rem;
         }
 
         /* Add Button */
@@ -124,8 +150,9 @@
             font-weight: 600;
             border: none;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
             transition: all 0.3s ease;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 10px;
@@ -136,7 +163,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            padding: 2px;
+            padding: 2.5px;
             background: var(--gradient-gold);
             -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
             -webkit-mask-composite: xor;
@@ -150,6 +177,10 @@
         }
 
         /* Stats Cards */
+        .stats-row {
+            margin-bottom: 30px;
+        }
+
         .stat-card {
             background: var(--gradient-dark);
             border: 1px solid var(--gray);
@@ -173,6 +204,7 @@
         .stat-value {
             font-size: 1.8rem;
             font-weight: 700;
+            color: var(--secondary-color);
         }
 
         .stat-label {
@@ -180,76 +212,46 @@
             font-size: 0.85rem;
         }
 
-        /* Coupon Cards */
-        .coupons-container {
+        /* Coupon Table Container */
+        .coupon-table-container {
             background: var(--gradient-dark);
             border: 1px solid var(--gray);
             border-radius: var(--radius-md);
             padding: 20px;
+            overflow-x: auto;
         }
 
-        .coupon-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--gray);
-            border-radius: var(--radius-sm);
-            padding: 20px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .coupon-card:hover {
-            border-color: var(--secondary-color);
-            transform: translateY(-3px);
-        }
-
-        .coupon-card.active-coupon {
-            border-left: 4px solid #2ecc71;
-        }
-
-        .coupon-card.inactive-coupon {
-            opacity: 0.6;
-        }
-
-        .coupon-code {
-            font-family: monospace;
-            font-size: 1.3rem;
-            font-weight: 800;
+        .coupon-table-container h3 {
             color: var(--secondary-color);
-            letter-spacing: 1px;
-            background: rgba(227, 198, 7, 0.1);
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 30px;
+            margin-bottom: 20px;
+            font-weight: 600;
         }
 
-        .discount-badge {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #2ecc71;
+        .custom-table {
+            color: var(--theme-white);
+            border-color: var(--gray);
         }
 
-        .expiry-badge {
-            font-size: 0.8rem;
-            padding: 4px 10px;
-            border-radius: 20px;
+        .custom-table thead th {
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--theme-color);
+            padding: 15px;
+            font-weight: 600;
         }
 
-        .expiry-valid {
-            background: rgba(46, 204, 113, 0.2);
-            color: #2ecc71;
+        .custom-table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-color: var(--gray);
         }
 
-        .expiry-expired {
-            background: rgba(231, 76, 60, 0.2);
-            color: #e74c3c;
-        }
-
+        /* Status Badges */
         .status-badge {
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
+            display: inline-block;
         }
 
         .status-active {
@@ -264,44 +266,69 @@
             border: 1px solid #e74c3c;
         }
 
-        /* Modal Styles */
-        .modal-content {
-            background: var(--dark-gray);
-            border: 1px solid var(--gray);
-            color: var(--theme-white);
+        .status-expired {
+            background: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+            border: 1px solid #f39c12;
         }
 
-        .modal-header {
-            border-bottom: 1px solid var(--gray);
-        }
-
-        .modal-title {
+        .coupon-code-badge {
+            font-family: monospace;
+            font-size: 1rem;
+            font-weight: 700;
             color: var(--secondary-color);
+            background: rgba(227, 198, 7, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: inline-block;
         }
 
-        .form-label {
+        .discount-badge {
+            font-weight: 700;
+            color: #2ecc71;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-coupon-btn {
+            background: transparent;
+            border: 1px solid var(--secondary-color);
             color: var(--secondary-color);
-            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.3s;
         }
 
-        .form-control,
-        .form-select {
-            background: #2c2c2c;
-            border: 1px solid var(--gray);
-            color: var(--theme-white);
+        .edit-coupon-btn:hover {
+            background: var(--secondary-color);
+            color: #000;
         }
 
-        .form-control:focus,
-        .form-select:focus {
-            background: #333;
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 0.2rem rgba(227, 198, 7, 0.25);
+        .delete-coupon-btn {
+            background: transparent;
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .delete-coupon-btn:hover {
+            background: #ff6b6b;
             color: white;
         }
 
+        /* Loading & Empty */
         .loading-spinner {
             text-align: center;
-            padding: 60px;
+            padding: 40px;
         }
 
         .spinner-custom {
@@ -332,14 +359,85 @@
             margin-bottom: 20px;
         }
 
+        /* Modal Styles */
+        .modal-content {
+            background: var(--dark-gray);
+            border: 1px solid var(--gray);
+            color: var(--theme-white);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .modal-title {
+            color: var(--secondary-color);
+        }
+
         .btn-close-white {
             filter: invert(1);
         }
 
+        .form-label {
+            color: var(--secondary-color);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-control,
+        .form-select {
+            background: #2c2c2c;
+            border: 1px solid var(--gray);
+            color: var(--theme-white);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background: #333;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(227, 198, 7, 0.25);
+            color: white;
+        }
+
+        .alert-custom {
+            background: rgba(227, 198, 7, 0.1);
+            border: 1px solid var(--secondary-color);
+            color: var(--secondary-color);
+            border-radius: var(--radius-sm);
+        }
+
+        .text-muted-custom {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+        }
+
+        /* Franchise Badge */
+        .franchise-badge {
+            background: rgba(155, 89, 182, 0.2);
+            color: #9b59b6;
+            border: 1px solid #9b59b6;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            display: inline-block;
+        }
+
         @media (max-width: 768px) {
-            .franchise-navbar {
+            .coupon-header .row {
                 flex-direction: column;
+                text-align: center;
                 gap: 15px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .edit-coupon-btn,
+            .delete-coupon-btn {
+                width: 100%;
             }
         }
     </style>
@@ -347,29 +445,34 @@
 
 <body>
 
-    <!-- Navigation Bar -->
-    <nav class="franchise-navbar">
-        <div class="logo-area">
-            <i class="fas fa-ticket-alt logo-icon"></i>
-            <span class="logo-text">Coupon Management</span>
+    <!-- Admin Navigation -->
+    <header class="admin-dashboard-navbar">
+        <div class="admin-dashboard-left">
+            <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image"
+                onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
+            Hi Admin; 👋🏻
         </div>
-        <div class="nav-links">
-            <a href="./FranchiesDashboard.html" class="nav-link-custom">Dashboard</a>
-            <!-- <a href="./franchise-coupons.html" class="nav-link-custom active">Coupons</a> -->
-            <a href="./CouponManagement.html" class="nav-link-custom ">Coupons</a>
-
-            <!-- <a href="./franchise-orders.html" class="nav-link-custom">Orders</a>
-            <a href="./franchise-profile.html" class="nav-link-custom">Profile</a> -->
+        <div class="admin-dashboard-right">
+            <a href="./dashboard.html" class="admin-dashboard-link">Dashboard</a>
+            <a href="./magazine.html" class="admin-dashboard-link">Magazine</a>
+            <a href="./BlogList.html" class="admin-dashboard-link">Blogs</a>
+            <a href="./candidate.html" class="admin-dashboard-link">Candidates</a>
+            <a href="./Gallery.html" class="admin-dashboard-link">Gallery</a>
+            <a href="./Courses.html" class="admin-dashboard-link">Courses</a>
+            <a href="./franchise.html" class="admin-dashboard-link">Franchise</a>
+            <a href="./TotalSales.html" class="admin-dashboard-link">Total Sales</a>
+            <a href="./leads.html" class="admin-dashboard-link">Leads</a>
+            <a href="./coupon-management.html" class="admin-dashboard-link active">Coupons</a>
             <button id="logoutBtn">Logout</button>
         </div>
-    </nav>
+    </header>
 
     <div class="container">
-        <div class="page-header">
+        <div class="coupon-header">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-8 mt-4">
                     <h1><i class="fas fa-ticket-alt me-3"></i>Coupon Management</h1>
-                    <p>Create and manage discount coupons for your customers</p>
+                    <p>Create and manage discount coupons for customers</p>
                 </div>
                 <div class="col-md-4 text-end">
                     <button class="add-coupon-btn" id="openAddCouponModal">
@@ -380,7 +483,7 @@
         </div>
 
         <!-- Stats Row -->
-        <div class="row mb-4" id="statsRow">
+        <div class="row stats-row">
             <div class="col-md-4 mb-3">
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-tags"></i></div>
@@ -404,23 +507,40 @@
             </div>
         </div>
 
-        <!-- Loading Spinner -->
-        <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-            <div class="spinner-custom"></div>
-            <p>Loading coupons...</p>
-        </div>
+        <!-- Coupons Table Section -->
+        <div class="coupon-table-container">
+            <h3><i class="fas fa-ticket-alt me-2"></i>All Coupons</h3>
 
-        <!-- Coupons Grid -->
-        <div class="coupons-container" id="couponsContainer">
-            <div class="row" id="couponsGrid"></div>
-        </div>
+            <div id="tableLoading" class="loading-spinner" style="display: none;">
+                <div class="spinner-custom"></div>
+                <p>Loading coupons...</p>
+            </div>
 
-        <!-- Empty State -->
-        <div id="emptyState" class="empty-state" style="display: none;">
-            <div class="empty-icon"><i class="fas fa-ticket-alt"></i></div>
-            <h3>No Coupons Yet</h3>
-            <p>Create your first coupon to start offering discounts to customers.</p>
-            <button class="add-coupon-btn" id="emptyAddBtn"><i class="fas fa-plus"></i> Create Coupon</button>
+            <div id="couponTableWrapper">
+                <table class="table custom-table" id="couponTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Coupon Code</th>
+                            <th>Discount</th>
+                            <th>Expiry Date</th>
+                            <th>Franchise</th>
+                            <th>Used By</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="couponTableBody"></tbody>
+                </table>
+            </div>
+
+            <div id="emptyCouponState" class="empty-state" style="display: none;">
+                <div class="empty-icon"><i class="fas fa-ticket-alt"></i></div>
+                <h3>No Coupons Found</h3>
+                <p>Click the "Create Coupon" button to create your first coupon.</p>
+                <button class="add-coupon-btn" id="emptyAddBtn"><i class="fas fa-plus"></i> Create Coupon</button>
+            </div>
         </div>
     </div>
 
@@ -440,19 +560,19 @@
                             <label class="form-label">Coupon Code *</label>
                             <input type="text" class="form-control" id="couponCode" required placeholder="e.g., SAVE20"
                                 maxlength="20">
-                            <small class="text-muted">Use uppercase letters and numbers only</small>
+                            <small class="text-muted-custom">Use uppercase letters and numbers only</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Discount Type *</label>
                             <select class="form-select" id="discountType" required>
                                 <option value="percent">Percentage (%)</option>
-                                <option value="flat">Fixed Amount ($)</option>
+                                <option value="flat">Fixed Amount (₹)</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Discount Value *</label>
                             <input type="number" class="form-control" id="discountValue" required
-                                placeholder="e.g., 20 for 20% or $20">
+                                placeholder="e.g., 20 for 20% or ₹20">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Expiry Date (Optional)</label>
@@ -499,14 +619,15 @@
     <script src="./assets/js/config.js"></script>
     <script>
         // DOM Elements
-        const couponsGrid = document.getElementById('couponsGrid');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const couponsContainer = document.getElementById('couponsContainer');
-        const emptyState = document.getElementById('emptyState');
+        const couponTableBody = document.getElementById('couponTableBody');
+        const couponTable = document.getElementById('couponTable');
+        const tableLoading = document.getElementById('tableLoading');
+        const emptyStateDiv = document.getElementById('emptyCouponState');
         const totalCouponsSpan = document.getElementById('totalCoupons');
         const activeCouponsSpan = document.getElementById('activeCoupons');
         const totalUsedSpan = document.getElementById('totalUsed');
 
+        // Modals
         const couponModal = new bootstrap.Modal(document.getElementById('couponModal'));
         const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
         const modalTitle = document.getElementById('modalTitle');
@@ -514,62 +635,70 @@
         const statusField = document.getElementById('statusField');
 
         let currentEditId = null;
+        let allCoupons = [];
 
-        const API_BASE = config?.backendBaseUrl || 'http://localhost:5001';
+        const API_BASE = window.config?.backendBaseUrl || 'http://localhost:5001';
 
         function getToken() {
             const token = localStorage.getItem('token');
             if (!token) {
-                alert('Please admin to continue');
-                window.location.href = './admin.html';
+                alert('Session expired. Please login again.');
+                window.location.href = './login.html';
                 return null;
             }
             return token;
         }
 
         // Load all coupons
-        async function loadCoupons() {
+        async function loadAllCoupons() {
             const token = getToken();
             if (!token) return;
 
             try {
-                loadingSpinner.style.display = 'block';
-                couponsContainer.style.display = 'none';
-                emptyState.style.display = 'none';
-                couponsGrid.innerHTML = '';
+                tableLoading.style.display = 'block';
+                couponTable.style.display = 'none';
+                emptyStateDiv.style.display = 'none';
+                couponTableBody.innerHTML = '';
 
                 const response = await fetch(`${API_BASE}/api/myCoupons`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                if (!response.ok) throw new Error('Failed to load coupons');
+                if (!response.ok) throw new Error('Failed to fetch coupons');
 
-                const coupons = await response.json();
+                const data = await response.json();
+                // Handle both { total, coupons } and direct array response
+                const coupons = data.coupons || data;
+                allCoupons = coupons;
 
                 if (!coupons || coupons.length === 0) {
-                    emptyState.style.display = 'block';
-                    couponsContainer.style.display = 'none';
+                    emptyStateDiv.style.display = 'block';
                     updateStats([]);
                     return;
                 }
 
                 updateStats(coupons);
-                renderCoupons(coupons);
-                couponsContainer.style.display = 'block';
+                renderCouponTable(coupons);
+                couponTable.style.display = 'table';
 
             } catch (error) {
                 console.error(error);
-                couponsGrid.innerHTML = `<div class="col-12"><div class="alert alert-danger">Error: ${error.message}</div></div>`;
-                couponsContainer.style.display = 'block';
+                couponTableBody.innerHTML = `<tr><td colspan="9" class="text-center text-warning">${error.message}</td></tr>`;
+                couponTable.style.display = 'table';
             } finally {
-                loadingSpinner.style.display = 'none';
+                tableLoading.style.display = 'none';
             }
         }
 
         function updateStats(coupons) {
             const total = coupons.length;
-            const active = coupons.filter(c => c.isActive === true).length;
+            const now = new Date();
+            const active = coupons.filter(c => {
+                if (!c.isActive) return false;
+                if (c.expiry && new Date(c.expiry) < now) return false;
+                return true;
+            }).length;
             const totalUsed = coupons.reduce((sum, c) => sum + (c.usedBy?.length || 0), 0);
 
             totalCouponsSpan.textContent = total;
@@ -577,59 +706,78 @@
             totalUsedSpan.textContent = totalUsed;
         }
 
-        function renderCoupons(coupons) {
-            couponsGrid.innerHTML = '';
+        function formatDiscount(coupon) {
+            const type = coupon.discountType === 'percent' ? '%' : '₹';
+            const value = coupon.discountValue;
+            return coupon.discountType === 'percent' ? `${value}% OFF` : `₹${value} OFF`;
+        }
 
-            coupons.forEach(coupon => {
-                const col = document.createElement('div');
-                col.className = 'col-md-6 col-lg-4 mb-4';
+        function getFranchiseDisplay(coupon) {
+            if (coupon.franchiseId) {
+                if (typeof coupon.franchiseId === 'object') {
+                    return `<span class="franchise-badge"><i class="fas fa-store"></i> ${escapeHtml(coupon.franchiseId.name || 'Franchise')}</span>`;
+                }
+                return `<span class="franchise-badge"><i class="fas fa-store"></i> Franchise</span>`;
+            }
+            return '<span class="text-muted">Admin</span>';
+        }
 
-                const isActive = coupon.isActive;
-                const isExpired = coupon.expiry ? new Date(coupon.expiry) < new Date() : false;
-                const statusClass = isActive && !isExpired ? 'status-active' : 'status-inactive';
-                const statusText = !isActive ? 'Inactive' : (isExpired ? 'Expired' : 'Active');
+        function renderCouponTable(coupons) {
+            couponTableBody.innerHTML = '';
 
-                const expiryDate = coupon.expiry ? new Date(coupon.expiry).toLocaleDateString() : 'No expiry';
-                const expiryClass = isExpired ? 'expiry-expired' : 'expiry-valid';
+            coupons.forEach((coupon, index) => {
+                const row = document.createElement('tr');
 
-                const discountValue = coupon.discountValue;
-                const discountType = coupon.discountType === 'percent' ? '%' : '$';
-                const discountDisplay = discountType === '%' ? `${discountValue}% OFF` : `$${discountValue} OFF`;
+                const now = new Date();
+                const isExpired = coupon.expiry ? new Date(coupon.expiry) < now : false;
+                const isActive = coupon.isActive && !isExpired;
+
+                let statusClass = 'status-inactive';
+                let statusText = 'Inactive';
+
+                if (coupon.isActive && isExpired) {
+                    statusClass = 'status-expired';
+                    statusText = 'Expired';
+                } else if (coupon.isActive && !isExpired) {
+                    statusClass = 'status-active';
+                    statusText = 'Active';
+                }
+
+                const expiryDate = coupon.expiry
+                    ? new Date(coupon.expiry).toLocaleDateString('en-IN')
+                    : 'No expiry';
 
                 const usedCount = coupon.usedBy?.length || 0;
+                const createdAt = coupon.createdAt
+                    ? new Date(coupon.createdAt).toLocaleDateString('en-IN')
+                    : 'N/A';
 
-                col.innerHTML = `
-                    <div class="coupon-card ${isActive && !isExpired ? 'active-coupon' : 'inactive-coupon'}">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <span class="coupon-code">${escapeHtml(coupon.code)}</span>
-                            <span class="status-badge ${statusClass}">${statusText}</span>
-                        </div>
-                        <div class="text-center my-3">
-                            <span class="discount-badge">${discountDisplay}</span>
-                        </div>
-                        <div class="mb-2">
-                            <i class="fas fa-calendar-alt me-2"></i>
-                            <span class="${expiryClass} expiry-badge">Expires: ${expiryDate}</span>
-                        </div>
-                        <div class="mb-3">
-                            <i class="fas fa-users me-2"></i>
-                            <span>Used by ${usedCount} customer${usedCount !== 1 ? 's' : ''}</span>
-                        </div>
-                        <div class="d-flex gap-2 mt-2">
-                            <button class="btn btn-sm btn-outline-warning edit-coupon" data-id="${coupon._id}" style="flex:1;">
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><span class="coupon-code-badge">${escapeHtml(coupon.code)}</span></td>
+                    <td><span class="discount-badge">${formatDiscount(coupon)}</span></td>
+                    <td>${expiryDate}</td>
+                    <td>${getFranchiseDisplay(coupon)}</td>
+                    <td>${usedCount} user${usedCount !== 1 ? 's' : ''}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${createdAt}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="edit-coupon-btn" data-id="${coupon._id}">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
-                            <button class="btn btn-sm btn-outline-danger delete-coupon" data-id="${coupon._id}" style="flex:1;">
+                            <button class="delete-coupon-btn" data-id="${coupon._id}">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
                         </div>
-                    </div>
+                    </td>
                 `;
-                couponsGrid.appendChild(col);
+
+                couponTableBody.appendChild(row);
             });
 
             // Attach event listeners
-            document.querySelectorAll('.edit-coupon').forEach(btn => {
+            document.querySelectorAll('.edit-coupon-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const id = btn.getAttribute('data-id');
@@ -637,7 +785,7 @@
                 });
             });
 
-            document.querySelectorAll('.delete-coupon').forEach(btn => {
+            document.querySelectorAll('.delete-coupon-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const id = btn.getAttribute('data-id');
@@ -773,8 +921,6 @@
                 return;
             }
 
-            console.log(discountType)
-
             const couponData = {
                 code,
                 discountType,
@@ -799,7 +945,7 @@
                 }
 
                 couponModal.hide();
-                loadCoupons();
+                loadAllCoupons();
             } catch (error) {
                 alert('Error: ' + error.message);
             } finally {
@@ -817,7 +963,7 @@
                 await deleteCoupon(id);
                 alert('Coupon deleted successfully');
                 deleteModal.hide();
-                loadCoupons();
+                loadAllCoupons();
             } catch (error) {
                 alert('Error: ' + error.message);
             }
@@ -834,14 +980,12 @@
         }
 
         // Event Listeners
-        document.getElementById('openAddCouponModal').addEventListener('click', openAddModal);
-        document.getElementById('emptyAddBtn').addEventListener('click', openAddModal);
+        document.getElementById('openAddCouponModal')?.addEventListener('click', openAddModal);
+        document.getElementById('emptyAddBtn')?.addEventListener('click', openAddModal);
 
         document.getElementById('logoutBtn')?.addEventListener('click', () => {
             localStorage.removeItem('token');
-            // window.location.href = './admin.html';
             window.location.href = '../admin.html';
-
         });
 
         // Reset modal on close
@@ -853,7 +997,7 @@
 
         // Load coupons on page load
         document.addEventListener('DOMContentLoaded', () => {
-            loadCoupons();
+            loadAllCoupons();
         });
     </script>
 </body>

@@ -17,6 +17,7 @@ const blogRoutes = require("./api/blogRoutes");
 const emailOtp = require("./api/emailOtp");
 const GalleryRoute = require("./api/GalleryRoute");
 const coursesRoute = require("./api/courseRoutes");
+const slotRoute = require("./api/slotRoutes");
 const orderRoutes = require("./api/orderRoutes");
 const franchiseRoutes = require("./api/franchiseRoutes");
 
@@ -82,6 +83,7 @@ app.use("/api", visitorRoute);
 app.use("/api", candidateRoutes);
 app.use("/api", GalleryRoute);
 app.use("/api", coursesRoute);
+app.use("/api", slotRoute);
 app.use("/api", orderRoutes);
 app.use("/api", franchiseRoutes);
 app.use("/api", couponRoutes);
