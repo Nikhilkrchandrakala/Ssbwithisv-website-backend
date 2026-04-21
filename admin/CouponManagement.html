@@ -637,7 +637,7 @@
         let currentEditId = null;
         let allCoupons = [];
 
-        const API_BASE = window.config?.backendBaseUrl || 'http://localhost:5001';
+        const API_BASE = config?.backendBaseUrl || 'http://localhost:5001';
 
         function getToken() {
             const token = localStorage.getItem('token');
