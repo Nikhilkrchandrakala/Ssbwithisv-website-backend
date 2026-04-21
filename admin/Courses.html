@@ -574,13 +574,15 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- <script src="./assets/js/config.js"></script> -->
+    <script src="./assets/js/config.js"></script>
     <script>
         // ----------------------------- CONFIG (backend base URL) -------------------------
-        const config = config || {};
-        const API_BASE = 'https://api.ssbwithisv.in'
+        // const config = window.config || {};
+        const BACKEND_URL = config.backendBaseUrl ||  "http://localhost:5001";
        
 
+        {console.log(BACKEND_URL)}
+        
 
         // DOM Elements
         const slotsGrid = document.getElementById('slotsGrid');
@@ -635,7 +637,7 @@
                 slotsGrid.innerHTML = '';
                 emptyState.style.display = 'none';
 
-                const response = await fetch(`${API_BASE}/api/allSlots`, {
+                const response = await fetch(`${BACKEND_URL}/api/allSlots`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -781,7 +783,7 @@
             if (!token) return;
 
             try {
-                const response = await fetch(`${API_BASE}/api/slotDetail/${slotId}`, {
+                const response = await fetch(`${BACKEND_URL}/api/slotDetail/${slotId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!response.ok) throw new Error('Cannot fetch batch details');
@@ -841,11 +843,11 @@
             };
 
             const isEdit = currentEditSlotId !== null;
-            let url = `${API_BASE}/api/addSlot`;
+            let url = `${BACKEND_URL}/api/addSlot`;
             let method = 'POST';
 
             if (isEdit) {
-                url = `${API_BASE}/api/updateSlot/${currentEditSlotId}`;
+                url = `${BACKEND_URL}/api/updateSlot/${currentEditSlotId}`;
                 method = 'PUT';
             }
 
@@ -889,7 +891,7 @@
             if (!token) return;
 
             try {
-                const response = await fetch(`${API_BASE}/api/deleteSlot/${slotId}`, {
+                const response = await fetch(`${BACKEND_URL}/api/deleteSlot/${slotId}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
