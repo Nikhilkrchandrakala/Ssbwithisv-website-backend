@@ -464,19 +464,6 @@
             </div>
         </div>
 
-        <!-- Tabs for Morning/Evening Batch Filter -->
-        <!-- <div class="batch-tabs">
-            <button class="tab-btn active" data-batch-type="all">
-                <i class="fas fa-layer-group"></i> All Batches
-            </button>
-            <button class="tab-btn" data-batch-type="morning">
-                <i class="fas fa-sun"></i> Morning Batch
-            </button>
-            <button class="tab-btn" data-batch-type="evening">
-                <i class="fas fa-moon"></i> Evening Batch
-            </button>
-        </div> -->
-
         <!-- Loading -->
         <div id="loadingSpinner" class="loading-spinner" style="display: none;">
             <div class="spinner-custom"></div>
@@ -517,15 +504,11 @@
                             </select>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Start Date & Time</label>
-                                <input type="datetime-local" class="form-control" id="startTime" name="startTime"
-                                    required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">End Date & Time</label>
-                                <input type="datetime-local" class="form-control" id="endTime" name="endTime" required>
+                        <!-- Only Start Date field - no time, only date -->
+                        <div class="mb-3">
+                            <label class="form-label">Start Date *</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate" required>
+                            <div class="form-text text-muted">Select the batch start date (time will be set to 00:00:00)
                             </div>
                         </div>
 
@@ -563,8 +546,7 @@
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to delete this batch? This action cannot be undone, and any pending
-                        bookings
-                        will be affected.</p>
+                        bookings will be affected.</p>
                     <input type="hidden" id="deleteSlotId">
                 </div>
                 <div class="modal-footer">
@@ -582,9 +564,7 @@
         // const config = window.config || {};
         const BACKEND_URL = config.backendBaseUrl || "http://localhost:5001";
 
-
         { console.log(BACKEND_URL) }
-
 
         // DOM Elements
         const slotsGrid = document.getElementById('slotsGrid');
@@ -596,8 +576,7 @@
         const saveSlotBtn = document.getElementById('saveSlotBtn');
         const slotIdField = document.getElementById('slotId');
         const batchTypeSelect = document.getElementById('batchType');
-        const startTimeInput = document.getElementById('startTime');
-        const endTimeInput = document.getElementById('endTime');
+        const startDateInput = document.getElementById('startDate');
         const maxStudentsInput = document.getElementById('maxStudents');
         const priceInput = document.getElementById('price');
 
@@ -615,11 +594,11 @@
             return token;
         }
 
-        // Helper: format date for display
-        function formatDateTime(isoString) {
+        // Helper: format date for display (only date part, no time)
+        function formatDateOnly(isoString) {
             if (!isoString) return 'N/A';
             const date = new Date(isoString);
-            return date.toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
         }
 
         // Get batch title based on type
@@ -638,6 +617,7 @@
                 loadingSpinner.style.display = 'block';
                 slotsGrid.innerHTML = '';
                 emptyState.style.display = 'none';
+                slotsGrid.style.display = 'flex';
 
                 const response = await fetch(`${BACKEND_URL}/api/allSlots`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -679,8 +659,7 @@
             slotsGrid.innerHTML = '';
 
             slots.forEach(slot => {
-                const startDisplay = formatDateTime(slot.startTime);
-                const endDisplay = formatDateTime(slot.endTime);
+                const startDisplay = formatDateOnly(slot.startTime);
                 const priceDisplay = slot.price ? `₹ ${Number(slot.price).toFixed(2)}` : 'Free';
                 const maxStudents = slot.maxStudents || 'Unlimited';
                 const bookedCount = slot.bookedStudents ? slot.bookedStudents.length : 0;
@@ -698,19 +677,14 @@
                 col.innerHTML = `
                     <div class="slot-card">
                         <div class="slot-header-badge">
-                          
                             <span class="batch-type-badge ${batchTypeClass}">
-                                <i class="fas ${batchIcon}"></i> ${slot.title}
+                                <i class="fas ${batchIcon}"></i> ${batchTitle}
                             </span>
                         </div>
                         <div class="slot-info">
                             <div class="info-row">
-                                <span class="info-label"><i class="far fa-calendar-alt"></i> Start:</span>
+                                <span class="info-label"><i class="far fa-calendar-alt"></i> Start Date:</span>
                                 <span class="info-value">${startDisplay}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label"><i class="far fa-calendar-check"></i> End:</span>
-                                <span class="info-value">${endDisplay}</span>
                             </div>
                             <div class="info-row">
                                 <span class="info-label"><i class="fas fa-users"></i> Capacity:</span>
@@ -751,28 +725,16 @@
             });
         }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function (m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-
         // Open Add Slot Modal
         function openAddSlotModal() {
             currentEditSlotId = null;
             slotIdField.value = '';
             document.getElementById('slotForm').reset();
             batchTypeSelect.value = '';
-            // Set default datetime-local values: start now + 1 hour, end now + 2 hours
-            const now = new Date();
-            const startDefault = new Date(now.getTime() + 60 * 60 * 1000);
-            const endDefault = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-            startTimeInput.value = startDefault.toISOString().slice(0, 16);
-            endTimeInput.value = endDefault.toISOString().slice(0, 16);
+            // Set default date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            startDateInput.value = tomorrow.toISOString().slice(0, 10);
             maxStudentsInput.value = 10;
             priceInput.value = 0;
             modalTitle.innerHTML = '<i class="fas fa-plus-circle me-2"></i>Add New Batch';
@@ -793,13 +755,17 @@
 
                 currentEditSlotId = slot._id;
                 slotIdField.value = slot._id;
-                batchTypeSelect.value = slot.batchType || '';
-                // Format datetime-local from ISO
+                // Pre-select batch type - it will automatically take the existing value
+                // batchTypeSelect.value = slot.batchType || '';
+
+                batchTypeSelect.value = (slot.batchType || '').toLowerCase();
+                // Format date from ISO to YYYY-MM-DD (only date part)
                 if (slot.startTime) {
-                    startTimeInput.value = new Date(slot.startTime).toISOString().slice(0, 16);
-                }
-                if (slot.endTime) {
-                    endTimeInput.value = new Date(slot.endTime).toISOString().slice(0, 16);
+                    const dateObj = new Date(slot.startTime);
+                    const year = dateObj.getFullYear();
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    startDateInput.value = `${year}-${month}-${day}`;
                 }
                 maxStudentsInput.value = slot.maxStudents || 10;
                 priceInput.value = slot.price || 0;
@@ -822,24 +788,26 @@
                 return;
             }
 
-            const startTime = startTimeInput.value;
-            const endTime = endTimeInput.value;
-            if (!startTime || !endTime) {
-                alert('Please select both start and end time');
+            const startDate = startDateInput.value;
+            if (!startDate) {
+                alert('Please select start date');
                 return;
             }
-            if (new Date(startTime) >= new Date(endTime)) {
-                alert('End time must be after start time');
-                return;
-            }
+
+            // Create ISO string with time set to 00:00:00 (start of day)
+            const startDateTime = new Date(startDate);
+            startDateTime.setHours(0, 0, 0, 0);
+            const startTimeISO = startDateTime.toISOString();
 
             const batchTitle = getBatchTitle(batchType);
 
             const payload = {
                 title: batchTitle,
                 batchType: batchType,
-                startTime: new Date(startTime).toISOString(),
-                endTime: new Date(endTime).toISOString(),
+                startTime: startTimeISO,
+                // Since end time is removed, we'll set endTime same as startTime (or you can set to end of day)
+                // To maintain backward compatibility with backend, set endTime to start of day + 1 day (batch duration)
+                endTime: new Date(startDateTime.getTime() + 24 * 60 * 60 * 1000).toISOString(),
                 maxStudents: parseInt(maxStudentsInput.value) || 0,
                 price: parseFloat(priceInput.value) || 0
             };
@@ -917,18 +885,19 @@
             currentEditSlotId = null;
         });
 
-        // Tab functionality
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Remove active class from all tabs
-                document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-                btn.classList.add('active');
-
-                // Get filter type
-                currentBatchFilter = btn.getAttribute('data-batch-type');
-                loadSlots();
+        // Tab functionality - keeping tabs commented in HTML but enabling if needed
+        // Note: Tabs are currently commented in HTML, but if uncommented, this will work
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        if (tabButtons.length > 0) {
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentBatchFilter = btn.getAttribute('data-batch-type');
+                    loadSlots();
+                });
             });
-        });
+        }
 
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -938,7 +907,8 @@
 
         // Event listeners for add buttons
         document.getElementById('openAddSlotModalBtn').addEventListener('click', openAddSlotModal);
-        document.getElementById('emptyAddSlotBtn').addEventListener('click', openAddSlotModal);
+        const emptyAddBtn = document.getElementById('emptyAddSlotBtn');
+        if (emptyAddBtn) emptyAddBtn.addEventListener('click', openAddSlotModal);
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {

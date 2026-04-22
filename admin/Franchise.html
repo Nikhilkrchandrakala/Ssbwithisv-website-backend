@@ -49,6 +49,7 @@
             background-color: #000080;
             padding: 10px 20px;
             color: #fff;
+            flex-wrap: wrap;
         }
 
         .admin-dashboard-left {
@@ -70,6 +71,8 @@
         .admin-dashboard-right {
             display: flex;
             gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
         .admin-dashboard-link {
@@ -417,7 +420,8 @@
     <!-- Admin Navigation -->
     <header class="admin-dashboard-navbar">
         <div class="admin-dashboard-left">
-            <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
+            <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image"
+                onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
             Hi Admin; 👋🏻
         </div>
         <div class="admin-dashboard-right">
@@ -428,10 +432,8 @@
             <a href="./Gallery.html" class="admin-dashboard-link">Gallery</a>
             <a href="./Courses.html" class="admin-dashboard-link">Courses</a>
             <a href="./franchise.html" class="admin-dashboard-link active">Franchise</a>
-            <a href="./TotalSales.html" class="admin-dashboard-link ">Total Sales</a>
-      <a href="./CouponManagement.html" class="admin-dashboard-link ">Coupons</a>
-
-
+            <a href="./TotalSales.html" class="admin-dashboard-link">Total Sales</a>
+            <a href="./CouponManagement.html" class="admin-dashboard-link">Coupons</a>
             <a href="./leads.html" class="admin-dashboard-link">Leads</a>
             <button id="logoutBtn">Logout</button>
         </div>
@@ -471,6 +473,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
+                                <th>Commission %</th>
                                 <th>Referral Code</th>
                                 <th>Referral Link</th>
                                 <th>Created At</th>
@@ -540,6 +543,13 @@
                             <input type="tel" class="form-control" id="franchisePhone" placeholder="+91 9876543210">
                         </div>
                         <div class="mb-3">
+                            <label class="form-label">Commission Percentage (%) *</label>
+                            <input type="number" class="form-control" id="franchiseCommission"
+                                placeholder="Default: 20%" value="20" min="0" max="100" step="1">
+                            <div class="form-text text-muted">Set commission percentage for this franchise (0-100%).
+                                Default is 20%.</div>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Password *</label>
                             <input type="password" class="form-control" id="franchisePassword" required
                                 placeholder="Create secure password (min 6 chars)">
@@ -596,6 +606,7 @@
         const franchiseName = document.getElementById('franchiseName');
         const franchiseEmail = document.getElementById('franchiseEmail');
         const franchisePhone = document.getElementById('franchisePhone');
+        const franchiseCommission = document.getElementById('franchiseCommission');
         const franchisePassword = document.getElementById('franchisePassword');
         const modalFormMessage = document.getElementById('modalFormMessage');
 
@@ -609,7 +620,11 @@
 
         function getToken() {
             const token = localStorage.getItem('token');
-            if (!token) return null;
+            if (!token) {
+                alert('Session expired. Please login again.');
+                window.location.href = './login.html';
+                return null;
+            }
             return token;
         }
 
@@ -624,6 +639,7 @@
             const email = franchiseEmail.value.trim();
             const phone = franchisePhone.value.trim();
             const password = franchisePassword.value;
+            let commissionPercent = parseInt(franchiseCommission.value);
 
             if (!name || !email || !password) {
                 showModalMessage('Please fill all required fields (Name, Email, Password)', 'danger');
@@ -631,6 +647,13 @@
             }
             if (password.length < 6) {
                 showModalMessage('Password must be at least 6 characters', 'danger');
+                return;
+            }
+            if (isNaN(commissionPercent) || commissionPercent < 0) {
+                commissionPercent = 20;
+            }
+            if (commissionPercent > 100) {
+                showModalMessage('Commission percentage cannot exceed 100%', 'danger');
                 return;
             }
 
@@ -641,7 +664,13 @@
                 const response = await fetch(`${API_BASE}/api/createFranchise`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, phone, password })
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        phone,
+                        password,
+                        commissionPercent: commissionPercent
+                    })
                 });
 
                 const data = await response.json();
@@ -653,6 +682,7 @@
                 franchiseName.value = '';
                 franchiseEmail.value = '';
                 franchisePhone.value = '';
+                franchiseCommission.value = '20';
                 franchisePassword.value = '';
 
                 // Close modal after short delay
@@ -684,8 +714,12 @@
                 franchiseTableBody.innerHTML = '';
 
                 const token = getToken();
-                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-                const response = await fetch(`${API_BASE}/api/allFranchise`, { method: 'GET', headers });
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE}/api/allFranchise`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
 
                 if (!response.ok) throw new Error('Failed to fetch franchises');
                 const franchises = await response.json();
@@ -699,7 +733,7 @@
                 franchiseTable.style.display = 'table';
             } catch (error) {
                 console.error(error);
-                franchiseTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-warning">${error.message}</td></tr>`;
+                franchiseTableBody.innerHTML = `<tr><td colspan="9" class="text-center text-warning">${error.message}</td></tr>`;
                 franchiseTable.style.display = 'table';
             } finally {
                 tableLoading.style.display = 'none';
@@ -714,12 +748,14 @@
                 const createdAt = franchise.createdAt ? new Date(franchise.createdAt).toLocaleDateString() : 'N/A';
                 const referralCode = franchise.referralCode || 'N/A';
                 const referralLink = `https://ssbwithisv.in/?ref=${referralCode}`;
+                const commissionPercent = franchise.commissionPercent !== undefined ? franchise.commissionPercent : 20;
 
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td><strong>${escapeHtml(franchise.name || '—')}</strong></td>
                     <td>${escapeHtml(franchise.email || '—')}</td>
                     <td>${escapeHtml(franchise.phone || '—')}</td>
+                    <td><span class="badge bg-warning text-dark">${commissionPercent}%</span></td>
                     <td><span class="badge bg-dark text-warning">${referralCode}</span></td>
                     <td>
                         <span class="referral-link">${referralLink}</span>
@@ -737,7 +773,7 @@
             });
         }
 
-        function showDeleteModal(id) {
+        window.showDeleteModal = function (id) {
             currentDeleteId = id;
             deleteFranchiseIdInput.value = id;
             deleteModal.show();
@@ -752,8 +788,12 @@
                 document.getElementById('ordersListContainer').innerHTML = '';
 
                 const token = getToken();
-                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-                const response = await fetch(`${API_BASE}/api/franchiseDetails/${referralCode}`, { method: 'GET', headers });
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE}/api/franchiseDetails/${referralCode}`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
 
                 if (!response.ok) throw new Error('Failed to fetch franchise details');
                 const data = await response.json();
@@ -780,7 +820,7 @@
                     </div>
                     <div class="col-md-6">
                         <p><strong><i class="fas fa-qrcode"></i> Referral Code:</strong> <code>${escapeHtml(franchise.referralCode)}</code></p>
-                        <p><strong><i class="fas fa-percent"></i> Commission:</strong> ${franchise.commissionPercent || 20}%</p>
+                        <p><strong><i class="fas fa-percent"></i> Commission:</strong> ${franchise.commissionPercent}%</p>
                         <p><strong><i class="fas fa-calendar"></i> Joined:</strong> ${new Date(franchise.createdAt).toLocaleDateString()}</p>
                     </div>
                 </div>
@@ -797,75 +837,38 @@
                 ordersHtml = '<div class="empty-state"><i class="fas fa-shopping-bag fa-3x mb-3"></i><p>No orders found for this franchise</p></div>';
             } else {
                 ordersHtml = orders.map(order => {
-                    const courseTitle = order.courseTitle || order.courseId?.title || 'Unknown Course';
-                    const price = order.price || order.courseId?.price || 0;
+                    const slotTitle = order.slotId?.title || 'N/A';
+                    const userName = order.userId?.name || 'N/A';
+                    const userEmail = order.userId?.email || 'N/A';
+                    const price = order.price || 0;
                     const status = order.status || 'pending';
                     const statusClass = status === 'completed' ? 'status-completed' : 'status-pending';
-                    const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A';
+                    const startTime = order.slotId?.startTime ? new Date(order.slotId.startTime).toLocaleString() : 'N/A';
+                    const endTime = order.slotId?.endTime ? new Date(order.slotId.endTime).toLocaleString() : 'N/A';
+
                     return `
                         <div class="order-item">
-    <div class="row align-items-center">
-
-        <!-- SLOT TITLE -->
-        <div class="col-md-4">
-            <strong>
-                <i class="fas fa-clock"></i> 
-                ${escapeHtml(order.slotId?.title || "N/A")}
-            </strong>
-            <br/>
-            <small>
-                <i class="far fa-calendar-alt"></i>
-                ${new Date(order.slotId?.startTime).toLocaleString()} 
-                → 
-                ${new Date(order.slotId?.endTime).toLocaleString()}
-            </small>
-        </div>
-
-        <!-- USER -->
-        <div class="col-md-3">
-            <strong><i class="fas fa-user"></i> ${escapeHtml(order.userId?.name)}</strong>
-            <br/>
-            <small>${escapeHtml(order.userId?.email)}</small>
-        </div>
-
-        <!-- PRICE -->
-        <div class="col-md-2">
-            <span class="fw-bold text-warning">₹${order.price}</span>
-            <br/>
-            <small>GST Incl.</small>
-        </div>
-
-        <!-- STATUS -->
-        <div class="col-md-1">
-            <span class="status-badge ${statusClass}">
-                ${order.status.toUpperCase()}
-            </span>
-        </div>
-
-        <!-- DATE -->
-        <div class="col-md-2">
-            <small>
-                <i class="far fa-calendar"></i> 
-                ${new Date(order.createdAt).toLocaleDateString()}
-            </small>
-        </div>
-
-    </div>
-
-    <!-- EXTRA DETAILS -->
-    <div class="row mt-2">
-        <div class="col-md-6">
-            <small>
-                <i class="fas fa-receipt"></i> Order: ${order.orderId}
-            </small>
-        </div>
-
-       
-    </div>
-
-    <!-- REFERRAL + DISCOUNT -->
-    
-</div>
+                            <div class="row align-items-center">
+                                <div class="col-md-4">
+                                    <strong><i class="fas fa-clock"></i> ${escapeHtml(slotTitle)}</strong><br/>
+                                    <small><i class="far fa-calendar-alt"></i> ${startTime} → ${endTime}</small>
+                                </div>
+                                <div class="col-md-3">
+                                    <strong><i class="fas fa-user"></i> ${escapeHtml(userName)}</strong><br/>
+                                    <small>${escapeHtml(userEmail)}</small>
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="fw-bold text-warning">₹${price}</span><br/>
+                                    <small>GST Incl.</small>
+                                </div>
+                                <div class="col-md-1">
+                                    <span class="status-badge ${statusClass}">${status.toUpperCase()}</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <small><i class="far fa-calendar"></i> ${new Date(order.createdAt).toLocaleDateString()}</small>
+                                </div>
+                            </div>
+                        </div>
                     `;
                 }).join('');
             }
@@ -881,8 +884,12 @@
         async function deleteFranchise(franchiseId) {
             try {
                 const token = getToken();
-                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-                const response = await fetch(`${API_BASE}/api/deleteFranchise/${franchiseId}`, { method: 'DELETE', headers });
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE}/api/deleteFranchise/${franchiseId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 if (!response.ok) throw new Error('Failed to delete franchise');
                 const result = await response.json();
                 alert(result.message || 'Franchise deleted successfully');
