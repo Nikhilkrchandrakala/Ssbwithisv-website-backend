@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Batch Management</title>
+    <title>Admin Panel - Month Wise Batch View</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -51,6 +51,7 @@
             background-color: #000080;
             padding: 10px 20px;
             color: #fff;
+            flex-wrap: wrap;
         }
 
         .admin-dashboard-left {
@@ -61,7 +62,6 @@
             gap: 12px;
             color: #c8baba;
             font-weight: 700;
-            font-family: sans-serif;
         }
 
         .admin-dashboard-image {
@@ -98,6 +98,7 @@
             padding: 6px 16px;
             border-radius: 30px;
             font-size: 14px;
+            border: none;
         }
 
         button {
@@ -110,133 +111,88 @@
             transition: all 0.2s ease;
         }
 
-        /* Tabs Styles */
-        .batch-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--gray);
-            padding-bottom: 0;
+        /* Month Navigation Header */
+        .month-nav-header {
+            background: var(--gradient-dark);
+            border-radius: var(--radius-lg);
+            padding: 20px 30px;
+            margin-bottom: 35px;
+            border: 1px solid var(--gray);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .tab-btn {
-            background: transparent;
-            color: var(--theme-white);
-            padding: 12px 30px;
-            border-radius: 0;
-            border: none;
-            font-weight: 600;
+        .month-display {
+            text-align: center;
+        }
+
+        .month-name {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--secondary-color);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .year-name {
             font-size: 1rem;
-            position: relative;
-            transition: all 0.3s ease;
+            color: var(--theme-white);
             opacity: 0.7;
         }
 
-        .tab-btn:hover {
+        .nav-arrow {
             background: transparent;
+            border: 1px solid var(--secondary-color);
             color: var(--secondary-color);
-            opacity: 1;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 1.4rem;
+            transition: all 0.3s;
         }
 
-        .tab-btn.active {
-            color: var(--secondary-color);
-            opacity: 1;
-        }
-
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient-gold);
-            border-radius: 3px;
-        }
-
-        /* Header */
-        .slots-header {
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--theme-color);
-        }
-
-        .slots-header h1 {
-            color: var(--secondary-color);
-            font-weight: 700;
-            font-size: 2.2rem;
-        }
-
-        .add-slot-btn {
-            background: transparent;
-            color: var(--secondary-color);
-            padding: 12px 32px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            position: relative;
-        }
-
-        .add-slot-btn::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            padding: 2.5px;
-            background: var(--gradient-gold);
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-        }
-
-        .add-slot-btn:hover {
+        .nav-arrow:hover {
+            background: var(--secondary-color);
             color: #000;
-            background: var(--gradient-gold);
+            transform: scale(1.05);
         }
 
-        /* Slot Card */
+        /* Batch Cards Grid */
+        .slots-grid-modern {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+            margin-top: 15px;
+        }
+
         .slot-card {
             background: var(--gradient-dark);
             border: 1px solid var(--gray);
             border-radius: var(--radius-md);
             overflow: hidden;
             transition: all 0.3s ease;
-            height: 100%;
             display: flex;
             flex-direction: column;
+            backdrop-filter: blur(2px);
         }
 
         .slot-card:hover {
             transform: translateY(-6px);
             border-color: var(--secondary-color);
-            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
         }
 
         .slot-header-badge {
             background: rgba(0, 0, 0, 0.7);
-            padding: 12px 20px;
+            padding: 14px 20px;
             border-bottom: 1px solid var(--gray);
-        }
-
-        .slot-title {
-            color: var(--secondary-color);
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin: 0;
         }
 
         .batch-type-badge {
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 8px;
+            padding: 5px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 700;
         }
 
         .morning-badge {
@@ -296,10 +252,10 @@
             text-align: center;
             cursor: pointer;
             border: none;
+            background: transparent;
         }
 
         .edit-slot {
-            background: transparent;
             border: 1px solid var(--secondary-color);
             color: var(--secondary-color);
         }
@@ -310,7 +266,6 @@
         }
 
         .delete-slot {
-            background: transparent;
             border: 1px solid #ff6b6b;
             color: #ff6b6b;
         }
@@ -320,7 +275,36 @@
             color: white;
         }
 
-        /* Loading & Empty */
+        .empty-month-state {
+            text-align: center;
+            padding: 70px 20px;
+            background: var(--gradient-dark);
+            border-radius: var(--radius-lg);
+            border: 1px dashed var(--secondary-color);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        .add-slot-btn {
+            background: transparent;
+            color: var(--secondary-color);
+            padding: 10px 28px;
+            font-weight: 600;
+            border: 1.5px solid var(--secondary-color);
+            border-radius: 40px;
+            transition: all 0.3s;
+        }
+
+        .add-slot-btn:hover {
+            background: var(--secondary-color);
+            color: #000;
+        }
+
         .loading-spinner {
             text-align: center;
             padding: 60px;
@@ -342,19 +326,7 @@
             }
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 70px 20px;
-        }
-
-        .empty-icon {
-            font-size: 5rem;
-            color: var(--secondary-color);
-            opacity: 0.5;
-            margin-bottom: 20px;
-        }
-
-        /* Modal Styling */
+        /* Modal Styles */
         .modal-content {
             background: var(--dark-gray);
             border: 1px solid var(--gray);
@@ -368,12 +340,6 @@
 
         .modal-title {
             color: var(--secondary-color);
-            font-weight: 600;
-        }
-
-        .form-label {
-            color: var(--secondary-color);
-            font-weight: 500;
         }
 
         .form-control,
@@ -391,10 +357,6 @@
             color: white;
         }
 
-        .btn-close-white {
-            filter: invert(1);
-        }
-
         @media (max-width: 768px) {
             .admin-dashboard-navbar {
                 flex-direction: column;
@@ -402,23 +364,17 @@
                 align-items: stretch;
             }
 
-            .admin-dashboard-right {
-                justify-content: center;
+            .month-name {
+                font-size: 1.5rem;
             }
 
-            .slots-header .row {
-                flex-direction: column;
-                text-align: center;
-                gap: 15px;
+            .nav-arrow {
+                width: 40px;
+                height: 40px;
             }
 
-            .batch-tabs {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .tab-btn {
-                text-align: center;
+            .slots-grid-modern {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -442,102 +398,98 @@
             <a href="./Courses.html" class="admin-dashboard-link active">Courses</a>
             <a href="./Franchise.html" class="admin-dashboard-link">Franchise</a>
             <a href="./TotalSales.html" class="admin-dashboard-link">Total Sales</a>
-            <a href="./CouponManagement.html" class="admin-dashboard-link ">Coupons</a>
-
+            <a href="./CouponManagement.html" class="admin-dashboard-link">Coupons</a>
             <a href="./leads.html" class="admin-dashboard-link">Leads</a>
             <button id="logoutBtn">Logout</button>
         </div>
     </header>
 
-    <div class="container mt-4">
-        <div class="slots-header">
+    <div class="container mt-4 mb-5">
+        <!-- Month Navigation Header (Preview + Next/Prev) -->
+        <div class="month-nav-header">
             <div class="row align-items-center">
-                <div class="col-md-7">
-                    <h1><i class="fas fa-calendar-alt me-3"></i>Batch Management</h1>
-                    <p>Manage Morning and Evening batches - set schedule, capacity, pricing</p>
+                <div class="col-3 text-start">
+                    <button class="nav-arrow" id="prevMonthBtn"><i class="fas fa-chevron-left"></i></button>
                 </div>
-                <div class="col-md-5 text-md-end mt-3 mt-md-0">
-                    <button class="add-slot-btn" id="openAddSlotModalBtn">
-                        <i class="fas fa-plus-circle"></i> Add New Batch
-                    </button>
+                <div class="col-6 month-display">
+                    <div class="month-name" id="currentMonthDisplay">March 2026</div>
+                    <div class="year-name" id="batchStatsInfo">Loading batches...</div>
+                </div>
+                <div class="col-3 text-end">
+                    <button class="nav-arrow" id="nextMonthBtn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col text-center">
+                    <button class="add-slot-btn" id="openAddSlotModalBtn"><i class="fas fa-plus-circle"></i> Add New
+                        Batch</button>
                 </div>
             </div>
         </div>
 
-        <!-- Loading -->
+        <!-- Loading Spinner -->
         <div id="loadingSpinner" class="loading-spinner" style="display: none;">
             <div class="spinner-custom"></div>
-            <p>Loading Batches...</p>
+            <p>Loading month-wise batches...</p>
         </div>
 
-        <!-- Batches Grid -->
-        <div class="row" id="slotsGrid"></div>
+        <!-- Batches Grid Container -->
+        <div id="slotsGridContainer" class="slots-grid-modern"></div>
 
-        <!-- Empty State -->
-        <div id="emptyState" class="empty-state" style="display: none;">
-            <div class="empty-icon"><i class="fas fa-clock"></i></div>
-            <h3>No Batches Created Yet</h3>
-            <p>Start by adding a new batch. Select Morning or Evening batch type.</p>
+        <!-- Empty State (Month specific) -->
+        <div id="emptyMonthState" class="empty-month-state" style="display: none;">
+            <div class="empty-icon"><i class="far fa-calendar-times"></i></div>
+            <h4>No batches in this month</h4>
+            <p>Click "Add New Batch" to create a batch for <span id="emptyMonthName"></span></p>
             <button class="add-slot-btn" id="emptyAddSlotBtn"><i class="fas fa-plus"></i> Create Batch</button>
         </div>
     </div>
 
-    <!-- ========================= ADD / EDIT BATCH MODAL ========================= -->
+    <!-- Add/Edit Batch Modal -->
     <div class="modal fade" id="slotModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalTitle"><i class="fas fa-plus-circle me-2"></i>Add New Batch</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="slotForm">
-                        <input type="hidden" id="slotId" name="slotId">
-
+                        <input type="hidden" id="slotId">
                         <div class="mb-3">
                             <label class="form-label">Batch Type *</label>
-                            <select class="form-select" id="batchType" name="batchType" required>
-                                <option value="">Select Batch Type</option>
+                            <select class="form-select" id="batchType" required>
+                                <option value="">Select</option>
                                 <option value="morning">Morning Batch</option>
                                 <option value="evening">Evening Batch</option>
                             </select>
                         </div>
-
-                        <!-- Only Start Date field - no time, only date -->
                         <div class="mb-3">
                             <label class="form-label">Start Date *</label>
-                            <input type="date" class="form-control" id="startDate" name="startDate" required>
-                            <div class="form-text text-muted">Select the batch start date (time will be set to 00:00:00)
-                            </div>
+                            <input type="date" class="form-control" id="startDate" required>
                         </div>
-
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Max Students</label>
-                                <input type="number" class="form-control" id="maxStudents" name="maxStudents"
-                                    placeholder="e.g., 20" min="1" value="10">
+                                <input type="number" class="form-control" id="maxStudents" min="1" value="10">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Price (₹)</label>
-                                <input type="number" step="0.01" class="form-control" id="price" name="price"
-                                    placeholder="499" value="0">
+                                <input type="number" step="0.01" class="form-control" id="price" value="0">
                             </div>
                         </div>
-
-                        <div class="form-text text-muted">Note: GST (18%) will be applied during checkout.</div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-warning" id="saveSlotBtn">Save Batch</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-warning" id="saveSlotBtn">Save Batch</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteSlotModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="deleteSlotModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -545,13 +497,12 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete this batch? This action cannot be undone, and any pending
-                        bookings will be affected.</p>
+                    <p>Permanently delete this batch? This action cannot be undone.</p>
                     <input type="hidden" id="deleteSlotId">
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-danger" id="confirmDeleteSlotBtn">Delete Permanently</button>
+                    <button class="btn btn-danger" id="confirmDeleteSlotBtn">Delete</button>
                 </div>
             </div>
         </div>
@@ -560,30 +511,25 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./assets/js/config.js"></script>
     <script>
-        // ----------------------------- CONFIG (backend base URL) -------------------------
-        // const config = window.config || {};
-        const BACKEND_URL = config.backendBaseUrl || "http://localhost:5001";
+        // ---------- CONFIG ----------
+        const BACKEND_URL = (typeof config !== 'undefined' && config.backendBaseUrl) ? config.backendBaseUrl : "http://localhost:5001";
+        console.log("Backend URL:", BACKEND_URL);
 
-        { console.log(BACKEND_URL) }
-
-        // DOM Elements
-        const slotsGrid = document.getElementById('slotsGrid');
+        // DOM elements
+        const slotsContainer = document.getElementById('slotsGridContainer');
         const loadingSpinner = document.getElementById('loadingSpinner');
-        const emptyState = document.getElementById('emptyState');
+        const emptyMonthState = document.getElementById('emptyMonthState');
+        const currentMonthDisplay = document.getElementById('currentMonthDisplay');
+        const batchStatsInfo = document.getElementById('batchStatsInfo');
         const slotModalObj = new bootstrap.Modal(document.getElementById('slotModal'));
         const deleteModalObj = new bootstrap.Modal(document.getElementById('deleteSlotModal'));
-        const modalTitle = document.getElementById('modalTitle');
-        const saveSlotBtn = document.getElementById('saveSlotBtn');
-        const slotIdField = document.getElementById('slotId');
-        const batchTypeSelect = document.getElementById('batchType');
-        const startDateInput = document.getElementById('startDate');
-        const maxStudentsInput = document.getElementById('maxStudents');
-        const priceInput = document.getElementById('price');
 
-        let currentEditSlotId = null;
-        let currentBatchFilter = 'all';
+        // State variables
+        let currentDate = new Date(); // current focused month/year
+        let allBatches = [];           // store all batches from backend
+        let currentEditId = null;
 
-        // Helper: get auth token
+        // Helper: get token
         function getToken() {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -594,128 +540,125 @@
             return token;
         }
 
-        // Helper: format date for display (only date part, no time)
+        // Format date to YYYY-MM-DD
         function formatDateOnly(isoString) {
             if (!isoString) return 'N/A';
             const date = new Date(isoString);
             return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
         }
 
-        // Get batch title based on type
-        function getBatchTitle(batchType) {
-            if (batchType === 'morning') return 'Morning Batch';
-            if (batchType === 'evening') return 'Evening Batch';
-            return 'Batch';
-        }
-
-        // Load all slots from backend
-        async function loadSlots() {
+        // Fetch all batches from backend
+        async function fetchAllBatches() {
             const token = getToken();
-            if (!token) return;
-
+            if (!token) return [];
             try {
-                loadingSpinner.style.display = 'block';
-                slotsGrid.innerHTML = '';
-                emptyState.style.display = 'none';
-                slotsGrid.style.display = 'flex';
-
                 const response = await fetch(`${BACKEND_URL}/api/allSlots`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-
-                if (!response.ok) throw new Error('Failed to fetch batches');
-                const slots = await response.json();
-
-                if (!slots || slots.length === 0) {
-                    emptyState.style.display = 'block';
-                    slotsGrid.style.display = 'none';
-                    return;
-                }
-
-                // Filter based on selected tab
-                let filteredSlots = slots;
-                if (currentBatchFilter !== 'all') {
-                    filteredSlots = slots.filter(slot => slot.batchType === currentBatchFilter);
-                }
-
-                if (filteredSlots.length === 0) {
-                    emptyState.style.display = 'block';
-                    slotsGrid.style.display = 'none';
-                    return;
-                }
-
-                renderSlots(filteredSlots);
+                if (!response.ok) throw new Error('Failed to fetch');
+                const batches = await response.json();
+                allBatches = batches || [];
+                return allBatches;
             } catch (err) {
                 console.error(err);
-                slotsGrid.innerHTML = `<div class="col-12"><div class="alert alert-danger">Error loading batches: ${err.message}</div></div>`;
-            } finally {
-                loadingSpinner.style.display = 'none';
+                allBatches = [];
+                return [];
             }
         }
 
-        // Render slots as cards
-        function renderSlots(slots) {
-            slotsGrid.style.display = 'flex';
-            slotsGrid.innerHTML = '';
+        // Get batches that fall within a specific month (year, monthIndex 0-11)
+        function filterBatchesByMonth(batches, year, monthIndex) {
+            return batches.filter(batch => {
+                if (!batch.startTime) return false;
+                const date = new Date(batch.startTime);
+                return date.getFullYear() === year && date.getMonth() === monthIndex;
+            });
+        }
 
-            slots.forEach(slot => {
+        // Render month info and cards
+        function renderMonthView() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const currentMonthName = `${monthNames[month]} ${year}`;
+            currentMonthDisplay.innerText = currentMonthName;
+
+            const monthBatches = filterBatchesByMonth(allBatches, year, month);
+            const totalBatches = monthBatches.length;
+            const totalCapacity = monthBatches.reduce((sum, b) => sum + (b.maxStudents || 0), 0);
+            const totalBooked = monthBatches.reduce((sum, b) => sum + (b.bookedStudents ? b.bookedStudents.length : 0), 0);
+            batchStatsInfo.innerHTML = `${totalBatches} batches | Capacity: ${totalCapacity} | Booked: ${totalBooked}`;
+
+            if (monthBatches.length === 0) {
+                slotsContainer.style.display = 'none';
+                emptyMonthState.style.display = 'block';
+                document.getElementById('emptyMonthName').innerText = currentMonthName;
+                return;
+            }
+
+            slotsContainer.style.display = 'grid';
+            emptyMonthState.style.display = 'none';
+            renderBatchCards(monthBatches);
+        }
+
+        // Render cards for given batches array
+        function renderBatchCards(batches) {
+            slotsContainer.innerHTML = '';
+            batches.forEach(slot => {
                 const startDisplay = formatDateOnly(slot.startTime);
                 const priceDisplay = slot.price ? `₹ ${Number(slot.price).toFixed(2)}` : 'Free';
                 const maxStudents = slot.maxStudents || 'Unlimited';
                 const bookedCount = slot.bookedStudents ? slot.bookedStudents.length : 0;
-                const available = (slot.maxStudents - bookedCount) > 0 ? (slot.maxStudents - bookedCount) : 0;
+                const available = (slot.maxStudents && slot.maxStudents > 0) ? (slot.maxStudents - bookedCount) : 0;
                 const availabilityStatus = (slot.maxStudents && bookedCount >= slot.maxStudents) ?
                     '<span class="badge bg-danger">Full</span>' :
                     `<span class="badge bg-success">${available} spots left</span>`;
 
-                const batchTitle = getBatchTitle(slot.batchType);
+                const batchTitle = slot.batchType === 'morning' ? 'Morning Batch' : 'Evening Batch';
                 const batchTypeClass = slot.batchType === 'morning' ? 'morning-badge' : 'evening-badge';
                 const batchIcon = slot.batchType === 'morning' ? 'fa-sun' : 'fa-moon';
 
-                const col = document.createElement('div');
-                col.className = 'col-md-6 col-lg-4 mb-4';
-                col.innerHTML = `
-                    <div class="slot-card">
-                        <div class="slot-header-badge">
-                            <span class="batch-type-badge ${batchTypeClass}">
-                                <i class="fas ${batchIcon}"></i> ${batchTitle}
-                            </span>
+                const card = document.createElement('div');
+                card.className = 'slot-card';
+                card.innerHTML = `
+                    <div class="slot-header-badge">
+                        <span class="batch-type-badge ${batchTypeClass}">
+                            <i class="fas ${batchIcon}"></i> ${batchTitle}
+                        </span>
+                    </div>
+                    <div class="slot-info">
+                        <div class="info-row">
+                            <span class="info-label"><i class="far fa-calendar-alt"></i> Start Date:</span>
+                            <span class="info-value">${startDisplay}</span>
                         </div>
-                        <div class="slot-info">
-                            <div class="info-row">
-                                <span class="info-label"><i class="far fa-calendar-alt"></i> Start Date:</span>
-                                <span class="info-value">${startDisplay}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label"><i class="fas fa-users"></i> Capacity:</span>
-                                <span class="info-value">${maxStudents} students (${bookedCount} booked)</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label"><i class="fas fa-tag"></i> Price:</span>
-                                <span class="info-value price-tag">${priceDisplay}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label"><i class="fas fa-chair"></i> Availability:</span>
-                                <span class="info-value">${availabilityStatus}</span>
-                            </div>
-                            <div class="slot-actions">
-                                <button class="action-btn edit-slot" data-id="${slot._id}"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="action-btn delete-slot" data-id="${slot._id}"><i class="fas fa-trash-alt"></i> Delete</button>
-                            </div>
+                        <div class="info-row">
+                            <span class="info-label"><i class="fas fa-users"></i> Capacity:</span>
+                            <span class="info-value">${maxStudents} students (${bookedCount} booked)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label"><i class="fas fa-tag"></i> Price:</span>
+                            <span class="info-value price-tag">${priceDisplay}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label"><i class="fas fa-chair"></i> Availability:</span>
+                            <span class="info-value">${availabilityStatus}</span>
+                        </div>
+                        <div class="slot-actions">
+                            <button class="action-btn edit-slot" data-id="${slot._id}"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="action-btn delete-slot" data-id="${slot._id}"><i class="fas fa-trash-alt"></i> Delete</button>
                         </div>
                     </div>
                 `;
-                slotsGrid.appendChild(col);
+                slotsContainer.appendChild(card);
             });
 
-            // Attach event listeners for edit/delete buttons
+            // Attach edit/delete events
             document.querySelectorAll('.edit-slot').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const id = btn.getAttribute('data-id');
-                    openEditSlotModal(id);
+                    openEditModal(id);
                 });
             });
-
             document.querySelectorAll('.delete-slot').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const id = btn.getAttribute('data-id');
@@ -725,179 +668,141 @@
             });
         }
 
-        // Open Add Slot Modal
-        function openAddSlotModal() {
-            currentEditSlotId = null;
-            slotIdField.value = '';
+        // Open edit modal with pre-filled data
+        async function openEditModal(slotId) {
+            const token = getToken();
+            if (!token) return;
+            try {
+                const resp = await fetch(`${BACKEND_URL}/api/slotDetail/${slotId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!resp.ok) throw new Error('Cannot fetch batch');
+                const slot = await resp.json();
+                currentEditId = slot._id;
+                document.getElementById('slotId').value = slot._id;
+                document.getElementById('batchType').value = (slot.batchType || '').toLowerCase();
+                if (slot.startTime) {
+                    const d = new Date(slot.startTime);
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    document.getElementById('startDate').value = `${yyyy}-${mm}-${dd}`;
+                }
+                document.getElementById('maxStudents').value = slot.maxStudents || 10;
+                document.getElementById('price').value = slot.price || 0;
+                document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Batch';
+                slotModalObj.show();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        // Reset add modal
+        function openAddModal() {
+            currentEditId = null;
             document.getElementById('slotForm').reset();
-            batchTypeSelect.value = '';
-            // Set default date to tomorrow
+            document.getElementById('slotId').value = '';
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
-            startDateInput.value = tomorrow.toISOString().slice(0, 10);
-            maxStudentsInput.value = 10;
-            priceInput.value = 0;
-            modalTitle.innerHTML = '<i class="fas fa-plus-circle me-2"></i>Add New Batch';
+            document.getElementById('startDate').value = tomorrow.toISOString().slice(0, 10);
+            document.getElementById('maxStudents').value = 10;
+            document.getElementById('price').value = 0;
+            document.getElementById('batchType').value = '';
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>Add New Batch';
             slotModalObj.show();
         }
 
-        // Open Edit Slot Modal (fetch details)
-        async function openEditSlotModal(slotId) {
+        // Save (create/update)
+        document.getElementById('saveSlotBtn').addEventListener('click', async () => {
             const token = getToken();
             if (!token) return;
-
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/slotDetail/${slotId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (!response.ok) throw new Error('Cannot fetch batch details');
-                const slot = await response.json();
-
-                currentEditSlotId = slot._id;
-                slotIdField.value = slot._id;
-                // Pre-select batch type - it will automatically take the existing value
-                // batchTypeSelect.value = slot.batchType || '';
-
-                batchTypeSelect.value = (slot.batchType || '').toLowerCase();
-                // Format date from ISO to YYYY-MM-DD (only date part)
-                if (slot.startTime) {
-                    const dateObj = new Date(slot.startTime);
-                    const year = dateObj.getFullYear();
-                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                    const day = String(dateObj.getDate()).padStart(2, '0');
-                    startDateInput.value = `${year}-${month}-${day}`;
-                }
-                maxStudentsInput.value = slot.maxStudents || 10;
-                priceInput.value = slot.price || 0;
-
-                modalTitle.innerHTML = '<i class="fas fa-edit me-2"></i>Edit Batch';
-                slotModalObj.show();
-            } catch (err) {
-                alert('Error loading batch details: ' + err.message);
-            }
-        }
-
-        // Save slot (Create or Update)
-        saveSlotBtn.addEventListener('click', async () => {
-            const token = getToken();
-            if (!token) return;
-
-            const batchType = batchTypeSelect.value;
-            if (!batchType) {
-                alert('Please select batch type (Morning or Evening)');
+            const batchType = document.getElementById('batchType').value;
+            const startDate = document.getElementById('startDate').value;
+            if (!batchType || !startDate) {
+                alert('Please fill batch type and start date');
                 return;
             }
-
-            const startDate = startDateInput.value;
-            if (!startDate) {
-                alert('Please select start date');
-                return;
-            }
-
-            // Create ISO string with time set to 00:00:00 (start of day)
             const startDateTime = new Date(startDate);
             startDateTime.setHours(0, 0, 0, 0);
             const startTimeISO = startDateTime.toISOString();
-
-            const batchTitle = getBatchTitle(batchType);
+            const endTimeISO = new Date(startDateTime.getTime() + 24 * 60 * 60 * 1000).toISOString();
 
             const payload = {
-                title: batchTitle,
+                title: batchType === 'morning' ? 'Morning Batch' : 'Evening Batch',
                 batchType: batchType,
                 startTime: startTimeISO,
-                // Since end time is removed, we'll set endTime same as startTime (or you can set to end of day)
-                // To maintain backward compatibility with backend, set endTime to start of day + 1 day (batch duration)
-                endTime: new Date(startDateTime.getTime() + 24 * 60 * 60 * 1000).toISOString(),
-                maxStudents: parseInt(maxStudentsInput.value) || 0,
-                price: parseFloat(priceInput.value) || 0
+                endTime: endTimeISO,
+                maxStudents: parseInt(document.getElementById('maxStudents').value) || 0,
+                price: parseFloat(document.getElementById('price').value) || 0
             };
 
-            const isEdit = currentEditSlotId !== null;
+            const isEdit = currentEditId !== null;
             let url = `${BACKEND_URL}/api/addSlot`;
             let method = 'POST';
-
             if (isEdit) {
-                url = `${BACKEND_URL}/api/updateSlot/${currentEditSlotId}`;
+                url = `${BACKEND_URL}/api/updateSlot/${currentEditId}`;
                 method = 'PUT';
             }
 
             try {
-                saveSlotBtn.disabled = true;
-                saveSlotBtn.innerHTML = 'Saving...';
-
+                const btn = document.getElementById('saveSlotBtn');
+                btn.disabled = true;
+                btn.innerText = 'Saving...';
                 const response = await fetch(url, {
                     method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(payload)
                 });
-
                 if (!response.ok) {
                     const errData = await response.json();
                     throw new Error(errData.message || 'Save failed');
                 }
-
-                const result = await response.json();
-                alert(result.message || (isEdit ? 'Batch updated successfully' : 'Batch created successfully'));
-
+                alert(isEdit ? 'Batch updated!' : 'Batch created!');
                 slotModalObj.hide();
-                loadSlots(); // refresh list
-
-                // reset
-                currentEditSlotId = null;
+                await fetchAllBatches();
+                renderMonthView();
             } catch (err) {
                 alert('Error: ' + err.message);
             } finally {
-                saveSlotBtn.disabled = false;
-                saveSlotBtn.innerHTML = 'Save Batch';
+                const btn = document.getElementById('saveSlotBtn');
+                btn.disabled = false;
+                btn.innerText = 'Save Batch';
             }
         });
 
-        // Delete slot
-        async function deleteSlot(slotId) {
+        // Delete batch
+        async function deleteBatchById(id) {
             const token = getToken();
             if (!token) return;
-
             try {
-                const response = await fetch(`${BACKEND_URL}/api/deleteSlot/${slotId}`, {
+                const resp = await fetch(`${BACKEND_URL}/api/deleteSlot/${id}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                if (!response.ok) throw new Error('Delete failed');
-                alert('Batch deleted successfully');
+                if (!resp.ok) throw new Error('Delete failed');
+                alert('Batch deleted');
                 deleteModalObj.hide();
-                loadSlots();
+                await fetchAllBatches();
+                renderMonthView();
             } catch (err) {
-                alert('Error deleting batch: ' + err.message);
+                alert(err.message);
             }
         }
 
         document.getElementById('confirmDeleteSlotBtn').addEventListener('click', () => {
             const id = document.getElementById('deleteSlotId').value;
-            if (id) deleteSlot(id);
+            if (id) deleteBatchById(id);
         });
 
-        // Reset modal on close
-        document.getElementById('slotModal').addEventListener('hidden.bs.modal', () => {
-            document.getElementById('slotForm').reset();
-            currentEditSlotId = null;
+        // Month navigation
+        document.getElementById('prevMonthBtn').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderMonthView();
         });
-
-        // Tab functionality - keeping tabs commented in HTML but enabling if needed
-        // Note: Tabs are currently commented in HTML, but if uncommented, this will work
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        if (tabButtons.length > 0) {
-            tabButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-                    btn.classList.add('active');
-                    currentBatchFilter = btn.getAttribute('data-batch-type');
-                    loadSlots();
-                });
-            });
-        }
+        document.getElementById('nextMonthBtn').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderMonthView();
+        });
 
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -905,15 +810,19 @@
             window.location.href = './login.html';
         });
 
-        // Event listeners for add buttons
-        document.getElementById('openAddSlotModalBtn').addEventListener('click', openAddSlotModal);
-        const emptyAddBtn = document.getElementById('emptyAddSlotBtn');
-        if (emptyAddBtn) emptyAddBtn.addEventListener('click', openAddSlotModal);
+        // Initialization with loading state
+        async function init() {
+            loadingSpinner.style.display = 'block';
+            slotsContainer.style.display = 'none';
+            emptyMonthState.style.display = 'none';
+            await fetchAllBatches();
+            loadingSpinner.style.display = 'none';
+            renderMonthView();
+        }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadSlots();
-        });
+        document.getElementById('openAddSlotModalBtn').addEventListener('click', openAddModal);
+        document.getElementById('emptyAddSlotBtn').addEventListener('click', openAddModal);
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 
