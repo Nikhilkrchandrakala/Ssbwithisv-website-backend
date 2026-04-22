@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Check authentication
     if (!localStorage.getItem("token")) {
         alert("Please login");
-        window.location.href = "./login.html";
+        window.location.href = "../admin.html";
         return;
     }
 
@@ -400,7 +400,7 @@ adminBlogFrom.addEventListener("submit", async (e) => {
     const token = localStorage.getItem("token");
     if (!token) {
         alert("Please login first!");
-        window.location.href = "./login.html";
+        window.location.href = "../admin.html";
         return;
     }
 

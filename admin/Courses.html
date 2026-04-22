@@ -387,7 +387,7 @@
         <div class="admin-dashboard-left">
             <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image"
                 onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
-            Hi Admin; 👋🏻
+            Hi  Superadmin; 👋🏻
         </div>
         <div class="admin-dashboard-right">
             <a href="./dashboard.html" class="admin-dashboard-link">Dashboard</a>
@@ -534,7 +534,7 @@
             const token = localStorage.getItem('token');
             if (!token) {
                 alert('Session expired. Please login again.');
-                window.location.href = './login.html';
+                window.location.href = '../admin.html';
                 return null;
             }
             return token;
@@ -614,7 +614,7 @@
                     '<span class="badge bg-danger">Full</span>' :
                     `<span class="badge bg-success">${available} spots left</span>`;
 
-                const batchTitle = slot.batchType === 'morning' ? 'Morning Batch' : 'Evening Batch';
+                const batchTitle = slot.title ;
                 const batchTypeClass = slot.batchType === 'morning' ? 'morning-badge' : 'evening-badge';
                 const batchIcon = slot.batchType === 'morning' ? 'fa-sun' : 'fa-moon';
 
@@ -807,7 +807,7 @@
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => {
             localStorage.removeItem('token');
-            window.location.href = './login.html';
+            window.location.href = '../admin.html';
         });
 
         // Initialization with loading state

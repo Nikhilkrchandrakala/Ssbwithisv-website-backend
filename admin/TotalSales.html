@@ -358,7 +358,7 @@
     <header class="admin-dashboard-navbar">
         <div class="admin-dashboard-left">
             <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
-            Hi Admin; 👋🏻
+            Hi  Superadmin; 👋🏻
         </div>
         <div class="admin-dashboard-right">
             <a href="./dashboard.html" class="admin-dashboard-link">Dashboard</a>
@@ -811,7 +811,7 @@
 
         document.getElementById('logoutBtn')?.addEventListener('click', () => {
             localStorage.removeItem('token');
-            window.location.href = './login.html';
+            window.location.href = '../admin.html';
         });
 
         document.addEventListener('DOMContentLoaded', () => {

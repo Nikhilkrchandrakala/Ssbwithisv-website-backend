@@ -507,7 +507,7 @@ function showAlert(message, type = 'success') {
 function checkAuth() {
     const token = localStorage.getItem('token');
     if (!token) {
-        window.location.href = './login.html';
+        window.location.href = '../admin.html';
     }
 }
 
@@ -545,7 +545,7 @@ function initialize() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             localStorage.removeItem('token');
-            window.location.href = './login.html';
+            window.location.href = '../admin.html';
         });
     }
 
