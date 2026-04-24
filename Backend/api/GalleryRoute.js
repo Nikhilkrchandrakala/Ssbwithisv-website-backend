@@ -153,6 +153,43 @@ router.put(
 
 
 
+router.put("/updateImageText/:galleryId", checkAuth, async (req, res) => {
+    try {
+        const { imageUrl, imageText } = req.body;
+
+        if (!imageUrl) {
+            return res.status(400).json({ message: "imageUrl is required" });
+        }
+
+        const gallery = await Gallery.findById(req.params.galleryId);
+        if (!gallery) {
+            return res.status(404).json({ message: "Gallery not found" });
+        }
+
+        // ✅ find image
+        const image = gallery.images.find(img => img.imageUrl === imageUrl);
+
+        if (!image) {
+            return res.status(404).json({ message: "Image not found" });
+        }
+
+        // ✅ update text
+        image.imageText = imageText || "";
+
+        await gallery.save();
+
+        res.json({
+            message: "Image description updated",
+            data: gallery,
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
+
 // ✅ DELETE GALLERY
 router.delete("/deleteGallery/:id", checkAuth, async (req, res) => {
     await Gallery.findByIdAndDelete(req.params.id);

@@ -5,6 +5,10 @@ const router = express.Router();
 const Slot = require("../model/Slot");
 const checkAuth = require("../middlewares/CheckAuth");
 
+const { UserDetails } = require("../model/UserDetails");
+const Order = require("../model/Order");
+
+
 
 // ✅ CREATE SLOT
 router.post("/addSlot", checkAuth, async (req, res) => {
@@ -78,6 +82,68 @@ router.delete("/deleteSlot/:id", checkAuth, async (req, res) => {
     await Slot.findByIdAndDelete(req.params.id);
 
     res.json({ message: "Deleted successfully" });
+});
+
+router.post("/manualBookSlot/:id", checkAuth, async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        const cleanEmail = email.trim().toLowerCase();
+
+        const slot = await Slot.findById(req.params.id);
+        if (!slot) {
+            return res.status(404).json({ message: "Slot not found" });
+        }
+
+        // ✅ find user (IMPORTANT: same collection as auth)
+        const user = await UserDetails.findOne({ email: cleanEmail });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const userId = user._id; // 🔥 ensure same model used everywhere
+
+        // ✅ already booked check
+        if (slot.bookedStudents.some(id => id.toString() === userId.toString())) {
+            return res.status(400).json({ message: "Already booked" });
+        }
+
+        // ✅ seat full check
+        if (slot.bookedStudents.length >= slot.maxStudents) {
+            return res.status(400).json({ message: "Slot is full" });
+        }
+
+        // ✅ add user (same as payment logic)
+        // after slot.bookedStudents.push(userId);
+
+        slot.bookedStudents.push(userId);
+        await slot.save();
+
+        // ✅ ALSO CREATE ORDER
+        const order = new Order({
+            userId: userId,
+            slotId: slot._id,
+            price: slot.price,
+            originalAmount: slot.price,
+            discount: 0,
+            status: "paid", // 🔥 important
+        });
+
+        await order.save();
+
+        res.json({
+            message: "Slot booked manually successfully",
+            data: slot
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 module.exports = router;

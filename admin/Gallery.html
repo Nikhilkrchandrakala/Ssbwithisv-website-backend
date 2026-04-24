@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Panel - Gallery Management</title>
+    <title>Admin Panel - Gallery Management | Edit Image Description</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -39,7 +39,6 @@
         body {
             background-color: var(--dark-gray);
             color: var(--theme-white);
-            /* min-height: 100vh; */
         }
 
         .admin-dashboard-navbar {
@@ -70,6 +69,7 @@
         .admin-dashboard-right {
             display: flex;
             gap: 20px;
+            flex-wrap: wrap;
         }
 
         .admin-dashboard-link {
@@ -85,7 +85,6 @@
             color: white;
         }
 
-        /* Responsive Styles */
         @media (max-width: 768px) {
             .admin-dashboard-navbar {
                 flex-direction: column;
@@ -102,24 +101,6 @@
                 padding: 10px 0;
                 width: 100%;
                 border-top: 1px solid #444;
-            }
-
-            .admin-dashboard-left {
-                margin-bottom: 10px;
-            }
-
-            .admin-dashboard-image {
-                height: 40px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .admin-dashboard-link {
-                font-size: 14px;
-            }
-
-            .admin-dashboard-image {
-                height: 30px;
             }
         }
 
@@ -179,7 +160,6 @@
             background: var(--gradient-gold);
         }
 
-        /* Gallery Card Styles */
         .gallery-card {
             background: var(--gradient-dark);
             border: 1px solid var(--gray);
@@ -201,7 +181,6 @@
             position: relative;
             width: 100%;
             padding-top: 75%;
-            /* 4:3 aspect */
             overflow: hidden;
             border-radius: 8px;
             margin-bottom: 15px;
@@ -228,7 +207,16 @@
             margin: 10px 0;
             text-align: center;
             word-break: break-word;
-            opacity: 0.9;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .img-caption:hover {
+            background: rgba(227, 198, 7, 0.2);
+            border: 1px dashed var(--secondary-color);
         }
 
         .gallery-actions {
@@ -236,6 +224,22 @@
             gap: 12px;
             margin-top: 12px;
             justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .edit-desc-btn {
+            background: transparent;
+            border: 1px solid var(--secondary-color);
+            color: var(--secondary-color);
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+
+        .edit-desc-btn:hover {
+            background: var(--secondary-color);
+            color: #000;
         }
 
         .delete-img-btn {
@@ -321,11 +325,11 @@
             border: 1px solid var(--secondary-color);
         }
 
-        @media (max-width: 768px) {
-            .admin-dashboard-navbar {
-                flex-direction: column;
-                gap: 15px;
-            }
+        .edit-preview-img {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 2px solid var(--secondary-color);
         }
     </style>
 </head>
@@ -334,10 +338,8 @@
 
     <header class="admin-dashboard-navbar">
         <div class="admin-dashboard-left">
-            <!-- <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin" class="admin-dashboard-image"> -->
             <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image">
-
-            Hi  Superadmin; 👋🏻
+            Hi Superadmin; 👋🏻
         </div>
         <div class="admin-dashboard-right">
             <a href="./dashboard.html" class="admin-dashboard-link">Dashboard</a>
@@ -345,26 +347,21 @@
             <a href="./BlogList.html" class="admin-dashboard-link">Blogs</a>
             <a href="./candidate.html" class="admin-dashboard-link">Candidates</a>
             <a href="./Gallery.html" class="admin-dashboard-link active">Gallery</a>
-            <a href="./Courses.html" class="admin-dashboard-link ">Courses</a>
-            <a href="./Franchise.html" class="admin-dashboard-link ">Franchise</a>
-            <a href="./TotalSales.html" class="admin-dashboard-link ">Total Sales</a>
-      <a href="./CouponManagement.html" class="admin-dashboard-link ">Coupons</a>
-
-
-
+            <a href="./Courses.html" class="admin-dashboard-link">Courses</a>
+            <a href="./Franchise.html" class="admin-dashboard-link">Franchise</a>
+            <a href="./TotalSales.html" class="admin-dashboard-link">Total Sales</a>
+            <a href="./CouponManagement.html" class="admin-dashboard-link">Coupons</a>
             <a href="./leads.html" class="admin-dashboard-link">Leads</a>
             <button id="logoutBtn">Logout</button>
         </div>
     </header>
-
-
 
     <div class="container">
         <div class="admin-gallery-header">
             <div class="row align-items-center">
                 <div class="col-md-8 mt-4">
                     <h1><i class="fas fa-images me-2"></i> Gallery Management</h1>
-                    <p>Manage all uploaded images across galleries</p>
+                    <p>Manage all uploaded images - Edit descriptions, delete images, add new images</p>
                 </div>
                 <div class="col-md-4 text-end">
                     <button class="add-gallery-btn" id="openAddGalleryModalBtn">
@@ -379,7 +376,6 @@
             <p>Loading gallery...</p>
         </div>
 
-        <!-- Gallery items will be displayed as cards grid -->
         <div class="row" id="galleryGrid"></div>
 
         <div id="emptyState" class="empty-state" style="display: none;">
@@ -390,14 +386,13 @@
         </div>
     </div>
 
-    <!-- ======================= MODAL FOR ADDING NEW IMAGES (NO TITLE) ======================= -->
+    <!-- Add Images Modal -->
     <div class="modal fade" id="addGalleryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Upload New Gallery Images</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addGalleryForm" enctype="multipart/form-data">
@@ -410,7 +405,6 @@
                         </div>
                         <div id="imagePreviews" class="d-flex flex-wrap gap-2 mb-3"
                             style="max-height: 200px; overflow-y: auto;"></div>
-
                         <div id="captionsContainer" style="display: none;">
                             <label class="form-label">Image Captions (optional)</label>
                             <div id="dynamicCaptions"></div>
@@ -425,7 +419,39 @@
         </div>
     </div>
 
-    <!-- Modal for Delete single image confirmation (delete from gallery document) -->
+    <!-- Edit Image Description Modal -->
+    <div class="modal fade" id="editDescModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Image Description</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <img id="editImagePreview" src="" alt="Preview" class="edit-preview-img"
+                            style="max-height: 200px; object-fit: contain;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Image Description / Caption</label>
+                        <textarea id="editImageText" class="form-control" rows="3"
+                            placeholder="Enter image description..."></textarea>
+                        <div class="form-text text-muted mt-2">This description will be displayed below the image.</div>
+                    </div>
+                    <input type="hidden" id="editGalleryId">
+                    <input type="hidden" id="editImageUrl">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-warning" id="saveDescriptionBtn">
+                        <i class="fas fa-save"></i> Save Description
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Image Modal -->
     <div class="modal fade" id="deleteImageModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -449,11 +475,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./assets/js/config.js"></script>
     <script>
-        // ------------------------- DOM Elements -------------------------
         const galleryGrid = document.getElementById('galleryGrid');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const emptyStateDiv = document.getElementById('emptyState');
         const addModal = new bootstrap.Modal(document.getElementById('addGalleryModal'));
+        const editDescModal = new bootstrap.Modal(document.getElementById('editDescModal'));
         const deleteImageModal = new bootstrap.Modal(document.getElementById('deleteImageModal'));
 
         const openModalBtn = document.getElementById('openAddGalleryModalBtn');
@@ -464,9 +490,6 @@
         const captionsContainer = document.getElementById('captionsContainer');
         const dynamicCaptions = document.getElementById('dynamicCaptions');
 
-        let currentDeleteTarget = { galleryId: null, imageUrl: null };
-
-        // Auth helper
         function getToken() {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -477,7 +500,6 @@
             return token;
         }
 
-        // Load all galleries (documents containing images array)
         async function loadAllGalleries() {
             const token = getToken();
             if (!token) return;
@@ -492,8 +514,6 @@
                 if (!response.ok) throw new Error('Failed to fetch galleries');
                 const galleries = await response.json();
 
-                // Flatten: Show each image as separate card but grouped per gallery? To match "show images" requirement, 
-                // we will display each image as an individual card with its caption. Provide delete per image.
                 if (!galleries.length || galleries.every(g => g.images.length === 0)) {
                     emptyStateDiv.style.display = 'block';
                     galleryGrid.style.display = 'none';
@@ -510,7 +530,16 @@
             }
         }
 
-        // Render each image from all gallery documents as a card
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function (m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
         function renderAllImagesAsCards(galleries) {
             galleryGrid.style.display = 'flex';
             galleryGrid.innerHTML = '';
@@ -521,25 +550,26 @@
                         totalImages++;
                         const col = document.createElement('div');
                         col.className = 'col-md-6 col-lg-4 mb-4';
-                        const captionText = img.imageText || 'No caption';
+                        const captionText = img.imageText || 'No description';
                         const imageUrl = img.imageUrl;
                         col.innerHTML = `
-                        <div class="gallery-card">
-                            <div class="gallery-image-wrapper">
-                                <img src="${imageUrl}" class="gallery-img" alt="gallery image" onerror="this.src='https://via.placeholder.com/400x300/2a2a2a/715c20?text=Image+Error'">
+                            <div class="gallery-card">
+                                <div class="gallery-image-wrapper">
+                                    <img src="${imageUrl}" class="gallery-img" alt="gallery image" onerror="this.src='https://via.placeholder.com/400x300/2a2a2a/715c20?text=Image+Error'">
+                                </div>
+                                <div class="img-caption" data-gallery-id="${gallery._id}" data-img-url="${imageUrl}" data-caption="${escapeHtml(captionText)}">
+                                    <i class="fas fa-quote-left me-1"></i> ${escapeHtml(captionText)}
+                                </div>
+                                <div class="gallery-actions">
+                                    <button class="edit-desc-btn" data-gallery-id="${gallery._id}" data-img-url="${imageUrl}" data-caption="${escapeHtml(captionText)}">
+                                        <i class="fas fa-edit"></i> Edit Description
+                                    </button>
+                                    <button class="delete-img-btn" data-gallery-id="${gallery._id}" data-img-url="${imageUrl}">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </button>
+                                </div>
                             </div>
-
-                            <div>
-                                <p>${captionText}</p>
-                            </div>
-                          
-                            <div class="gallery-actions">
-                                <button class="delete-img-btn" data-gallery-id="${gallery._id}" data-img-url="${imageUrl}">
-                                    <i class="fas fa-trash-alt"></i> Delete Image
-                                </button>
-                            </div>
-                        </div>
-                    `;
+                        `;
                         galleryGrid.appendChild(col);
                     });
                 }
@@ -552,32 +582,105 @@
                 emptyStateDiv.style.display = 'none';
             }
 
-            // Attach delete event listeners to all delete buttons
+            // Delete button listeners
             document.querySelectorAll('.delete-img-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const galleryId = btn.getAttribute('data-gallery-id');
                     const imgUrl = btn.getAttribute('data-img-url');
-                    currentDeleteTarget = { galleryId, imageUrl: imgUrl };
                     document.getElementById('deleteGalleryId').value = galleryId;
                     document.getElementById('deleteImageUrl').value = imgUrl;
                     deleteImageModal.show();
                 });
             });
-        }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function (m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function (c) {
-                return c;
+            // Edit description button listeners
+            document.querySelectorAll('.edit-desc-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const galleryId = btn.getAttribute('data-gallery-id');
+                    const imgUrl = btn.getAttribute('data-img-url');
+                    const caption = btn.getAttribute('data-caption');
+
+                    document.getElementById('editGalleryId').value = galleryId;
+                    document.getElementById('editImageUrl').value = imgUrl;
+                    document.getElementById('editImageText').value = caption === 'No description' ? '' : caption;
+                    document.getElementById('editImagePreview').src = imgUrl;
+                    editDescModal.show();
+                });
+            });
+
+            // Click on caption div also opens edit modal (for convenience)
+            document.querySelectorAll('.img-caption').forEach(cap => {
+                cap.addEventListener('click', (e) => {
+                    const galleryId = cap.getAttribute('data-gallery-id');
+                    const imgUrl = cap.getAttribute('data-img-url');
+                    const caption = cap.getAttribute('data-caption');
+
+                    document.getElementById('editGalleryId').value = galleryId;
+                    document.getElementById('editImageUrl').value = imgUrl;
+                    document.getElementById('editImageText').value = caption === 'No description' ? '' : caption;
+                    document.getElementById('editImagePreview').src = imgUrl;
+                    editDescModal.show();
+                });
             });
         }
 
-        // Preview images & generate caption fields dynamically
+        // Save description using updateImageText API
+        async function updateImageDescription(galleryId, imageUrl, imageText) {
+            const token = getToken();
+            if (!token) return false;
+
+            const saveBtn = document.getElementById('saveDescriptionBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                const response = await fetch(`${config.backendBaseUrl}/api/updateImageText/${galleryId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        imageUrl: imageUrl,
+                        imageText: imageText || ''
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.message || 'Update failed');
+                }
+
+                const result = await response.json();
+                return true;
+            } catch (err) {
+                console.error(err);
+                alert('Failed to update description: ' + err.message);
+                return false;
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Description';
+            }
+        }
+
+        document.getElementById('saveDescriptionBtn').addEventListener('click', async () => {
+            const galleryId = document.getElementById('editGalleryId').value;
+            const imageUrl = document.getElementById('editImageUrl').value;
+            const imageText = document.getElementById('editImageText').value;
+
+            if (!galleryId || !imageUrl) {
+                alert('Invalid request');
+                return;
+            }
+
+            const success = await updateImageDescription(galleryId, imageUrl, imageText);
+            if (success) {
+                alert('✅ Description updated successfully!');
+                editDescModal.hide();
+                await loadAllGalleries();
+            }
+        });
+
         galleryImagesInput.addEventListener('change', function (e) {
             const files = Array.from(e.target.files);
             if (files.length > 20) {
@@ -601,18 +704,16 @@
                     imagePreviewsDiv.appendChild(imgDiv);
                 };
                 reader.readAsDataURL(file);
-                // create caption input
                 const captionGroup = document.createElement('div');
                 captionGroup.className = 'mb-2';
                 captionGroup.innerHTML = `
-                <label class="form-label small">Image ${idx + 1} caption</label>
-                <input type="text" class="form-control form-control-sm img-caption-input" data-index="${idx}" placeholder="Optional caption" />
-            `;
+                    <label class="form-label small">Image ${idx + 1} caption</label>
+                    <input type="text" class="form-control form-control-sm img-caption-input" data-index="${idx}" placeholder="Optional caption" />
+                `;
                 dynamicCaptions.appendChild(captionGroup);
             });
         });
 
-        // Submit new gallery (images only, no title) using /addGallery endpoint
         submitGalleryBtn.addEventListener('click', async () => {
             const token = getToken();
             if (!token) return;
@@ -623,29 +724,18 @@
             }
 
             const formData = new FormData();
-            // According to backend: expects "title" field (required), but requirement says "title nhi jayega only images jayenge".
-            // However backend code requires title, so we send a dummy title like "Gallery_"+Date.now() but user won't see it.
-            // But to match exactly "no title" we can send a default placeholder (hidden from UI). The requirement only cares that user doesn't input title.
             formData.append('title', `Gallery_${Date.now()}`);
 
-            // Append each image
             for (let i = 0; i < files.length; i++) {
                 formData.append('images', files[i]);
             }
 
-            // Collect imageTexts from dynamic caption inputs
             const captionInputs = document.querySelectorAll('.img-caption-input');
             const imageTexts = [];
             captionInputs.forEach(input => {
                 imageTexts.push(input.value || '');
             });
-            // backend expects imageTexts as stringified? In backend: imageTexts can be array in req.body
-            // It handles if imageTexts is array.
-            if (imageTexts.length) {
-                formData.append('imageTexts', JSON.stringify(imageTexts));
-            } else {
-                formData.append('imageTexts', JSON.stringify([]));
-            }
+            formData.append('imageTexts', JSON.stringify(imageTexts));
 
             try {
                 submitGalleryBtn.disabled = true;
@@ -662,7 +752,6 @@
                 const result = await response.json();
                 alert(result.message || 'Images uploaded successfully');
                 addModal.hide();
-                // reset form
                 galleryImagesInput.value = '';
                 imagePreviewsDiv.innerHTML = '';
                 dynamicCaptions.innerHTML = '';
@@ -677,7 +766,6 @@
             }
         });
 
-        // Delete single image from gallery (using updateGallery endpoint with imagesToDelete)
         async function deleteImageFromGallery(galleryId, imageUrl) {
             const token = getToken();
             if (!token) return;
@@ -697,17 +785,15 @@
                     const err = await response.json();
                     throw new Error(err.message || 'Delete failed');
                 }
-                const data = await response.json();
                 alert('Image deleted successfully');
                 deleteImageModal.hide();
-                loadAllGalleries(); // refresh
+                loadAllGalleries();
             } catch (err) {
                 console.error(err);
                 alert('Failed to delete image: ' + err.message);
             }
         }
 
-        // confirm delete image
         document.getElementById('confirmImageDeleteBtn').addEventListener('click', () => {
             const gId = document.getElementById('deleteGalleryId').value;
             const imgUrl = document.getElementById('deleteImageUrl').value;
@@ -718,17 +804,14 @@
             }
         });
 
-        // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => {
             localStorage.removeItem('token');
             window.location.href = '../admin.html';
         });
 
-        // open modal from empty state button
         if (emptyAddBtn) emptyAddBtn.addEventListener('click', () => addModal.show());
         openModalBtn.addEventListener('click', () => addModal.show());
 
-        // reset modal on close
         document.getElementById('addGalleryModal').addEventListener('hidden.bs.modal', () => {
             galleryImagesInput.value = '';
             imagePreviewsDiv.innerHTML = '';
@@ -736,7 +819,6 @@
             captionsContainer.style.display = 'none';
         });
 
-        // initial load
         document.addEventListener('DOMContentLoaded', () => {
             loadAllGalleries();
         });

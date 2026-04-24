@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Month Wise Batch View</title>
+    <title>Admin Panel - Month Wise Batch View | Manual Booking</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -159,7 +159,7 @@
         /* Batch Cards Grid */
         .slots-grid-modern {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
             gap: 25px;
             margin-top: 15px;
         }
@@ -240,6 +240,7 @@
             display: flex;
             gap: 12px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .action-btn {
@@ -272,6 +273,17 @@
 
         .delete-slot:hover {
             background: #ff6b6b;
+            color: white;
+        }
+
+        /* Manual Book Button Style */
+        .book-slot {
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+        }
+
+        .book-slot:hover {
+            background: #2ecc71;
             color: white;
         }
 
@@ -387,7 +399,7 @@
         <div class="admin-dashboard-left">
             <img src="./assets/imgs/admin-img.jpg" alt="Admin Image" class="admin-dashboard-image"
                 onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
-            Hi  Superadmin; 👋🏻
+            Hi Superadmin; 👋🏻
         </div>
         <div class="admin-dashboard-right">
             <a href="./dashboard.html" class="admin-dashboard-link">Dashboard</a>
@@ -405,7 +417,7 @@
     </header>
 
     <div class="container mt-4 mb-5">
-        <!-- Month Navigation Header (Preview + Next/Prev) -->
+        <!-- Month Navigation Header -->
         <div class="month-nav-header">
             <div class="row align-items-center">
                 <div class="col-3 text-start">
@@ -436,7 +448,7 @@
         <!-- Batches Grid Container -->
         <div id="slotsGridContainer" class="slots-grid-modern"></div>
 
-        <!-- Empty State (Month specific) -->
+        <!-- Empty State -->
         <div id="emptyMonthState" class="empty-month-state" style="display: none;">
             <div class="empty-icon"><i class="far fa-calendar-times"></i></div>
             <h4>No batches in this month</h4>
@@ -488,6 +500,33 @@
         </div>
     </div>
 
+    <!-- Manual Booking Modal: Select Student (User) -->
+    <div class="modal fade" id="manualBookModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Manual Seat Booking</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Select Student (User ID / Email)</label>
+                        <input type="text" class="form-control" id="manualUserId" placeholder="Enter User ID or Email"
+                            required>
+                        <small class="text-muted">Enter the registered user's email or user ID to book this seat
+                            manually.</small>
+                    </div>
+                    <div id="manualBookInfo" class="alert alert-secondary mt-2 d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-success" id="confirmManualBookBtn"><i class="fas fa-check-circle"></i>
+                        Confirm Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteSlotModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -523,11 +562,13 @@
         const batchStatsInfo = document.getElementById('batchStatsInfo');
         const slotModalObj = new bootstrap.Modal(document.getElementById('slotModal'));
         const deleteModalObj = new bootstrap.Modal(document.getElementById('deleteSlotModal'));
+        const manualBookModalObj = new bootstrap.Modal(document.getElementById('manualBookModal'));
 
         // State variables
-        let currentDate = new Date(); // current focused month/year
-        let allBatches = [];           // store all batches from backend
+        let currentDate = new Date();
+        let allBatches = [];
         let currentEditId = null;
+        let currentBookingSlotId = null;   // store slot id for manual booking
 
         // Helper: get token
         function getToken() {
@@ -540,7 +581,7 @@
             return token;
         }
 
-        // Format date to YYYY-MM-DD
+        // Format date to DD MMM YYYY
         function formatDateOnly(isoString) {
             if (!isoString) return 'N/A';
             const date = new Date(isoString);
@@ -566,7 +607,7 @@
             }
         }
 
-        // Get batches that fall within a specific month (year, monthIndex 0-11)
+        // Filter batches by month
         function filterBatchesByMonth(batches, year, monthIndex) {
             return batches.filter(batch => {
                 if (!batch.startTime) return false;
@@ -601,7 +642,79 @@
             renderBatchCards(monthBatches);
         }
 
-        // Render cards for given batches array
+        // Manual booking handler
+        function openManualBookingModal(slotId) {
+            currentBookingSlotId = slotId;
+            document.getElementById('manualUserId').value = '';
+            const infoDiv = document.getElementById('manualBookInfo');
+            infoDiv.classList.add('d-none');
+            manualBookModalObj.show();
+        }
+
+        // Confirm manual booking using the API endpoint: POST /api/manualBookSlot/:id
+        async function confirmManualBooking() {
+            const token = getToken();
+            if (!token || !currentBookingSlotId) return;
+
+            const userIdentifier = document.getElementById('manualUserId').value.trim();
+            if (!userIdentifier) {
+                alert('Please enter a valid User ID or Email');
+                return;
+            }
+
+            const confirmBtn = document.getElementById('confirmManualBookBtn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Booking...';
+
+            try {
+                // Note: According to the backend route: router.post("/manualBookSlot/:id", checkAuth, async (req, res)
+                // It expects the userId from req.user.id (logged-in admin). But your requirement says manual seat book using any user.
+                // However, based on typical flow, we're using the current admin's token, but the backend might add the admin's own ID.
+                // To make it work for any student, we need to pass the target userId in request body.
+                // But the given endpoint uses req.user.id (current logged in user). Since we want admin to book for another student,
+                // we should enhance the endpoint to accept userId in body. To match your backend exactly, let's call the same endpoint
+                // but here we assume the backend will be modified slightly OR we send identifier somehow. 
+                // For robustness, I'll call the endpoint with identifier in body so that backend can adapt. 
+                // However, based on your code snippet endpoint uses only token and books for logged-in admin. 
+                // But to demonstrate manual seat booking by admin for any student, I'll embed userId/email in JSON body.
+                // The backend should ideally accept "studentId" or email to lookup user. Since you gave the endpoint spec,
+                // I will call a consistent endpoint but with additional payload. I'll assume you can adjust backend
+                // to read from body OR we can pass as query? For now, I'm implementing as per common pattern: 
+                // POST /api/manualBookSlot/:id  with body { userId: "..." }
+                // If your backend currently uses only req.user.id, you can update backend to check body or param userId.
+
+                const response = await fetch(`${BACKEND_URL}/api/manualBookSlot/${currentBookingSlotId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        email: userIdentifier   // sending email or id for backend to process
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.message || 'Booking failed');
+                }
+
+                const result = await response.json();
+                alert('✅ Seat booked manually successfully!');
+                manualBookModalObj.hide();
+                // Refresh data
+                await fetchAllBatches();
+                renderMonthView();
+            } catch (err) {
+                console.error(err);
+                alert('❌ Booking failed: ' + err.message);
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
+            }
+        }
+
+        // Render cards with extra manual book button
         function renderBatchCards(batches) {
             slotsContainer.innerHTML = '';
             batches.forEach(slot => {
@@ -610,11 +723,12 @@
                 const maxStudents = slot.maxStudents || 'Unlimited';
                 const bookedCount = slot.bookedStudents ? slot.bookedStudents.length : 0;
                 const available = (slot.maxStudents && slot.maxStudents > 0) ? (slot.maxStudents - bookedCount) : 0;
-                const availabilityStatus = (slot.maxStudents && bookedCount >= slot.maxStudents) ?
+                const isFull = (slot.maxStudents && bookedCount >= slot.maxStudents);
+                const availabilityStatus = isFull ?
                     '<span class="badge bg-danger">Full</span>' :
                     `<span class="badge bg-success">${available} spots left</span>`;
 
-                const batchTitle = slot.title ;
+                const batchTitle = slot.title || (slot.batchType === 'morning' ? 'Morning Batch' : 'Evening Batch');
                 const batchTypeClass = slot.batchType === 'morning' ? 'morning-badge' : 'evening-badge';
                 const batchIcon = slot.batchType === 'morning' ? 'fa-sun' : 'fa-moon';
 
@@ -646,19 +760,21 @@
                         <div class="slot-actions">
                             <button class="action-btn edit-slot" data-id="${slot._id}"><i class="fas fa-edit"></i> Edit</button>
                             <button class="action-btn delete-slot" data-id="${slot._id}"><i class="fas fa-trash-alt"></i> Delete</button>
+                            <button class="action-btn book-slot" data-id="${slot._id}" ${isFull ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}><i class="fas fa-user-check"></i> Manual Book</button>
                         </div>
                     </div>
                 `;
                 slotsContainer.appendChild(card);
             });
 
-            // Attach edit/delete events
+            // Edit events
             document.querySelectorAll('.edit-slot').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const id = btn.getAttribute('data-id');
                     openEditModal(id);
                 });
             });
+            // Delete events
             document.querySelectorAll('.delete-slot').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const id = btn.getAttribute('data-id');
@@ -666,9 +782,17 @@
                     deleteModalObj.show();
                 });
             });
+            // Manual book events
+            document.querySelectorAll('.book-slot').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = btn.getAttribute('data-id');
+                    if (btn.disabled) return;
+                    openManualBookingModal(id);
+                });
+            });
         }
 
-        // Open edit modal with pre-filled data
+        // Open edit modal
         async function openEditModal(slotId) {
             const token = getToken();
             if (!token) return;
@@ -697,7 +821,6 @@
             }
         }
 
-        // Reset add modal
         function openAddModal() {
             currentEditId = null;
             document.getElementById('slotForm').reset();
@@ -712,7 +835,7 @@
             slotModalObj.show();
         }
 
-        // Save (create/update)
+        // Save batch (create/update)
         document.getElementById('saveSlotBtn').addEventListener('click', async () => {
             const token = getToken();
             if (!token) return;
@@ -770,7 +893,6 @@
             }
         });
 
-        // Delete batch
         async function deleteBatchById(id) {
             const token = getToken();
             if (!token) return;
@@ -810,7 +932,7 @@
             window.location.href = '../admin.html';
         });
 
-        // Initialization with loading state
+        // Initialize
         async function init() {
             loadingSpinner.style.display = 'block';
             slotsContainer.style.display = 'none';
@@ -822,6 +944,7 @@
 
         document.getElementById('openAddSlotModalBtn').addEventListener('click', openAddModal);
         document.getElementById('emptyAddSlotBtn').addEventListener('click', openAddModal);
+        document.getElementById('confirmManualBookBtn').addEventListener('click', confirmManualBooking);
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
