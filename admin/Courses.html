@@ -196,15 +196,15 @@
         }
 
         .morning-badge {
-            background: rgba(52, 152, 219, 0.2);
-            color: #3498db;
-            border: 1px solid #3498db;
+            background: rgba(0, 191, 255, 0.1);
+            color: #00BFFF;
+            border: 1px solid #00BFFF;
         }
 
         .evening-badge {
-            background: rgba(155, 89, 182, 0.2);
-            color: #9b59b6;
-            border: 1px solid #9b59b6;
+            background: rgba(191, 64, 191, 0.1);
+            color: #BF40BF;
+            border: 1px solid #BF40BF;
         }
 
         .slot-info {
@@ -728,9 +728,10 @@
                     '<span class="badge bg-danger">Full</span>' :
                     `<span class="badge bg-success">${available} spots left</span>`;
 
-                const batchTitle = slot.title || (slot.batchType === 'morning' ? 'Morning Batch' : 'Evening Batch');
-                const batchTypeClass = slot.batchType === 'morning' ? 'morning-badge' : 'evening-badge';
-                const batchIcon = slot.batchType === 'morning' ? 'fa-sun' : 'fa-moon';
+                const isMorning = (slot.batchType === 'morning' || (slot.title && slot.title.toLowerCase().includes('morning')));
+                const batchTitle = slot.title || (isMorning ? 'Morning Batch' : 'Evening Batch');
+                const batchTypeClass = isMorning ? 'morning-badge' : 'evening-badge';
+                const batchIcon = isMorning ? 'fa-sun' : 'fa-moon';
 
                 const card = document.createElement('div');
                 card.className = 'slot-card';
