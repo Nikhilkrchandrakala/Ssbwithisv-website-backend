@@ -46,7 +46,8 @@ router.put(
 
             if (req.file) {
                 // console.log(req.file);
-                const BASE_URL = `${req.protocol}://${req.get("host")}`;
+                const protocol = req.get("host").includes("localhost") ? "http" : "https";
+                const BASE_URL = `${protocol}://${req.get("host")}`;
                 user.profileImage = `${BASE_URL}/${req.file.path.replace(/\\/g, "/")}`;
             }
 
