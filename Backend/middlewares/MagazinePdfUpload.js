@@ -2,9 +2,12 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
+const os = require("os");
+
 // Ensure upload directories exist for both PDF and images
-const uploadPdfDir = './uploads/magazine/pdf';
-const uploadImageDir = './uploads/magazine/images';
+const isVercel = process.env.VERCEL;
+const uploadPdfDir = isVercel ? path.join(os.tmpdir(), 'magazine', 'pdf') : './uploads/magazine/pdf';
+const uploadImageDir = isVercel ? path.join(os.tmpdir(), 'magazine', 'images') : './uploads/magazine/images';
 
 try {
   if (!fs.existsSync(uploadPdfDir)) {
@@ -15,7 +18,7 @@ try {
     fs.mkdirSync(uploadImageDir, { recursive: true });
   }
 } catch (error) {
-  console.error("Error creating upload directories:", error);
+  console.log("Upload directory check skipped (Serverless Environment)");
 }
 
 // Multer configuration for saving Magazine PDFs and images
