@@ -112,7 +112,19 @@ app.get("/", (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(err.status || 500).send({ message: err.message || "An internal server error occurred" });
+    
+    // Add CORS headers to error response
+    const origin = req.headers.origin;
+    const allowedOrigins = ["https://ssbwithisv.in", "https://www.ssbwithisv.in", "https://ssbwithisv-website-backend.vercel.app"];
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader("Access-Control-Allow-Origin", origin);
+    }
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+
+    res.status(err.status || 500).send({ 
+        status: "error",
+        message: err.message || "An internal server error occurred" 
+    });
 });
 
 // Connect to the Database
