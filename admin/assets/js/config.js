@@ -2,7 +2,7 @@
 
 const config = {
   // backendBaseUrl: 'http://localhost:5001',
-  backendBaseUrl: 'https://api.ssbwithisv.in',
+  backendBaseUrl: 'https://ssbwithisv-website-backend.vercel.app',
 };
 
 
