@@ -477,6 +477,10 @@
                             </select>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label">Batch No (e.g. 2026-01)</label>
+                            <input type="text" class="form-control" id="batchNo" placeholder="Enter Batch Number">
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Start Date *</label>
                             <input type="date" class="form-control" id="startDate" required>
                         </div>
@@ -738,7 +742,7 @@
                 card.innerHTML = `
                     <div class="slot-header-badge">
                         <span class="batch-type-badge ${batchTypeClass}">
-                            <i class="fas ${batchIcon}"></i> ${batchTitle}
+                            <i class="fas ${batchIcon}"></i> ${batchTitle} ${slot.batchNo ? `(#${slot.batchNo})` : ''}
                         </span>
                     </div>
                     <div class="slot-info">
@@ -806,6 +810,7 @@
                 currentEditId = slot._id;
                 document.getElementById('slotId').value = slot._id;
                 document.getElementById('batchType').value = (slot.batchType || '').toLowerCase();
+                document.getElementById('batchNo').value = slot.batchNo || '';
                 if (slot.startTime) {
                     const d = new Date(slot.startTime);
                     const yyyy = d.getFullYear();
@@ -832,6 +837,7 @@
             document.getElementById('maxStudents').value = 10;
             document.getElementById('price').value = 0;
             document.getElementById('batchType').value = '';
+            document.getElementById('batchNo').value = '';
             document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>Add New Batch';
             slotModalObj.show();
         }
@@ -853,6 +859,7 @@
 
             const payload = {
                 title: batchType === 'morning' ? 'Morning Batch' : 'Evening Batch',
+                batchNo: document.getElementById('batchNo').value,
                 batchType: batchType,
                 startTime: startTimeISO,
                 endTime: endTimeISO,

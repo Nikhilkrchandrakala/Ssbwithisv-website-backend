@@ -108,7 +108,7 @@ router.get("/user/purchasedCourses", authMiddleware, async (req, res) => {
             userId,
             // status: "paid",
         })
-            .populate("slotId", "title price startTime endTime")
+            .populate("slotId", "title price startTime endTime batchNo")
             .sort({ createdAt: -1 });
 
         res.json({

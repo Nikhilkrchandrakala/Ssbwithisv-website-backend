@@ -387,6 +387,39 @@
             opacity: 0.7;
             margin-top: 5px;
         }
+        .franchise-badge i { margin-right: 5px; }
+        
+        .batch-no-edit-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .batch-no-input {
+            width: 80px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        .batch-no-input:focus {
+            border-color: #f39c12;
+            outline: none;
+        }
+        .edit-batch-btn {
+            cursor: pointer;
+            color: #f39c12;
+            font-size: 0.85rem;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .edit-batch-btn:hover { opacity: 1; }
+        .save-batch-btn {
+            cursor: pointer;
+            color: #2ecc71;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 
@@ -471,6 +504,9 @@
                         <option value="all">All Franchises</option>
                     </select>
                 </div>
+                <div class="col-md-2 mb-3">
+                    <input type="text" id="batchNoFilter" class="search-input" placeholder="Filter by Batch No">
+                </div>
                 <div class="col-md-4 mb-3">
                     <div class="date-range-group">
                         <input type="date" id="startDateFilter" class="date-input" placeholder="Start Date">
@@ -502,8 +538,9 @@
                             <th>Email</th>
                             <th>Product</th>
 
-                            <th>Amount</th>
+                            <th class="text-warning">Amount</th>
                             <th>Franchise</th>
+                            <th>Batch No</th>
                             <th>Status</th>
                             <th>Date</th>
                             <th>Action</th>
@@ -598,21 +635,36 @@
             return Array.from(franchises);
         }
 
-        // Populate franchise dropdown
-        function populateFranchiseDropdown(orders) {
-            const franchises = getUniqueFranchises(orders);
-            const currentValue = franchiseFilter.value;
-            franchiseFilter.innerHTML = '';
+        // Populate franchise dropdown from API
+        async function populateFranchiseDropdown() {
+            try {
+                const token = getToken();
+                const response = await fetch(`${API_BASE}/api/allFranchise`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                
+                if (!response.ok) return;
+                const franchises = await response.json();
+                
+                const currentValue = franchiseFilter.value;
+                franchiseFilter.innerHTML = `
+                    <option value="all">All Orders (Franchise + Direct)</option>
+                    <option value="direct">Direct Orders (Manual Bookings)</option>
+                `;
 
-            franchises.forEach(franchise => {
-                const option = document.createElement('option');
-                option.value = franchise === 'all' ? 'all' : franchise;
-                option.textContent = franchise === 'all' ? 'All Franchises' : franchise;
-                if ((franchise === 'all' && currentValue === 'all') || franchise === currentValue) {
-                    option.selected = true;
-                }
-                franchiseFilter.appendChild(option);
-            });
+                franchises.forEach(f => {
+                    if (!f.referralCode) return;
+                    const option = document.createElement('option');
+                    option.value = f.referralCode;
+                    option.textContent = `${f.name} (${f.referralCode})`;
+                    if (f.referralCode === currentValue) {
+                        option.selected = true;
+                    }
+                    franchiseFilter.appendChild(option);
+                });
+            } catch (err) {
+                console.error("Error fetching franchises:", err);
+            }
         }
 
         // Load all orders from /api/allOrders
@@ -652,7 +704,7 @@
                 }
 
                 updateGlobalStats(allOrders);
-                populateFranchiseDropdown(allOrders);
+                await populateFranchiseDropdown(); // 🔥 Now fetches all
                 filterAndRenderOrders();
 
             } catch (error) {
@@ -728,8 +780,16 @@
 
             // Franchise filter
             const franchiseVal = franchiseFilter.value;
-            if (franchiseVal !== 'all') {
+            if (franchiseVal === "direct") {
+                filtered = filtered.filter(o => !o.referralCode || o.referralCode.trim() === '');
+            } else if (franchiseVal !== 'all') {
                 filtered = filtered.filter(o => o.referralCode === franchiseVal);
+            }
+
+            // Batch No filter
+            const batchNoVal = document.getElementById('batchNoFilter').value.toLowerCase().trim();
+            if (batchNoVal) {
+                filtered = filtered.filter(o => o.slotId && (o.slotId.batchNo || '').toLowerCase().includes(batchNoVal));
             }
 
             // Date range filter
@@ -750,6 +810,7 @@
         function clearFilters() {
             searchInput.value = '';
             franchiseFilter.value = 'all';
+            document.getElementById('batchNoFilter').value = '';
             startDateFilter.value = '';
             endDateFilter.value = '';
             filterAndRenderOrders();
@@ -758,10 +819,11 @@
         function toggleClearButton() {
             const hasSearch = searchInput.value.trim() !== "";
             const hasFranchise = franchiseFilter.value !== "all";
+            const hasBatchNo = document.getElementById('batchNoFilter').value.trim() !== "";
             const hasStartDate = startDateFilter.value !== "";
             const hasEndDate = endDateFilter.value !== "";
 
-            if (hasSearch || hasFranchise || hasStartDate || hasEndDate) {
+            if (hasSearch || hasFranchise || hasBatchNo || hasStartDate || hasEndDate) {
                 clearFiltersBtn.style.display = "block";
             } else {
                 clearFiltersBtn.style.display = "none";
@@ -815,7 +877,7 @@
                         <span class="product-type-badge ${productTypeClass} me-2">
                             <i class="fas ${productTypeIcon}"></i> ${productType.toUpperCase()}
                         </span>
-                        <div>${escapeHtml(productTitle)}</div>
+                        <div>${escapeHtml(productTitle)} ${order.slotId?.batchNo ? `<span class="badge bg-secondary ms-1">#${order.slotId.batchNo}</span>` : ''}</div>
                         ${productType === 'batch' && order.slotId ? `<div class="schedule-info"><i class="fas fa-clock"></i> ${formatDateRange(order.slotId.startTime)}</div>` : ''}
                     </td>
                     <td class="text-warning fw-bold">₹${amount.toFixed(2)}</td>
@@ -824,8 +886,15 @@
                     <td>
   <span class="franchise-badge">
     <i class="fas ${isFranchise ? 'fa-store' : 'fa-user'}"></i>
-    ${franchiseName && franchiseName.trim() !== "" ? escapeHtml(franchiseName) : "N/A"}
+    ${franchiseName && franchiseName.trim() !== "" ? escapeHtml(franchiseName) : "Direct Order"}
   </span>
+</td>
+
+<td>
+    <div class="batch-no-edit-wrapper" id="batch-wrapper-${order._id}">
+        <span class="batch-no-text">${order.slotId?.batchNo || '—'}</span>
+        ${order.slotId ? `<i class="fas fa-edit edit-batch-btn" onclick="enableBatchEdit('${order._id}', '${order.slotId._id}', '${order.slotId.batchNo || ''}')"></i>` : ''}
+    </div>
 </td>
 
                     <td><span class="status-badge ${statusClass}">${orderStatus.toUpperCase()}</span></td>
@@ -887,6 +956,7 @@
                     <div class="product-item">
                         <strong><i class="fas fa-calendar-alt"></i> Batch Details:</strong><br>
                         <strong>Title:</strong> ${escapeHtml(order.slotId.title)}<br>
+                        <strong>Batch No:</strong> ${order.slotId.batchNo || 'N/A'}<br>
                         <strong>Start Date:</strong> ${formatDateTime(order.slotId.startTime)}<br>
                         <strong>End Date:</strong> ${formatDateTime(order.slotId.endTime)}<br>
                         <strong>Max Students:</strong> ${order.slotId.maxStudents || 'N/A'}<br>
@@ -923,6 +993,49 @@
             orderDetailModal.show();
         }
 
+        async function enableBatchEdit(orderId, slotId, currentBatchNo) {
+            const wrapper = document.getElementById(`batch-wrapper-${orderId}`);
+            wrapper.innerHTML = `
+                <input type="text" class="batch-no-input" value="${currentBatchNo}" id="input-${orderId}">
+                <i class="fas fa-check save-batch-btn" onclick="saveBatchNo('${orderId}', '${slotId}')"></i>
+                <i class="fas fa-times edit-batch-btn" onclick="renderOrdersTable()"></i>
+            `;
+            document.getElementById(`input-${orderId}`).focus();
+        }
+
+        async function saveBatchNo(orderId, slotId) {
+            const newValue = document.getElementById(`input-${orderId}`).value;
+            const token = getToken();
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/updateBatchNo/${slotId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ batchNo: newValue })
+                });
+
+                if (response.ok) {
+                    // Update the local data so it persists until next refresh
+                    allOrders = allOrders.map(o => {
+                        if (o.slotId && o.slotId._id === slotId) {
+                            return { ...o, slotId: { ...o.slotId, batchNo: newValue } };
+                        }
+                        return o;
+                    });
+                    renderOrdersTable();
+                    // showToast("Batch number updated globally");
+                } else {
+                    alert("Failed to update batch number");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error updating batch number");
+            }
+        }
+
         function escapeHtml(str) {
             if (!str) return '';
             return String(str).replace(/[&<>]/g, function (m) {
@@ -938,6 +1051,10 @@
         franchiseFilter.addEventListener('change', () => filterAndRenderOrders());
         startDateFilter.addEventListener('change', () => filterAndRenderOrders());
         endDateFilter.addEventListener('change', () => filterAndRenderOrders());
+        document.getElementById('batchNoFilter').addEventListener('input', () => {
+            filterAndRenderOrders();
+            toggleClearButton();
+        });
         clearFiltersBtn.addEventListener('click', () => clearFilters());
         refreshBtn.addEventListener('click', () => { loadAllOrders(); });
 

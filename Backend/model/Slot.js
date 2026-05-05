@@ -8,6 +8,10 @@ const slotSchema = new mongoose.Schema(
             required: true,
         },
 
+        batchNo: {
+            type: String, // e.g. "2026-01" or "45"
+        },
+
         startTime: {
             type: String,
             required: true,

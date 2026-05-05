@@ -13,10 +13,11 @@ const Order = require("../model/Order");
 // ✅ CREATE SLOT
 router.post("/addSlot", checkAuth, async (req, res) => {
     try {
-        const { title, startTime, endTime, maxStudents, price } = req.body;
+        const { title, batchNo, startTime, endTime, maxStudents, price } = req.body;
 
         const slot = new Slot({
             title,
+            batchNo,
             startTime,
             endTime,
             maxStudents,
@@ -131,6 +132,7 @@ router.post("/manualBookSlot/:id", checkAuth, async (req, res) => {
             price: slot.price,
             originalAmount: slot.price,
             discount: 0,
+            referralCode: null, // 🔥 Direct sale
             status: "paid", // 🔥 important
         });
 
@@ -145,5 +147,27 @@ router.post("/manualBookSlot/:id", checkAuth, async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+// ✅ UPDATE BATCH NO ONLY (for quick edit from sales page)
+router.patch("/updateBatchNo/:id", checkAuth, async (req, res) => {
+    try {
+        const { batchNo } = req.body;
+        const slot = await Slot.findByIdAndUpdate(
+            req.params.id,
+            { batchNo },
+            { new: true }
+        );
+
+        if (!slot) return res.status(404).json({ message: "Batch not found" });
+
+        res.json({
+            message: "Batch number updated successfully",
+            data: slot
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 
 module.exports = router;

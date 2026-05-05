@@ -204,7 +204,7 @@ router.get("/allOrders", checkAuth, async (req, res) => {
     try {
         const orders = await Order.find()
             .populate("userId", "name email")
-            .populate("slotId", "title price startTime endTime maxStudents")
+            .populate("slotId", "title batchNo price startTime endTime maxStudents")
             .sort({ createdAt: -1 });
 
         res.json({
