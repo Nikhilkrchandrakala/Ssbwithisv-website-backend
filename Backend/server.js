@@ -51,9 +51,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "token"]
+  origin: ["https://ssbwithisv.in", "https://www.ssbwithisv.in", "https://ssbwithisv-website-backend.vercel.app"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "token", "X-Requested-With"],
+  credentials: true
 }));
 
 app.options("*", cors());
