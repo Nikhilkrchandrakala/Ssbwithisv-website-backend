@@ -44,18 +44,15 @@ const { Lead } = require("./model/LeadDetails");
 
 const app = express();
 
-// Middlewares
-app.use(morgan("dev"));
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
+// 1. ABSOLUTE TOP: Manual CORS and Security Headers
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = ["https://ssbwithisv.in", "https://www.ssbwithisv.in", "https://ssbwithisv-website-backend.vercel.app"];
-  
-  if (allowedOrigins.includes(origin)) {
+  // Flexible check for your domain
+  if (origin && (origin.includes("ssbwithisv.in") || origin.includes("vercel.app"))) {
     res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    // Fallback for safety
+    res.setHeader("Access-Control-Allow-Origin", "https://www.ssbwithisv.in");
   }
   
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
@@ -67,6 +64,12 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// 2. Other Middlewares
+app.use(morgan("dev"));
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 
 // Middleware: Connecting different Routes
