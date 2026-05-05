@@ -50,15 +50,23 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({
-  origin: ["https://ssbwithisv.in", "https://www.ssbwithisv.in", "https://ssbwithisv-website-backend.vercel.app"],
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "token", "X-Requested-With"],
-  credentials: true
-}));
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = ["https://ssbwithisv.in", "https://www.ssbwithisv.in", "https://ssbwithisv-website-backend.vercel.app"];
+  
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, token, X-Requested-With, Accept");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
 
-app.options("*", cors());
-
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+  next();
+});
 
 
 // Middleware: Connecting different Routes
