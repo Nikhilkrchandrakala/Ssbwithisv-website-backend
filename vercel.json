@@ -8,12 +8,20 @@
     {
       "src": "admin/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "admin.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "Backend/server.js"
+    },
+    {
+      "src": "/admin-login",
+      "dest": "admin.html"
     },
     {
       "src": "/admin/(.*)",
