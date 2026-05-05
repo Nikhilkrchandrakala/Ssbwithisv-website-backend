@@ -7,7 +7,7 @@ const Franchise = require("../model/Franchise"); // ✅ ADD THIS
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-router.post("/AdminLogin", async (req, res) => {
+router.post("/AdminLogin", async (req, res, next) => {
     try {
         const { phone, email, password } = req.body;
 
@@ -80,7 +80,7 @@ router.post("/AdminLogin", async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        next(error);
     }
 });
 
