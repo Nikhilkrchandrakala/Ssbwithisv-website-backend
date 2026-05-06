@@ -106,8 +106,14 @@ app.use("/api", couponRoutes);
 // app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
-app.use('/uploads', express.static(__dirname + '/uploads'));
-app.use("/uploads", express.static("uploads"));
+const path = require("path");
+
+app.use('/admin', express.static(path.join(__dirname, '../admin')));
+
+app.get("/admin-login", (req, res) => {
+    res.sendFile(path.join(__dirname, "../admin.html"));
+});
+
 app.get("/", (req, res) => {
     res.status(200).send("Welcome to the API");
 });
