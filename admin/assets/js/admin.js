@@ -28,13 +28,13 @@ loginForm.addEventListener('submit', async (e) => {
       // ✅ Save role (important)
       localStorage.setItem('role', result.role);
 
-      // ✅ Role-based redirect to Hostinger VPS
+      // ✅ Role-based redirect
       if (result.role === "admin") {
-        window.location.href = `${config.backendBaseUrl}/admin/dashboard.html`;
+        window.location.href = "./admin/dashboard.html";
       } else if (result.role === "franchise") {
-        window.location.href = `${config.backendBaseUrl}/admin/FranchiesDashboard.html`;
+        window.location.href = "./admin/FranchiesDashboard.html";
       } else {
-        window.location.href = `${config.backendBaseUrl}/`;
+        window.location.href = "/";
       }
 
     } else {
