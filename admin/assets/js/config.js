@@ -1,7 +1,7 @@
 // config.js
 
 const config = {
-  backendBaseUrl: '',
+  backendBaseUrl: 'https://api.ssbwithisv.in',
 };
 
 
