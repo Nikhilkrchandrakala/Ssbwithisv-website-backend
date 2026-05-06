@@ -44,26 +44,27 @@ const { Lead } = require("./model/LeadDetails");
 
 const app = express();
 
-// 1. ABSOLUTE TOP: Manual CORS and Security Headers
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  // Flexible check for your domain
-  if (origin && (origin.includes("ssbwithisv.in") || origin.includes("vercel.app"))) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  } else {
-    // Fallback for safety
-    res.setHeader("Access-Control-Allow-Origin", "https://www.ssbwithisv.in");
-  }
-  
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, token, X-Requested-With, Accept");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "https://ssbwithisv.in",
+      "https://www.ssbwithisv.in",
+      "https://ssbwithisv-website-backend.vercel.app"
+    ];
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin || allowedOrigins.some(ao => origin.includes(ao)) || origin.includes("vercel.app")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+  allowedHeaders: "Content-Type, Authorization, token, X-Requested-With, Accept"
+};
 
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-  next();
-});
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // Handle preflight requests
 
 // 2. Other Middlewares
 app.use(morgan("dev"));
