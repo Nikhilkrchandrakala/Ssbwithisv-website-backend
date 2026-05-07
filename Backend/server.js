@@ -44,27 +44,13 @@ const { Lead } = require("./model/LeadDetails");
 
 const app = express();
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      "https://ssbwithisv.in",
-      "https://www.ssbwithisv.in",
-      "https://ssbwithisv-website-backend.vercel.app"
-    ];
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin || allowedOrigins.some(ao => origin.includes(ao)) || origin.includes("vercel.app")) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-  allowedHeaders: "Content-Type, Authorization, token, X-Requested-With, Accept"
-};
+app.use(cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "token"]
+}));
 
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Handle preflight requests
+app.options("*", cors());// Handle preflight requests
 
 // 2. Other Middlewares
 app.use(morgan("dev"));
