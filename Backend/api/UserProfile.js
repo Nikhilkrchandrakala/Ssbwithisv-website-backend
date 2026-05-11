@@ -107,7 +107,7 @@ router.get("/user/purchasedCourses", authMiddleware, async (req, res) => {
 
         const orders = await Order.find({
             userId,
-            // status: "paid",
+            status: "paid",
         })
             .populate("slotId", "title price startTime endTime batchNo")
             .sort({ createdAt: -1 });
