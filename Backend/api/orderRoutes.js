@@ -191,7 +191,11 @@ router.post("/verifyPayment", checkAuth, async (req, res) => {
 
 // ✅ USER ORDER HISTORY
 router.get("/myOrders", checkAuth, async (req, res) => {
-    const orders = await Order.find({ userId: req.user.id })
+
+    const orders = await Order.find({
+        userId: req.user.id,
+        status: "paid"
+    })
         .populate("courseId")
         .sort({ createdAt: -1 });
 
@@ -202,9 +206,13 @@ router.get("/myOrders", checkAuth, async (req, res) => {
 // ✅ ADMIN ORDER HISTORY
 router.get("/allOrders", checkAuth, async (req, res) => {
     try {
-        const orders = await Order.find()
+
+        const orders = await Order.find({ status: "paid" })
             .populate("userId", "name email")
-            .populate("slotId", "title batchNo price startTime endTime maxStudents")
+            .populate(
+                "slotId",
+                "title batchNo price startTime endTime maxStudents"
+            )
             .sort({ createdAt: -1 });
 
         res.json({
