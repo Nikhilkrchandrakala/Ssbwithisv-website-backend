@@ -207,17 +207,21 @@ router.post("/applyCoupon", CheckAuth, async (req, res) => {
 
         // ✅ Discount calculation
         let discount = 0;
+        const baseAmount = Number(amount);
 
         if (coupon.discountType === "percent") {
-            discount = (amount * coupon.discountValue) / 100;
+            discount = (baseAmount * coupon.discountValue) / 100;
         } else {
-            discount = coupon.discountValue;
+            discount = Math.min(coupon.discountValue, baseAmount);
         }
 
-        const finalAmount = Math.max(amount - discount, 0);
+        const netAmount = Math.max(baseAmount - discount, 0);
+        const gst = netAmount * 0.18;
+        const finalAmount = netAmount + gst;
 
         res.json({
             discount,
+            gst,
             finalAmount,
             couponCode: coupon.code,
         });

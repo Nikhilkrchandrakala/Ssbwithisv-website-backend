@@ -35,14 +35,11 @@ router.post("/createOrder", checkAuth, async (req, res) => {
             return res.status(404).json({ message: "Slot not found" });
         }
 
-        // ✅ GST
+        // ✅ GST and Discount Logic
         const baseAmount = Number(amount);
-        const gstAmount = baseAmount * 0.18;
-        let originalAmountWithGST = baseAmount + gstAmount;
-        let finalAmount = originalAmountWithGST;
         let discount = 0;
 
-        // ✅ COUPON APPLY (same as your code)
+        // ✅ COUPON APPLY
         if (couponCode) {
             const coupon = await Coupon.findOne({
                 code: couponCode.toUpperCase(),
@@ -68,13 +65,16 @@ router.post("/createOrder", checkAuth, async (req, res) => {
             }
 
             if (coupon.discountType === "percent") {
-                discount = (originalAmountWithGST * coupon.discountValue) / 100;
+                discount = (baseAmount * coupon.discountValue) / 100;
             } else {
-                discount = Math.min(coupon.discountValue, originalAmountWithGST);
+                discount = Math.min(coupon.discountValue, baseAmount);
             }
-
-            finalAmount = Math.max(originalAmountWithGST - discount, 0);
         }
+
+        const netAmount = Math.max(baseAmount - discount, 0);
+        const gstAmount = netAmount * 0.18;
+        const finalAmount = netAmount + gstAmount;
+        const originalAmountWithGST = baseAmount + (baseAmount * 0.18);
 
         const amountInPaise = Math.round(finalAmount * 100);
 
