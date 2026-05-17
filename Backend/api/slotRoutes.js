@@ -13,7 +13,7 @@ const Order = require("../model/Order");
 // ✅ CREATE SLOT
 router.post("/addSlot", checkAuth, async (req, res) => {
     try {
-        const { title, batchNo, startTime, endTime, maxStudents, price } = req.body;
+        const { title, batchNo, startTime, endTime, maxStudents, price, isFullCourse } = req.body;
 
         const slot = new Slot({
             title,
@@ -22,6 +22,7 @@ router.post("/addSlot", checkAuth, async (req, res) => {
             endTime,
             maxStudents,
             price,
+            isFullCourse: isFullCourse || false,
             createdBy: req.user.id,
         });
 

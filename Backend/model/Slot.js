@@ -39,6 +39,11 @@ const slotSchema = new mongoose.Schema(
             required: true,
         },
 
+        isFullCourse: {
+            type: Boolean,
+            default: false,
+        },
+
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

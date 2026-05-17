@@ -35,6 +35,18 @@ router.post("/createOrder", checkAuth, async (req, res) => {
             return res.status(404).json({ message: "Slot not found" });
         }
 
+        // ✅ check if booking is closed (cutoff is 11:59:59 PM the day before)
+        if (slot.startTime) {
+            const startDate = new Date(slot.startTime);
+            const cutoffDate = new Date(startDate);
+            cutoffDate.setDate(cutoffDate.getDate() - 1);
+            cutoffDate.setHours(23, 59, 59, 999);
+            
+            if (new Date() > cutoffDate) {
+                return res.status(400).json({ message: "Booking for this batch is closed." });
+            }
+        }
+
         // ✅ GST and Discount Logic
         const baseAmount = Number(amount);
         let discount = 0;

@@ -3,6 +3,7 @@ const router = express.Router();
 
 const Coupon = require("../model/Coupon");
 const Franchise = require("../model/Franchise");
+const Slot = require("../model/Slot");
 const CheckAuth = require("../middlewares/CheckAuth");
 
 
@@ -178,7 +179,18 @@ router.delete("/deleteCoupon/:id", CheckAuth, async (req, res) => {
 // ========================================
 router.post("/applyCoupon", CheckAuth, async (req, res) => {
     try {
-        const { code, amount } = req.body;
+        const { code, amount, slotId } = req.body;
+
+        if (slotId) {
+            const slot = await Slot.findById(slotId);
+            if (slot && !slot.isFullCourse) {
+                return res.status(400).json({ message: "Coupons are only valid for the Full Course." });
+            }
+        } else {
+            // Backward compatibility or fallback: if no slotId, we might reject or allow, 
+            // but since it's dynamic, let's reject to be safe.
+            return res.status(400).json({ message: "Slot ID is required to apply a coupon." });
+        }
 
         const coupon = await Coupon.findOne({
             code: code.toUpperCase(),
