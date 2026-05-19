@@ -24,7 +24,8 @@ router.post("/createOrder", checkAuth, async (req, res) => {
             slotId,          // 🔥 CHANGE
             amount,
             referralCode,
-            couponCode
+            couponCode,
+            selectedModules
         } = req.body;
 
         const userId = req.user.id;
@@ -99,6 +100,7 @@ router.post("/createOrder", checkAuth, async (req, res) => {
             discount,
             couponCode: couponCode || null,
             referralCode: referralCode || null,
+            selectedModules: selectedModules || [],
             status: "pending",
         });
 

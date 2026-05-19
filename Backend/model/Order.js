@@ -60,6 +60,11 @@ const orderSchema = new mongoose.Schema(
             enum: ["pending", "paid", "failed"],
             default: "pending",
         },
+
+        selectedModules: {
+            type: [String],
+            default: [],
+        },
     },
     { timestamps: true }
 );
