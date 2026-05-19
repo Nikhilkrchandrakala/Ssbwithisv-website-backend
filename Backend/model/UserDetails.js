@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
   },
   profileImage: {   // 👈 ADD THIS
     type: String,
+  },
+  role: {
+    type: String,
+    default: "student",
   }
   
 }, { timestamps: true });
