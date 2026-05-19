@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcryptjs");
 const { UserDetails } = require("../model/UserDetails");
+const { AdminUser } = require("../model/AdminUser");
+const Franchise = require("../model/Franchise");
 
 router.post("/forgot-password", async (req, res) => {
     try {
@@ -12,23 +15,58 @@ router.post("/forgot-password", async (req, res) => {
             });
         }
 
-        let user;
+        let userFound = false;
 
+        // 1. Search and Update standard UserDetails
+        let userDoc;
         if (phone) {
-            user = await UserDetails.findOne({ phone: phone.toString() });
+            userDoc = await UserDetails.findOne({ phone: phone.toString() });
         } else if (email) {
-            user = await UserDetails.findOne({ email: email.toLowerCase() });
+            userDoc = await UserDetails.findOne({ email: email.toLowerCase() });
         }
 
-        if (!user) {
+        if (userDoc) {
+            // UserDetails schema has auto-hash middleware
+            userDoc.password = newPassword;
+            await userDoc.save();
+            userFound = true;
+        }
+
+        // 2. Search and Update AdminUser
+        let adminDoc;
+        if (phone) {
+            adminDoc = await AdminUser.findOne({ phone: phone.toString() });
+        } else if (email) {
+            adminDoc = await AdminUser.findOne({ email: email.toLowerCase() });
+        }
+
+        if (adminDoc) {
+            const hash = await bcrypt.hash(newPassword, 10);
+            adminDoc.password = hash;
+            await adminDoc.save();
+            userFound = true;
+        }
+
+        // 3. Search and Update Franchise Partner
+        let franchiseDoc;
+        if (phone) {
+            franchiseDoc = await Franchise.findOne({ phone: phone.toString() });
+        } else if (email) {
+            franchiseDoc = await Franchise.findOne({ email: email.toLowerCase() });
+        }
+
+        if (franchiseDoc) {
+            const hash = await bcrypt.hash(newPassword, 10);
+            franchiseDoc.password = hash;
+            await franchiseDoc.save();
+            userFound = true;
+        }
+
+        if (!userFound) {
             return res.status(404).json({
-                error: "User not found",
+                error: "User account not found",
             });
         }
-
-        // ✅ DO NOT hash here (schema will hash automatically)
-        user.password = newPassword;
-        await user.save();
 
         res.status(200).json({
             success: true,
@@ -36,6 +74,7 @@ router.post("/forgot-password", async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Forgot Password Reset Error:", error);
         res.status(500).json({
             error: error.message,
         });

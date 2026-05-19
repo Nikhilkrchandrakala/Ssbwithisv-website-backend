@@ -22,6 +22,7 @@ const orderRoutes = require("./api/orderRoutes");
 const franchiseRoutes = require("./api/franchiseRoutes");
 
 const couponRoutes = require("./api/couponRoutes");
+const rolesRoutes = require("./api/rolesRoutes");
 
 
 
@@ -86,6 +87,8 @@ app.use("/api", slotRoute);
 app.use("/api", orderRoutes);
 app.use("/api", franchiseRoutes);
 app.use("/api", couponRoutes);
+app.use("/api", rolesRoutes);
+app.use("/api", require("./api/profileRoutes"));
 
 // app.use("/api", sendOtp);
 
