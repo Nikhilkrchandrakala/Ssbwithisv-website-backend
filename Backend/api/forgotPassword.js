@@ -41,8 +41,8 @@ router.post("/forgot-password", async (req, res) => {
         }
 
         if (adminDoc) {
-            const hash = await bcrypt.hash(newPassword, 10);
-            adminDoc.password = hash;
+            // AdminUser schema has auto-hash middleware
+            adminDoc.password = newPassword;
             await adminDoc.save();
             userFound = true;
         }

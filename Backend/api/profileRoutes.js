@@ -137,16 +137,20 @@ router.put("/profile/security", checkAuth, async (req, res) => {
             return res.status(400).json({ error: "Current security password verification failed" });
         }
         
-        // Generate new secure hash and save
-        const newHash = await bcrypt.hash(newPassword, 10);
-        user.password = newHash;
+        // Update password appropriately based on model auto-hashing
+        if (userType === "franchise") {
+            const newHash = await bcrypt.hash(newPassword, 10);
+            user.password = newHash;
+        } else {
+            user.password = newPassword;
+        }
         await user.save();
         
         // Synchronize password change to standard UserDetails document if synced
         if (userType === "admin" || userType === "franchise") {
             const syncedUser = await UserDetails.findOne({ email: user.email.toLowerCase() });
             if (syncedUser) {
-                syncedUser.password = newHash;
+                syncedUser.password = newPassword; // plain text since UserDetails has pre-save hook
                 await syncedUser.save();
             }
         }

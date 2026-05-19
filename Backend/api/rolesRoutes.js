@@ -105,10 +105,18 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
             return res.status(400).json({ error: "Invalid role specified" });
         }
 
-        // Find existing record in any collection
-        let userDoc = await UserDetails.findById(id);
-        let adminDoc = await AdminUser.findById(id);
-        let franchiseDoc = await Franchise.findById(id);
+        // Find existing record in any collection (only if id is a valid Mongo ObjectId)
+        const isValidId = /^[0-9a-fA-F]{24}$/.test(id);
+        
+        let userDoc = null;
+        let adminDoc = null;
+        let franchiseDoc = null;
+
+        if (isValidId) {
+            userDoc = await UserDetails.findById(id);
+            adminDoc = await AdminUser.findById(id);
+            franchiseDoc = await Franchise.findById(id);
+        }
 
         let email = "";
         let name = "";
@@ -155,6 +163,12 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                     name = bodyName || franchiseDoc.name; 
                     phoneVal = phone !== undefined ? phone : (franchiseDoc.phone || ""); 
                     passwordHash = franchiseDoc.password;
+                } else {
+                    // It's a completely new user! Let's assign provided details
+                    email = queryEmail.toLowerCase();
+                    name = bodyName || "User";
+                    phoneVal = phone || "0000000000";
+                    passwordHash = "";
                 }
             }
         }
@@ -181,14 +195,14 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                 existingAdmin = new AdminUser({
                     email: emailLower,
                     phone: phoneVal,
-                    password: passwordHash || "1234", // Fallback default
+                    password: password || "1234", // plain text since pre-save hook hashes it
                     role: "admin"
                 });
                 await existingAdmin.save();
             } else {
                 existingAdmin.phone = phoneVal;
                 if (password) {
-                    existingAdmin.password = passwordHash;
+                    existingAdmin.password = password; // plain text since pre-save hook hashes it
                 }
                 await existingAdmin.save();
             }
@@ -198,7 +212,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                 userDoc.role = "admin";
                 userDoc.phone = phoneVal;
                 if (password) {
-                    userDoc.password = passwordHash;
+                    userDoc.password = password; // plain text since pre-save hook hashes it
                 }
                 await userDoc.save();
             }
@@ -218,7 +232,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                     phone: phoneVal,
                     referralCode: generateReferralCode(),
                     commissionPercent: commissionPercent || 20,
-                    password: passwordHash || "$2a$10$euy0iI6ZKpGQupm4p2rh9.yRMhQGfgBmwzNmdRH/cLMXROGuOHUZO", // default hash
+                    password: passwordHash || "$2a$10$euy0iI6ZKpGQupm4p2rh9.yRMhQGfgBmwzNmdRH/cLMXROGuOHUZO", // manual hash (no pre-save hook)
                     isActive: true
                 });
                 await existingFranchise.save();
@@ -228,7 +242,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                     existingFranchise.commissionPercent = commissionPercent;
                 }
                 if (password) {
-                    existingFranchise.password = passwordHash;
+                    existingFranchise.password = passwordHash; // manual hash (no pre-save hook)
                 }
                 await existingFranchise.save();
             }
@@ -238,7 +252,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                 userDoc.role = "franchise";
                 userDoc.phone = phoneVal;
                 if (password) {
-                    userDoc.password = passwordHash;
+                    userDoc.password = password; // plain text since pre-save hook hashes it
                 }
                 await userDoc.save();
             }
@@ -255,7 +269,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                 userDoc.role = role;
                 userDoc.phone = phoneVal;
                 if (password) {
-                    userDoc.password = passwordHash;
+                    userDoc.password = password; // plain text since pre-save hook hashes it
                 }
                 await userDoc.save();
             } else {
@@ -264,7 +278,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                     name: name || "User",
                     email: emailLower,
                     phone: phoneVal || "0000000000",
-                    password: passwordHash || "1234",
+                    password: password || "1234", // plain text since pre-save hook hashes it
                     role: role
                 });
                 await newUser.save();

@@ -21,7 +21,7 @@ router.post("/AdminRegister", async (req, res) => {
         }
 
         // Create user
-        const newUser = new UserDetails({
+        const newUser = new AdminUser({
 
             email,
             // role:'admin',
