@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema({
         unique: true,
     },
     role: { type: String },
+    permissions: {
+        type: [String],
+        default: []
+    },
 
     // phone: {
     //     type: String,

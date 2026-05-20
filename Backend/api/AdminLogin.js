@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { AdminUser } = require("../model/AdminUser");
-const Franchise = require("../model/Franchise"); // ✅ ADD THIS
-
+const Franchise = require("../model/Franchise");
+const { UserDetails } = require("../model/UserDetails");
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -43,6 +43,22 @@ router.post("/AdminLogin", async (req, res, next) => {
 
             if (user) {
                 role = "franchise";
+            }
+        }
+
+        // =========================
+        // 3️⃣ ASSESSOR CHECK (in main User collection)
+        // =========================
+        if (!user) {
+            let assessorUser = null;
+            if (phone) {
+                assessorUser = await UserDetails.findOne({ phone: phone.toString(), role: "assessor" });
+            } else if (email) {
+                assessorUser = await UserDetails.findOne({ email: email.toLowerCase(), role: "assessor" });
+            }
+            if (assessorUser) {
+                user = assessorUser;
+                role = "assessor";
             }
         }
 

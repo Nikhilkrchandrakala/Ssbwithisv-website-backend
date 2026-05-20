@@ -43,6 +43,7 @@ router.get("/admin/users", checkAuth, async (req, res) => {
                 phone: au.phone || (matchedUser ? matchedUser.phone : "N/A"),
                 role: "admin",
                 sourceCollection: "adminusers",
+                permissions: au.permissions || [],
                 createdAt: au.createdAt
             });
         });
@@ -98,7 +99,7 @@ router.get("/admin/users", checkAuth, async (req, res) => {
 router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { role, commissionPercent, phone, password, name: bodyName } = req.body;
+        const { role, commissionPercent, phone, password, name: bodyName, permissions } = req.body;
 
         const allowedRoles = ["student", "assessor", "admin", "franchise"];
         if (!allowedRoles.includes(role)) {
@@ -196,11 +197,13 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                     email: emailLower,
                     phone: phoneVal,
                     password: password || "1234", // plain text since pre-save hook hashes it
-                    role: "admin"
+                    role: "admin",
+                    permissions: permissions || []
                 });
                 await existingAdmin.save();
             } else {
                 existingAdmin.phone = phoneVal;
+                existingAdmin.permissions = permissions || [];
                 if (password) {
                     existingAdmin.password = password; // plain text since pre-save hook hashes it
                 }
