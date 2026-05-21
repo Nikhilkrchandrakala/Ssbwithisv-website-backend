@@ -89,6 +89,7 @@ app.use("/api", franchiseRoutes);
 app.use("/api", couponRoutes);
 app.use("/api", rolesRoutes);
 app.use("/api", require("./api/profileRoutes"));
+app.use("/api", require("./api/webhookRoutes"));
 
 // app.use("/api", sendOtp);
 

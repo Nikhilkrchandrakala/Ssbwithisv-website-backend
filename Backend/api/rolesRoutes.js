@@ -126,17 +126,17 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
 
         if (userDoc) {
             email = userDoc.email;
-            name = bodyName || userDoc.name;
-            phoneVal = phone !== undefined ? phone : userDoc.phone;
+            name = bodyName || userDoc.name || "";
+            phoneVal = phone !== undefined ? phone : (userDoc.phone || "");
             passwordHash = userDoc.password;
         } else if (adminDoc) {
             email = adminDoc.email;
-            name = bodyName || "System Admin";
+            name = bodyName || adminDoc.name || "System Admin";
             phoneVal = phone !== undefined ? phone : (adminDoc.phone || "");
             passwordHash = adminDoc.password;
         } else if (franchiseDoc) {
             email = franchiseDoc.email;
-            name = bodyName || franchiseDoc.name;
+            name = bodyName || franchiseDoc.name || "Franchise Partner";
             phoneVal = phone !== undefined ? phone : (franchiseDoc.phone || "");
             passwordHash = franchiseDoc.password;
         }
@@ -151,17 +151,17 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                 
                 if (userDoc) {
                     email = userDoc.email; 
-                    name = bodyName || userDoc.name; 
-                    phoneVal = phone !== undefined ? phone : userDoc.phone; 
+                    name = bodyName || userDoc.name || ""; 
+                    phoneVal = phone !== undefined ? phone : (userDoc.phone || ""); 
                     passwordHash = userDoc.password;
                 } else if (adminDoc) {
                     email = adminDoc.email; 
-                    name = bodyName || "System Admin"; 
+                    name = bodyName || adminDoc.name || "System Admin"; 
                     phoneVal = phone !== undefined ? phone : (adminDoc.phone || ""); 
                     passwordHash = adminDoc.password;
                 } else if (franchiseDoc) {
                     email = franchiseDoc.email; 
-                    name = bodyName || franchiseDoc.name; 
+                    name = bodyName || franchiseDoc.name || "Franchise Partner"; 
                     phoneVal = phone !== undefined ? phone : (franchiseDoc.phone || ""); 
                     passwordHash = franchiseDoc.password;
                 } else {
