@@ -1,0 +1,27 @@
+name: Deploy Backend
+on:
+  push:
+    branches: [ "main", "master" ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 88.222.214.155
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "."
+          target: "/var/www/ssbwithisv/Backend"
+      - name: Restart PM2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 88.222.214.155
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /var/www/ssbwithisv/Backend
+            npm install
+            pm2 restart all
