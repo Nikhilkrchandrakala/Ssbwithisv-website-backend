@@ -1,8 +1,14 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 async function seed() {
-  await mongoose.connect('mongodb+srv://isvclub2021:ddtIDjbRII76huv8@ssbwithisvleads.3fu0m.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
+  const mongoUrl = process.env.MONGO_URL;
+  if (!mongoUrl) {
+    console.error("Error: MONGO_URL environment variable is not defined.");
+    process.exit(1);
+  }
+  await mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
   const db = mongoose.connection.db;
   
   console.log(`Connected to database: ${db.databaseName}`);
