@@ -301,4 +301,49 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
     }
 });
 
+/**
+ * DELETE /api/admin/users/:id
+ * Permanently deletes the user from AdminUser, Franchise, and UserDetails collections.
+ */
+router.delete("/admin/users/:id", checkAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Find by ID and remove across collections
+        const isValidId = /^[0-9a-fA-F]{24}$/.test(id);
+        if (!isValidId) {
+            return res.status(400).json({ error: "Invalid user ID format" });
+        }
+
+        // We want to find the user in any of the collections to get their email so we can clean up by email,
+        // or delete directly by ID if matching.
+        const userDoc = await UserDetails.findById(id);
+        const adminDoc = await AdminUser.findById(id);
+        const franchiseDoc = await Franchise.findById(id);
+
+        let email = "";
+        if (userDoc) email = userDoc.email;
+        else if (adminDoc) email = adminDoc.email;
+        else if (franchiseDoc) email = franchiseDoc.email;
+
+        // Delete from all collections by ID
+        await AdminUser.findByIdAndDelete(id);
+        await Franchise.findByIdAndDelete(id);
+        await UserDetails.findByIdAndDelete(id);
+
+        // Fallback clean-up using email address to ensure absolutely no lingering cross-collection records
+        if (email) {
+            const emailLower = email.toLowerCase();
+            await AdminUser.deleteMany({ email: emailLower });
+            await Franchise.deleteMany({ email: emailLower });
+            await UserDetails.deleteMany({ email: emailLower });
+        }
+
+        res.status(200).json({ status: "ok", message: "User account permanently removed from the system" });
+    } catch (error) {
+        console.error("DELETE /api/admin/users/:id Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
