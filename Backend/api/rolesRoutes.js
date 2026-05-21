@@ -38,7 +38,7 @@ router.get("/admin/users", checkAuth, async (req, res) => {
             const matchedUser = userDetails.find(ud => ud.email.toLowerCase() === au.email.toLowerCase());
             resultList.push({
                 id: au._id,
-                name: matchedUser ? matchedUser.name : "System Admin",
+                name: au.name || (matchedUser ? matchedUser.name : "System Admin"),
                 email: au.email,
                 phone: au.phone || (matchedUser ? matchedUser.phone : "N/A"),
                 role: "admin",
