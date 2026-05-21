@@ -195,6 +195,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
             if (!existingAdmin) {
                 existingAdmin = new AdminUser({
                     email: emailLower,
+                    name: name,
                     phone: phoneVal,
                     password: password || "1234", // plain text since pre-save hook hashes it
                     role: "admin",
@@ -203,6 +204,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                 await existingAdmin.save();
             } else {
                 existingAdmin.phone = phoneVal;
+                existingAdmin.name = name;
                 existingAdmin.permissions = permissions || [];
                 if (password) {
                     existingAdmin.password = password; // plain text since pre-save hook hashes it
@@ -214,6 +216,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
             if (userDoc) {
                 userDoc.role = "admin";
                 userDoc.phone = phoneVal;
+                userDoc.name = name;
                 if (password) {
                     userDoc.password = password; // plain text since pre-save hook hashes it
                 }
@@ -241,6 +244,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                 await existingFranchise.save();
             } else {
                 existingFranchise.phone = phoneVal;
+                existingFranchise.name = name;
                 if (commissionPercent) {
                     existingFranchise.commissionPercent = commissionPercent;
                 }
@@ -254,6 +258,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
             if (userDoc) {
                 userDoc.role = "franchise";
                 userDoc.phone = phoneVal;
+                userDoc.name = name;
                 if (password) {
                     userDoc.password = password; // plain text since pre-save hook hashes it
                 }
@@ -271,6 +276,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
             if (userDoc) {
                 userDoc.role = role;
                 userDoc.phone = phoneVal;
+                userDoc.name = name;
                 if (password) {
                     userDoc.password = password; // plain text since pre-save hook hashes it
                 }

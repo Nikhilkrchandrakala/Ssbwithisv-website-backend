@@ -3,10 +3,9 @@ const bcrypt = require("bcryptjs");
 const { string } = require("joi");
 
 const userSchema = new mongoose.Schema({
-    // name: {
-    //     type: String,
-    //     required: true,
-    // },
+    name: {
+        type: String
+    },
 
     email: {
         type: String,
@@ -19,11 +18,9 @@ const userSchema = new mongoose.Schema({
         default: []
     },
 
-    // phone: {
-    //     type: String,
-    //     required: true,
-    //     unique: true,
-    // },
+    phone: {
+        type: String
+    },
 
     password: {
         type: String,
