@@ -15,16 +15,27 @@ router.post("/forgot-password", async (req, res) => {
             });
         }
 
+        // Build a flexible search query for phone (suffix match of last 10 digits) or email (trimmed & lowercased)
+        const cleanPhone = phone ? phone.toString().replace(/\D/g, "") : null;
+        const last10 = cleanPhone && cleanPhone.length >= 10 ? cleanPhone.slice(-10) : null;
+
+        const buildQuery = (emailField, phoneField) => {
+            if (phone) {
+                if (last10) {
+                    return { [phoneField]: { $regex: new RegExp(last10 + "$") } };
+                }
+                return { [phoneField]: phone.toString() };
+            } else if (email) {
+                return { [emailField]: email.toLowerCase().trim() };
+            }
+            return null;
+        };
+
         let userFound = false;
 
         // 1. Search and Update standard UserDetails
-        let userDoc;
-        if (phone) {
-            userDoc = await UserDetails.findOne({ phone: phone.toString() });
-        } else if (email) {
-            userDoc = await UserDetails.findOne({ email: email.toLowerCase() });
-        }
-
+        const userQuery = buildQuery("email", "phone");
+        let userDoc = userQuery ? await UserDetails.findOne(userQuery) : null;
         if (userDoc) {
             // UserDetails schema has auto-hash middleware
             userDoc.password = newPassword;
@@ -33,13 +44,8 @@ router.post("/forgot-password", async (req, res) => {
         }
 
         // 2. Search and Update AdminUser
-        let adminDoc;
-        if (phone) {
-            adminDoc = await AdminUser.findOne({ phone: phone.toString() });
-        } else if (email) {
-            adminDoc = await AdminUser.findOne({ email: email.toLowerCase() });
-        }
-
+        const adminQuery = buildQuery("email", "phone");
+        let adminDoc = adminQuery ? await AdminUser.findOne(adminQuery) : null;
         if (adminDoc) {
             // AdminUser schema has auto-hash middleware
             adminDoc.password = newPassword;
@@ -48,13 +54,8 @@ router.post("/forgot-password", async (req, res) => {
         }
 
         // 3. Search and Update Franchise Partner
-        let franchiseDoc;
-        if (phone) {
-            franchiseDoc = await Franchise.findOne({ phone: phone.toString() });
-        } else if (email) {
-            franchiseDoc = await Franchise.findOne({ email: email.toLowerCase() });
-        }
-
+        const franchiseQuery = buildQuery("email", "phone");
+        let franchiseDoc = franchiseQuery ? await Franchise.findOne(franchiseQuery) : null;
         if (franchiseDoc) {
             const hash = await bcrypt.hash(newPassword, 10);
             franchiseDoc.password = hash;
