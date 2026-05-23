@@ -14,10 +14,11 @@ const courseSchema = new mongoose.Schema(
       type: String, // single image
     },
 
-    // courseId: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "SSBCourses", // ✅ FIX
-    // },
+    courseId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
 
     images: [
       {

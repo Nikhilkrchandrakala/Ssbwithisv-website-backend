@@ -32,8 +32,45 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     default: "student",
+  },
+  assessorType: {
+    type: String,
+    enum: ["GTO", "TO", "Psych", "IO", null],
+    default: null
+  },
+  clinicalStage: {
+    type: String,
+    enum: ["Screening", "Psychology", "GTO", "Interview", "Conference", "Completed"],
+    default: "Screening"
+  },
+  batch: {
+    type: String,
+    default: ""
+  },
+  isManuallyCreated: {
+    type: Boolean,
+    default: false
+  },
+  assignedGTO: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+  },
+  assignedTO: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+  },
+  assignedPsych: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+  },
+  assignedIO: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
   }
-  
 }, { timestamps: true });
 
 /* 🔐 Password hash */

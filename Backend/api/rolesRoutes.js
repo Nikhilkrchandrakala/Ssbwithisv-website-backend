@@ -44,6 +44,7 @@ router.get("/admin/users", checkAuth, async (req, res) => {
                 role: "admin",
                 sourceCollection: "adminusers",
                 permissions: au.permissions || [],
+                assessorType: null,
                 createdAt: au.createdAt
             });
         });
@@ -59,6 +60,7 @@ router.get("/admin/users", checkAuth, async (req, res) => {
                 commissionPercent: f.commissionPercent,
                 referralCode: f.referralCode,
                 sourceCollection: "franchises",
+                assessorType: null,
                 createdAt: f.createdAt
             });
         });
@@ -75,6 +77,7 @@ router.get("/admin/users", checkAuth, async (req, res) => {
                         email: u.email,
                         phone: u.phone,
                         role: u.role,
+                        assessorType: u.assessorType || null,
                         sourceCollection: "users",
                         createdAt: u.createdAt
                     });
@@ -99,7 +102,7 @@ router.get("/admin/users", checkAuth, async (req, res) => {
 router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { role, commissionPercent, phone, password, name: bodyName, permissions } = req.body;
+        const { role, commissionPercent, phone, password, name: bodyName, permissions, assessorType } = req.body;
 
         const allowedRoles = ["student", "assessor", "admin", "franchise"];
         if (!allowedRoles.includes(role)) {
@@ -217,6 +220,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                 userDoc.role = "admin";
                 userDoc.phone = phoneVal;
                 userDoc.name = name;
+                userDoc.assessorType = null;
                 if (password) {
                     userDoc.password = password; // plain text since pre-save hook hashes it
                 }
@@ -259,6 +263,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                 userDoc.role = "franchise";
                 userDoc.phone = phoneVal;
                 userDoc.name = name;
+                userDoc.assessorType = null;
                 if (password) {
                     userDoc.password = password; // plain text since pre-save hook hashes it
                 }
@@ -277,6 +282,7 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                 userDoc.role = role;
                 userDoc.phone = phoneVal;
                 userDoc.name = name;
+                userDoc.assessorType = role === "assessor" ? (assessorType || null) : null;
                 if (password) {
                     userDoc.password = password; // plain text since pre-save hook hashes it
                 }
@@ -288,7 +294,8 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
                     email: emailLower,
                     phone: phoneVal || "0000000000",
                     password: password || "1234", // plain text since pre-save hook hashes it
-                    role: role
+                    role: role,
+                    assessorType: role === "assessor" ? (assessorType || null) : null
                 });
                 await newUser.save();
             }

@@ -23,6 +23,7 @@ const franchiseRoutes = require("./api/franchiseRoutes");
 
 const couponRoutes = require("./api/couponRoutes");
 const rolesRoutes = require("./api/rolesRoutes");
+const studentRoutes = require("./api/studentRoutes");
 
 
 
@@ -88,6 +89,7 @@ app.use("/api", orderRoutes);
 app.use("/api", franchiseRoutes);
 app.use("/api", couponRoutes);
 app.use("/api", rolesRoutes);
+app.use("/api", studentRoutes);
 app.use("/api", require("./api/profileRoutes"));
 app.use("/api", require("./api/webhookRoutes"));
 

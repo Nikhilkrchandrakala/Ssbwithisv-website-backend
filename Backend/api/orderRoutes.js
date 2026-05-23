@@ -9,6 +9,7 @@ const Order = require("../model/Order");
 const Coupon = require("../model/Coupon");
 const Slot = require("../model/Slot");
 const checkAuth = require("../middlewares/CheckAuth");
+const Course = require("../model/Course");
 
 // Helper function to calculate GST (18%)
 const calculateGST = (amount) => {
@@ -48,8 +49,53 @@ router.post("/createOrder", checkAuth, async (req, res) => {
             }
         }
 
+        // ✅ Dynamic Global Pricing Verification
+        const courses = await Course.find({
+            courseId: { $in: ['ssb_ppdt', 'psych', 'interview', 'group_testing', 'full_course'] }
+        });
+
+        const courseMap = {};
+        courses.forEach(c => {
+            courseMap[c.courseId] = c.price;
+        });
+
+        // Robust offline-safe baseline defaults
+        const defaults = {
+            ssb_ppdt: 1999,
+            psych: 3499,
+            interview: 2499,
+            group_testing: 7999,
+            full_course: 12499
+        };
+
+        const getPrice = (id) => courseMap[id] !== undefined ? courseMap[id] : defaults[id];
+
+        let calculatedBaseAmount = 0;
+        const modules = selectedModules || [];
+
+        if (modules.length === 0) {
+            // Fallback to slot.price or full course default if no selected modules were sent
+            calculatedBaseAmount = slot.price || getPrice('full_course');
+        } else if (modules.includes('full_course')) {
+            calculatedBaseAmount = slot.price || getPrice('full_course');
+        } else {
+            // If all 4 individual modules are selected, apply full course price
+            const individualSelectedCount = modules.filter(id => id !== 'full_course').length;
+            if (individualSelectedCount === 4) {
+                calculatedBaseAmount = slot.price || getPrice('full_course');
+            } else {
+                let sum = 0;
+                modules.forEach(id => {
+                    if (id !== 'full_course') {
+                        sum += getPrice(id);
+                    }
+                });
+                calculatedBaseAmount = sum;
+            }
+        }
+
         // ✅ GST and Discount Logic
-        const baseAmount = Number(amount);
+        const baseAmount = calculatedBaseAmount;
         let discount = 0;
 
         // ✅ COUPON APPLY
@@ -177,6 +223,12 @@ router.post("/verifyPayment", checkAuth, async (req, res) => {
         if (!slot.bookedStudents.includes(order.userId)) {
             slot.bookedStudents.push(order.userId);
             await slot.save();
+        }
+
+        // Synchronize student's profile batch in UserDetails
+        if (slot && slot.batchNo) {
+            const { UserDetails } = require("../model/UserDetails");
+            await UserDetails.findByIdAndUpdate(order.userId, { batch: slot.batchNo.trim() });
         }
 
         // 🔥 mark coupon used

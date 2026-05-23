@@ -37,7 +37,8 @@ router.get("/profile", checkAuth, async (req, res) => {
                 name: user.name || "System User",
                 email: user.email,
                 phone: user.phone || "",
-                role: role
+                role: role,
+                permissions: role === "admin" ? (user.permissions || []) : []
             }
         });
     } catch (error) {
@@ -57,6 +58,7 @@ router.put("/profile", checkAuth, async (req, res) => {
         
         let user = await AdminUser.findById(userId);
         if (user) {
+            if (name) user.name = name;
             if (phone !== undefined) user.phone = phone;
             await user.save();
             

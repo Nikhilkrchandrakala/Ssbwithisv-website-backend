@@ -8,7 +8,9 @@ const connectDB = () => {
     })
         .then(() => {
             console.log("MongoDB connection: success");
-            createDefaultAdmin()
+            createDefaultAdmin();
+            const { seedCourses } = require("./seedCourses");
+            seedCourses();
         })
         .catch((err) => console.log(err));
 };

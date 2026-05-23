@@ -92,6 +92,7 @@ router.post("/AdminLogin", async (req, res, next) => {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
+                permissions: role === "admin" ? (user.permissions || []) : []
             },
         });
 
