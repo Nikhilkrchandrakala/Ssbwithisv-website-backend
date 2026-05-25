@@ -7,6 +7,8 @@ const checkAuth = require("../middlewares/CheckAuth");
 
 const { UserDetails } = require("../model/UserDetails");
 const Order = require("../model/Order");
+const Course = require("../model/Course");
+
 
 
 
@@ -88,7 +90,7 @@ router.delete("/deleteSlot/:id", checkAuth, async (req, res) => {
 
 router.post("/manualBookSlot/:id", checkAuth, async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email, selectedModules } = req.body;
 
         if (!email) {
             return res.status(400).json({ message: "Email is required" });
@@ -120,9 +122,58 @@ router.post("/manualBookSlot/:id", checkAuth, async (req, res) => {
             return res.status(400).json({ message: "Slot is full" });
         }
 
-        // ✅ add user (same as payment logic)
-        // after slot.bookedStudents.push(userId);
+        // ✅ Dynamic Global Pricing Verification
+        const courses = await Course.find({
+            courseId: { $in: ['ssb_ppdt', 'psych', 'interview', 'group_testing', 'full_course'] }
+        });
 
+        const courseMap = {};
+        courses.forEach(c => {
+            courseMap[c.courseId] = c.price;
+        });
+
+        // Robust offline-safe baseline defaults
+        const defaults = {
+            ssb_ppdt: 1999,
+            psych: 3499,
+            interview: 2499,
+            group_testing: 7999,
+            full_course: 12499
+        };
+
+        const getPrice = (id) => courseMap[id] !== undefined ? courseMap[id] : defaults[id];
+
+        let calculatedBaseAmount = 0;
+        const modules = selectedModules || [];
+
+        if (slot.isFullCourse) {
+            if (modules.length === 0) {
+                calculatedBaseAmount = getPrice('full_course');
+            } else if (modules.includes('full_course')) {
+                calculatedBaseAmount = getPrice('full_course');
+            } else {
+                // If all 4 individual modules are selected, apply full course price
+                const individualSelectedCount = modules.filter(id => id !== 'full_course').length;
+                if (individualSelectedCount === 4) {
+                    calculatedBaseAmount = getPrice('full_course');
+                } else {
+                    let sum = 0;
+                    modules.forEach(id => {
+                        if (id !== 'full_course') {
+                            sum += getPrice(id);
+                        }
+                    });
+                    calculatedBaseAmount = sum;
+                }
+            }
+        } else {
+            calculatedBaseAmount = slot.price || getPrice('full_course');
+        }
+
+        const baseAmount = calculatedBaseAmount;
+        const totalWithGst = baseAmount * 1.18;
+
+        // ✅ add user (same as payment logic)
         slot.bookedStudents.push(userId);
         await slot.save();
 
@@ -130,11 +181,12 @@ router.post("/manualBookSlot/:id", checkAuth, async (req, res) => {
         const order = new Order({
             userId: userId,
             slotId: slot._id,
-            price: slot.price,
-            originalAmount: slot.price,
+            price: totalWithGst,
+            originalAmount: totalWithGst,
             discount: 0,
             referralCode: null, // 🔥 Direct sale
             status: "paid", // 🔥 important
+            selectedModules: slot.isFullCourse ? (modules.length > 0 ? modules : ['full_course']) : []
         });
 
         await order.save();

@@ -15,7 +15,7 @@ const uploadPath = path.join(__dirname, "../uploads/gallery/images");
 router.post(
     "/addGallery",
     checkAuth,
-    galleryUpload.array("images", 20), // more images allowed
+    galleryUpload.array("images", 10), // max 10 images allowed
     async (req, res) => {
         try {
             const { title, imageTexts } = req.body;
@@ -153,40 +153,60 @@ router.put(
 
 
 
-router.put("/updateImageText/:galleryId", checkAuth, async (req, res) => {
-    try {
-        const { imageUrl, imageText } = req.body;
+router.put(
+    "/updateImageText/:galleryId",
+    checkAuth,
+    galleryUpload.single("image"),
+    async (req, res) => {
+        try {
+            const { imageUrl, imageText } = req.body;
 
-        if (!imageUrl) {
-            return res.status(400).json({ message: "imageUrl is required" });
+            if (!imageUrl) {
+                return res.status(400).json({ message: "imageUrl is required" });
+            }
+
+            const gallery = await Gallery.findById(req.params.galleryId);
+            if (!gallery) {
+                return res.status(404).json({ message: "Gallery not found" });
+            }
+
+            // ✅ find image
+            const image = gallery.images.find(img => img.imageUrl === imageUrl);
+
+            if (!image) {
+                return res.status(404).json({ message: "Image not found" });
+            }
+
+            // ✅ replace image file if a new file is uploaded
+            if (req.file) {
+                const BASE_URL = `${req.protocol}://${req.get("host")}`;
+                const newImageUrl = `${BASE_URL}/uploads/gallery/images/${req.file.filename}`;
+
+                // delete old file from disk
+                const oldFilename = image.imageUrl.split("/").pop();
+                const oldFilePath = path.join(__dirname, "../uploads/gallery/images", oldFilename);
+                if (fs.existsSync(oldFilePath)) {
+                    fs.unlinkSync(oldFilePath);
+                }
+
+                image.imageUrl = newImageUrl;
+            }
+
+            // ✅ update text
+            image.imageText = imageText || "";
+
+            await gallery.save();
+
+            res.json({
+                message: "Image description updated",
+                data: gallery,
+            });
+
+        } catch (err) {
+            res.status(500).json({ message: err.message });
         }
-
-        const gallery = await Gallery.findById(req.params.galleryId);
-        if (!gallery) {
-            return res.status(404).json({ message: "Gallery not found" });
-        }
-
-        // ✅ find image
-        const image = gallery.images.find(img => img.imageUrl === imageUrl);
-
-        if (!image) {
-            return res.status(404).json({ message: "Image not found" });
-        }
-
-        // ✅ update text
-        image.imageText = imageText || "";
-
-        await gallery.save();
-
-        res.json({
-            message: "Image description updated",
-            data: gallery,
-        });
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
     }
-});
+);
 
 
 

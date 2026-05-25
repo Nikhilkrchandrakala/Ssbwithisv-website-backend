@@ -45,8 +45,8 @@ router.post(
         return res.status(400).json({ message: "Title and tags are required" });
       }
 
-      const pdfFilePath = req.files["magazinePdf"][0].path;
-      const magazineFrontImage = req.files["magazineFrontImage"][0].path;
+      const pdfFilePath = req.files["magazinePdf"][0].path.replace(/\\/g, "/");
+      const magazineFrontImage = req.files["magazineFrontImage"][0].path.replace(/\\/g, "/");
 
       const newMagazinePdf = new MagazinePdf({
         pdfTitle,
@@ -93,7 +93,7 @@ router.put(
         fs.unlink(oldPdfPath, (err) => {
           if (err) console.error("Error deleting old PDF:", err);
         });
-        existingPdf.pdfFilePath = req.files["magazinePdf"][0].path;
+        existingPdf.pdfFilePath = req.files["magazinePdf"][0].path.replace(/\\/g, "/");
       }
 
       // Update Image
@@ -102,7 +102,7 @@ router.put(
         fs.unlink(oldImagePath, (err) => {
           if (err) console.error("Error deleting old image:", err);
         });
-        existingPdf.magazineFrontImage = req.files["magazineFrontImage"][0].path;
+        existingPdf.magazineFrontImage = req.files["magazineFrontImage"][0].path.replace(/\\/g, "/");
       }
 
       // ✅ Update title and tags

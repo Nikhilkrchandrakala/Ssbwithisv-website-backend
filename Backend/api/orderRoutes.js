@@ -73,24 +73,28 @@ router.post("/createOrder", checkAuth, async (req, res) => {
         let calculatedBaseAmount = 0;
         const modules = selectedModules || [];
 
-        if (modules.length === 0) {
-            // Fallback to slot.price or full course default if no selected modules were sent
-            calculatedBaseAmount = slot.price || getPrice('full_course');
-        } else if (modules.includes('full_course')) {
-            calculatedBaseAmount = slot.price || getPrice('full_course');
+        if (slot.isFullCourse) {
+            // Full Course slots dynamically bind to the global Full Bundle Course price
+            calculatedBaseAmount = getPrice('full_course');
         } else {
-            // If all 4 individual modules are selected, apply full course price
-            const individualSelectedCount = modules.filter(id => id !== 'full_course').length;
-            if (individualSelectedCount === 4) {
+            if (modules.length === 0) {
                 calculatedBaseAmount = slot.price || getPrice('full_course');
+            } else if (modules.includes('full_course')) {
+                calculatedBaseAmount = getPrice('full_course');
             } else {
-                let sum = 0;
-                modules.forEach(id => {
-                    if (id !== 'full_course') {
-                        sum += getPrice(id);
-                    }
-                });
-                calculatedBaseAmount = sum;
+                // If all 4 individual modules are selected, apply full course price
+                const individualSelectedCount = modules.filter(id => id !== 'full_course').length;
+                if (individualSelectedCount === 4) {
+                    calculatedBaseAmount = getPrice('full_course');
+                } else {
+                    let sum = 0;
+                    modules.forEach(id => {
+                        if (id !== 'full_course') {
+                            sum += getPrice(id);
+                        }
+                    });
+                    calculatedBaseAmount = sum;
+                }
             }
         }
 
