@@ -103,11 +103,16 @@ const path = require("path");
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.use('/admin', express.static(path.join(__dirname, '../../SSB-Backend-Admin')));
-app.use('/assets', express.static(path.join(__dirname, '../../SSB-Backend-Admin/assets')));
+const fs = require("fs");
+const adminPath = fs.existsSync(path.join(__dirname, '../../SSB-Backend-Admin'))
+    ? path.join(__dirname, '../../SSB-Backend-Admin')
+    : path.join(__dirname, '../admin');
+
+app.use('/admin', express.static(adminPath));
+app.use('/assets', express.static(path.join(adminPath, 'assets')));
 
 app.get("/admin-login", (req, res) => {
-    res.sendFile(path.join(__dirname, "../../SSB-Backend-Admin/index.html"));
+    res.sendFile(path.join(adminPath, "index.html"));
 });
 
 app.get("/", (req, res) => {

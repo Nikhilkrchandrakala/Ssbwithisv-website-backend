@@ -80,7 +80,7 @@ router.post("/AdminLogin", async (req, res, next) => {
                 id: user._id,
                 role, // 🔥 important
             },
-            process.env.JWT_SECRET,
+            (process.env.JWT_SECRET || '').trim(),
             { expiresIn: "1h" }
         );
 

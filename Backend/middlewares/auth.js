@@ -19,7 +19,7 @@ const authMiddleware = async (req, res, next) => {
             return res.status(401).json({ message: "Token missing" });
         }
 
-        const decoded = jwt.verify(token.trim(), process.env.JWT_SECRET);
+        const decoded = jwt.verify(token.trim(), (process.env.JWT_SECRET || '').trim());
 
         const user = await UserDetails.findById(decoded.id).select("-password");
 
