@@ -4,6 +4,21 @@ const checkAuth = require("../middlewares/CheckAuth");
 const { UserDetails } = require("../model/UserDetails");
 const Order = require("../model/Order");
 const Slot = require("../model/Slot");
+const Assessment = require("../model/Assessment");
+
+/**
+ * GET /api/admin/assessments
+ * Fetches all available timed psych assessment configurations from the assessments collection.
+ */
+router.get("/admin/assessments", checkAuth, async (req, res) => {
+    try {
+        const assessments = await Assessment.find().sort({ title: 1 });
+        res.status(200).json({ status: "ok", assessments });
+    } catch (error) {
+        console.error("GET /api/admin/assessments error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 /**
  * GET /api/admin/students
@@ -286,7 +301,7 @@ router.post("/admin/students", checkAuth, async (req, res) => {
 router.put("/admin/students/:id", checkAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, phone, batch, clinicalStage, chestNo } = req.body;
+        const { name, email, phone, batch, clinicalStage, chestNo, assignedAssessments } = req.body;
 
         const updateData = {};
         if (name) updateData.name = name.trim();
@@ -295,6 +310,7 @@ router.put("/admin/students/:id", checkAuth, async (req, res) => {
         if (batch !== undefined) updateData.batch = (batch || "").trim();
         if (chestNo !== undefined) updateData.chestNo = (chestNo || "").trim();
         if (clinicalStage) updateData.clinicalStage = clinicalStage;
+        if (assignedAssessments !== undefined) updateData.assignedAssessments = assignedAssessments;
 
         const student = await UserDetails.findById(id);
 
@@ -308,6 +324,7 @@ router.put("/admin/students/:id", checkAuth, async (req, res) => {
         if (batch !== undefined) student.batch = (batch || "").trim();
         if (chestNo !== undefined) student.chestNo = (chestNo || "").trim();
         if (clinicalStage) student.clinicalStage = clinicalStage;
+        if (assignedAssessments !== undefined) student.assignedAssessments = assignedAssessments;
 
         if (student.role !== "student") {
             student.role = "student";
