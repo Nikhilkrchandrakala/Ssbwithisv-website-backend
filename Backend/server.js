@@ -114,6 +114,21 @@ app.get("/", (req, res) => {
     res.status(200).send("Welcome to the API");
 });
 
+app.get("/api/debug-secret", (req, res) => {
+    const secret = process.env.JWT_SECRET || 'NOT_SET';
+    const length = secret.length;
+    let hash = 0;
+    for (let i = 0; i < secret.length; i++) {
+        hash = (hash << 5) - hash + secret.charCodeAt(i);
+        hash |= 0;
+    }
+    res.json({
+        prefix: secret.substring(0, 10) + '...',
+        length,
+        hash
+    });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
