@@ -40,10 +40,13 @@ const userSchema = new mongoose.Schema({
   },
   clinicalStage: {
     type: String,
-    enum: ["Screening", "Psychology", "GTO", "Interview", "Conference", "Completed"],
-    default: "Screening"
+    default: "full_course"
   },
   batch: {
+    type: String,
+    default: ""
+  },
+  chestNo: {
     type: String,
     default: ""
   },

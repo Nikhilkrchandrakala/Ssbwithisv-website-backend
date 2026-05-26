@@ -137,9 +137,11 @@ router.post("/admin/students/:id/stage", checkAuth, async (req, res) => {
         const { id } = req.params;
         const { clinicalStage } = req.body;
 
-        const allowedStages = ["Screening", "Psychology", "GTO", "Interview", "Conference", "Completed"];
-        if (!allowedStages.includes(clinicalStage)) {
-            return res.status(400).json({ error: "Invalid clinical stage specified" });
+        const allowedStages = ["full_course", "ssb_ppdt", "psych", "interview", "group_testing"];
+        const stages = (clinicalStage || "").split(",").map(s => s.trim()).filter(Boolean);
+        const allValid = stages.every(s => allowedStages.includes(s));
+        if (stages.length === 0 || !allValid) {
+            return res.status(400).json({ error: "Invalid course(s) specified" });
         }
 
         const student = await UserDetails.findById(id);
@@ -239,7 +241,7 @@ router.put("/admin/allotment/:id", checkAuth, async (req, res) => {
  */
 router.post("/admin/students", checkAuth, async (req, res) => {
     try {
-        const { name, email, phone, password, batch, clinicalStage } = req.body;
+        const { name, email, phone, password, batch, clinicalStage, chestNo } = req.body;
 
         if (!name || !email || !phone || !password) {
             return res.status(400).json({ error: "Name, email, phone, and password are required" });
@@ -262,7 +264,8 @@ router.post("/admin/students", checkAuth, async (req, res) => {
             phone: phone.trim(),
             password, // Plain text is hashed by mongoose schema pre-save hook
             batch: (batch || "").trim(),
-            clinicalStage: clinicalStage || "Screening",
+            chestNo: (chestNo || "").trim(),
+            clinicalStage: clinicalStage || "full_course",
             role: "student",
             isManuallyCreated: true
         });
@@ -283,13 +286,14 @@ router.post("/admin/students", checkAuth, async (req, res) => {
 router.put("/admin/students/:id", checkAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, phone, batch, clinicalStage } = req.body;
+        const { name, email, phone, batch, clinicalStage, chestNo } = req.body;
 
         const updateData = {};
         if (name) updateData.name = name.trim();
         if (email) updateData.email = email.toLowerCase().trim();
         if (phone) updateData.phone = phone.trim();
         if (batch !== undefined) updateData.batch = (batch || "").trim();
+        if (chestNo !== undefined) updateData.chestNo = (chestNo || "").trim();
         if (clinicalStage) updateData.clinicalStage = clinicalStage;
 
         const student = await UserDetails.findById(id);
@@ -302,6 +306,7 @@ router.put("/admin/students/:id", checkAuth, async (req, res) => {
         if (email) student.email = email.toLowerCase().trim();
         if (phone) student.phone = phone.trim();
         if (batch !== undefined) student.batch = (batch || "").trim();
+        if (chestNo !== undefined) student.chestNo = (chestNo || "").trim();
         if (clinicalStage) student.clinicalStage = clinicalStage;
 
         if (student.role !== "student") {

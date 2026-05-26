@@ -11,6 +11,8 @@ const connectDB = () => {
             createDefaultAdmin();
             const { seedCourses } = require("./seedCourses");
             seedCourses();
+            const migrateStagesToCourses = require("./migrateStagesToCourses");
+            migrateStagesToCourses();
         })
         .catch((err) => console.log(err));
 };

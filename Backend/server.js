@@ -20,6 +20,7 @@ const coursesRoute = require("./api/courseRoutes");
 const slotRoute = require("./api/slotRoutes");
 const orderRoutes = require("./api/orderRoutes");
 const franchiseRoutes = require("./api/franchiseRoutes");
+const contactSettings = require("./api/ContactSettings");
 
 const couponRoutes = require("./api/couponRoutes");
 const rolesRoutes = require("./api/rolesRoutes");
@@ -90,6 +91,7 @@ app.use("/api", franchiseRoutes);
 app.use("/api", couponRoutes);
 app.use("/api", rolesRoutes);
 app.use("/api", studentRoutes);
+app.use("/api", contactSettings);
 app.use("/api", require("./api/profileRoutes"));
 app.use("/api", require("./api/webhookRoutes"));
 
@@ -153,9 +155,6 @@ app.use((err, req, res, next) => {
 });
 
 // Connect to the Database
-
-
-
 connectDB();
 
 // Listen to the PORT
