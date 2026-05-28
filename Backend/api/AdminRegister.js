@@ -11,9 +11,11 @@ router.post("/AdminRegister", async (req, res) => {
             return res.status(400).json({ error: "All fields are required" });
         }
 
+        const emailLower = email.toLowerCase().trim();
+
         // Check existing use
         const existingUser = await AdminUser.findOne({
-            $or: [{ email }],
+            email: { $regex: new RegExp("^" + emailLower + "$", "i") },
         });
 
         if (existingUser) {
@@ -22,8 +24,7 @@ router.post("/AdminRegister", async (req, res) => {
 
         // Create user
         const newUser = new AdminUser({
-
-            email,
+            email: emailLower,
             // role:'admin',
             // phone,
             password, // 👈 plain password (hash auto hoga)

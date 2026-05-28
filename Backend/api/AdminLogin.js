@@ -20,13 +20,17 @@ router.post("/AdminLogin", async (req, res, next) => {
         let user;
         let role = "";
 
+        const cleanPhone = phone ? phone.toString().replace(/\D/g, "") : null;
+        const last10 = cleanPhone && cleanPhone.length >= 10 ? cleanPhone.slice(-10) : cleanPhone;
+        const emailClean = email ? email.trim() : null;
+
         // =========================
         // 1️⃣ ADMIN CHECK
         // =========================
         if (phone) {
-            user = await AdminUser.findOne({ phone: phone.toString() });
+            user = await AdminUser.findOne({ phone: { $regex: new RegExp(last10 + "$") } });
         } else if (email) {
-            user = await AdminUser.findOne({ email: email.toLowerCase() });
+            user = await AdminUser.findOne({ email: { $regex: new RegExp("^" + emailClean + "$", "i") } });
         }
 
         if (user) {
@@ -36,9 +40,9 @@ router.post("/AdminLogin", async (req, res, next) => {
             // 2️⃣ FRANCHISE CHECK
             // =========================
             if (phone) {
-                user = await Franchise.findOne({ phone: phone.toString() });
+                user = await Franchise.findOne({ phone: { $regex: new RegExp(last10 + "$") } });
             } else if (email) {
-                user = await Franchise.findOne({ email: email.toLowerCase() });
+                user = await Franchise.findOne({ email: { $regex: new RegExp("^" + emailClean + "$", "i") } });
             }
 
             if (user) {
@@ -52,9 +56,9 @@ router.post("/AdminLogin", async (req, res, next) => {
         if (!user) {
             let assessorUser = null;
             if (phone) {
-                assessorUser = await UserDetails.findOne({ phone: phone.toString(), role: "assessor" });
+                assessorUser = await UserDetails.findOne({ phone: { $regex: new RegExp(last10 + "$") }, role: "assessor" });
             } else if (email) {
-                assessorUser = await UserDetails.findOne({ email: email.toLowerCase(), role: "assessor" });
+                assessorUser = await UserDetails.findOne({ email: { $regex: new RegExp("^" + emailClean + "$", "i") }, role: "assessor" });
             }
             if (assessorUser) {
                 user = assessorUser;

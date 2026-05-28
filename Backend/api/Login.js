@@ -16,12 +16,13 @@ router.post("/login", async (req, res) => {
 
     let user;
 
-    // console.log(user)
-
     if (phone) {
-      user = await UserDetails.findOne({ phone: phone.toString() });
+      const cleanPhone = phone.toString().replace(/\D/g, "");
+      const last10 = cleanPhone.length >= 10 ? cleanPhone.slice(-10) : cleanPhone;
+      user = await UserDetails.findOne({ phone: { $regex: new RegExp(last10 + "$") } });
     } else if (email) {
-      user = await UserDetails.findOne({ email: email.toLowerCase() });
+      const emailClean = email.trim();
+      user = await UserDetails.findOne({ email: { $regex: new RegExp("^" + emailClean + "$", "i") } });
     }
 
     if (!user) {

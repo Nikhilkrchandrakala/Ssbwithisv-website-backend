@@ -11,9 +11,16 @@ router.post("/register", async (req, res) => {
             return res.status(400).json({ error: "All fields are required" });
         }
 
+        const emailLower = email.toLowerCase().trim();
+        const cleanPhone = phone.toString().replace(/\D/g, "");
+        const last10 = cleanPhone.length >= 10 ? cleanPhone.slice(-10) : cleanPhone;
+
         // Check existing use
         const existingUser = await UserDetails.findOne({
-            $or: [{ email }, { phone }],
+            $or: [
+                { email: { $regex: new RegExp("^" + emailLower + "$", "i") } },
+                { phone: { $regex: new RegExp(last10 + "$") } }
+            ],
         });
 
         if (existingUser) {
@@ -22,9 +29,9 @@ router.post("/register", async (req, res) => {
 
         // Create user
         const newUser = new UserDetails({
-            name,
-            email,
-            phone,
+            name: name.trim(),
+            email: emailLower,
+            phone: cleanPhone,
             password, // 👈 plain password (hash auto hoga)
         });
 
