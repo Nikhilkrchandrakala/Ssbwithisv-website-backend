@@ -28,14 +28,9 @@ router.get("/admin/students", checkAuth, async (req, res) => {
     try {
         const { search, clinicalStage } = req.query;
 
-        // Query only real student trainees who have completed checkouts (paid orders) OR were manually added
-        const paidUserIds = await Order.distinct("userId", { status: "paid" });
-
+        // Query all student trainees (non-staff accounts, including historical and role-undefined students)
         const query = {
-            $or: [
-                { _id: { $in: paidUserIds } },
-                { isManuallyCreated: true }
-            ]
+            role: { $nin: ["assessor", "admin", "franchise"] }
         };
 
         if (search) {
