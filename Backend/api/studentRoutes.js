@@ -93,6 +93,97 @@ router.get("/admin/students", checkAuth, async (req, res) => {
 });
 
 /**
+ * GET /api/admin/allotment-students
+ * Fetches ONLY enrolled (paid) student accounts with server-side pagination,
+ * search, and filter support. Used exclusively by the Allotment page.
+ */
+router.get("/admin/allotment-students", checkAuth, async (req, res) => {
+    try {
+        const { page = 1, limit = 25, search, clinicalStage, batch } = req.query;
+
+        const pageNum = Math.max(1, parseInt(page));
+        const limitNum = Math.max(1, Math.min(100, parseInt(limit)));
+        const skip = (pageNum - 1) * limitNum;
+
+        // Step 1: Get all userIds that have at least one paid order
+        const paidUserIds = await Order.distinct("userId", { status: "paid" });
+
+        // Also include manually created students (they don't have orders but are valid candidates)
+        const manualStudentIds = await UserDetails.distinct("_id", {
+            role: "student",
+            isManuallyCreated: true
+        });
+
+        // Combine both sets of IDs
+        const allEnrolledIds = [...new Set([
+            ...paidUserIds.map(id => id.toString()),
+            ...manualStudentIds.map(id => id.toString())
+        ])];
+
+        // Step 2: Build query for only enrolled students
+        const query = {
+            _id: { $in: allEnrolledIds },
+            role: { $nin: ["assessor", "admin", "franchise"] }
+        };
+
+        if (search) {
+            const regex = new RegExp(search.trim(), "i");
+            query.$and = [
+                {
+                    $or: [
+                        { name: regex },
+                        { email: regex },
+                        { phone: regex },
+                        { chestNo: regex }
+                    ]
+                }
+            ];
+        }
+
+        if (clinicalStage && clinicalStage !== "all") {
+            query.clinicalStage = clinicalStage;
+        }
+
+        if (batch && batch !== "all") {
+            query.batch = batch;
+        }
+
+        // Step 3: Get total count for pagination metadata
+        const totalCount = await UserDetails.countDocuments(query);
+        const totalPages = Math.ceil(totalCount / limitNum);
+
+        // Step 4: Fetch paginated results with assessor populations
+        const students = await UserDetails.find(query)
+            .populate("assignedGTO", "name email phone")
+            .populate("assignedTO", "name email phone")
+            .populate("assignedPsych", "name email phone")
+            .populate("assignedIO", "name email phone")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limitNum);
+
+        // Step 5: Get all distinct batches for the filter dropdown (from enrolled students only)
+        const allBatches = await UserDetails.distinct("batch", {
+            _id: { $in: allEnrolledIds },
+            role: { $nin: ["assessor", "admin", "franchise"] },
+            batch: { $ne: "" }
+        });
+
+        res.status(200).json({
+            status: "ok",
+            students,
+            totalCount,
+            page: pageNum,
+            totalPages,
+            batches: allBatches.sort()
+        });
+    } catch (error) {
+        console.error("GET /admin/allotment-students error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
  * GET /api/admin/students/:id
  * Fetches detail of a student, populated with their paid registration course order history.
  */
