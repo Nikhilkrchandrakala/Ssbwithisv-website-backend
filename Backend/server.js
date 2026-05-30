@@ -25,6 +25,7 @@ const contactSettings = require("./api/ContactSettings");
 const couponRoutes = require("./api/couponRoutes");
 const rolesRoutes = require("./api/rolesRoutes");
 const studentRoutes = require("./api/studentRoutes");
+const notificationRoutes = require("./api/notificationRoutes");
 
 
 
@@ -94,6 +95,7 @@ app.use("/api", studentRoutes);
 app.use("/api", contactSettings);
 app.use("/api", require("./api/profileRoutes"));
 app.use("/api", require("./api/webhookRoutes"));
+app.use("/api", notificationRoutes);
 
 // app.use("/api", sendOtp);
 

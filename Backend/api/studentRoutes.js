@@ -5,6 +5,7 @@ const { UserDetails } = require("../model/UserDetails");
 const Order = require("../model/Order");
 const Slot = require("../model/Slot");
 const Assessment = require("../model/Assessment");
+const Notification = require("../model/Notification");
 
 /**
  * GET /api/admin/assessments
@@ -228,6 +229,11 @@ router.put("/admin/allotment/:id", checkAuth, async (req, res) => {
             return res.status(404).json({ error: "Student not found" });
         }
 
+        const oldGTO = student.assignedGTO ? student.assignedGTO.toString() : null;
+        const oldTO = student.assignedTO ? student.assignedTO.toString() : null;
+        const oldPsych = student.assignedPsych ? student.assignedPsych.toString() : null;
+        const oldIO = student.assignedIO ? student.assignedIO.toString() : null;
+
         if (assignedGTO !== undefined) student.assignedGTO = assignedGTO || null;
         if (assignedTO !== undefined) student.assignedTO = assignedTO || null;
         if (assignedPsych !== undefined) student.assignedPsych = assignedPsych || null;
@@ -237,6 +243,28 @@ router.put("/admin/allotment/:id", checkAuth, async (req, res) => {
             student.role = "student";
         }
         await student.save();
+
+        const notifications = [];
+        const createNotif = (assessorId, role) => {
+            if (assessorId) {
+                notifications.push({
+                    recipientId: assessorId,
+                    studentId: student._id,
+                    title: "New Candidate Allotted",
+                    message: `You have been allotted as ${role} for candidate ${student.name}.`,
+                    type: "ALLOTMENT"
+                });
+            }
+        };
+
+        if (assignedGTO !== undefined && assignedGTO !== oldGTO) createNotif(assignedGTO, "GTO");
+        if (assignedTO !== undefined && assignedTO !== oldTO) createNotif(assignedTO, "TO");
+        if (assignedPsych !== undefined && assignedPsych !== oldPsych) createNotif(assignedPsych, "Psychologist");
+        if (assignedIO !== undefined && assignedIO !== oldIO) createNotif(assignedIO, "Interviewing Officer");
+
+        if (notifications.length > 0) {
+            await Notification.insertMany(notifications);
+        }
 
         res.status(200).json({ status: "ok", message: "Assessor allotment configured successfully", student });
     } catch (error) {
