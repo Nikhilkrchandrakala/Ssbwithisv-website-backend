@@ -68,4 +68,26 @@ router.put("/notifications/read-all", checkAuth, async (req, res) => {
     }
 });
 
+/**
+ * DELETE /api/notifications/:id
+ * Delete a specific notification.
+ */
+router.delete("/notifications/:id", checkAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user._id || req.user.id;
+
+        const notification = await Notification.findOneAndDelete({ _id: id, recipientId: userId });
+
+        if (!notification) {
+            return res.status(404).json({ error: "Notification not found or unauthorized" });
+        }
+
+        res.status(200).json({ status: "ok", message: "Notification deleted" });
+    } catch (error) {
+        console.error("DELETE /api/notifications/:id error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
