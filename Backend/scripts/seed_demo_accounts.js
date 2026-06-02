@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const { UserDetails } = require('./model/UserDetails');
-const { AdminUser } = require('./model/AdminUser');
-const Franchise = require('./model/Franchise');
+const { UserDetails } = require('../model/UserDetails');
+const { AdminUser } = require('../model/AdminUser');
+const Franchise = require('../model/Franchise');
 
 async function run() {
   console.log('Connecting to database...');
