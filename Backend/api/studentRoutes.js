@@ -323,6 +323,10 @@ router.put("/admin/allotment/:id", checkAuth, async (req, res) => {
         const { id } = req.params;
         const { assignedGTO, assignedTO, assignedPsych, assignedIO } = req.body;
 
+        if (assignedTO && assignedPsych) {
+            return res.status(400).json({ error: "A candidate cannot be assigned to both a Psych Assessor and a Technical Assessor simultaneously." });
+        }
+
         const updateData = {};
         if (assignedGTO !== undefined) updateData.assignedGTO = assignedGTO || null;
         if (assignedTO !== undefined) updateData.assignedTO = assignedTO || null;
