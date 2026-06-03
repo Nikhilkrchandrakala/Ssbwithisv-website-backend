@@ -5,9 +5,7 @@ const EmailOtp = require("../model/EmailOtp");
 
 // 🔹 reusable transporter (OTP ONLY)
 const transporter = nodemailer.createTransport({
-    host: "smtp.zoho.in",
-    port: 465,
-    secure: true,
+    service: "gmail",
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -47,7 +45,7 @@ router.post("/send-otp", async (req, res) => {
         // });
 
         await transporter.sendMail({
-            from: '"SSB With ISV" <info@ssbwithisv.in>',
+            from: `"SSB With ISV" <${process.env.EMAIL_USER}>`,
 
             to: email,
             subject: "SSB with ISV - OTP Verification",

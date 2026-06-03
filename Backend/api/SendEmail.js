@@ -7,21 +7,18 @@ router.post("/send-email", async (req, res) => {
     try {
         const { name, email,phone, subject, message } = req.body;
 
-        // Create a transporter using Nodemailer (Zoho Configuration)
+        // Create a transporter using Nodemailer (example with Gmail)
         const transporter = nodemailer.createTransport({
-            host: "smtp.zoho.in", 
-            port: 465,
-            secure: true,
+            service: 'gmail',
             auth: {
-                user: process.env.EMAIL_USER,  
-                pass: process.env.EMAIL_PASS   
+                user: process.env.WEB_HEAD_EMAIL,  // Replace with your email
+                pass: process.env.WEB_HEAD_PASSWORD   // Replace with your email password or App Password
             }
         });
 
         // Define the mail options
         const mailOptions = {
-            from: '"SSB With ISV" <info@ssbwithisv.in>',  // The verified alias
-            replyTo: email,  // Ensures replies go to the user who filled the form
+            from: email,  // Sender's email
             to: 'info@ssbwithisv.in',  // Recipient's email
             subject: subject,  // Subject from form
             html: `
