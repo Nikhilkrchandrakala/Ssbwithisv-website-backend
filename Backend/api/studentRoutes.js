@@ -29,23 +29,8 @@ router.get("/admin/students", checkAuth, async (req, res) => {
     try {
         const { search, clinicalStage } = req.query;
 
-        // Step 1: Get all userIds that have at least one paid order
-        const paidUserIds = await Order.distinct("userId", { status: "paid" });
-
-        // Also include manually created students
-        const manualStudentIds = await UserDetails.distinct("_id", {
-            role: "student",
-            isManuallyCreated: true
-        });
-
-        const allEnrolledIds = [...new Set([
-            ...paidUserIds.map(id => id.toString()),
-            ...manualStudentIds.map(id => id.toString())
-        ])];
-
-        // Query all enrolled student trainees
+        // Query all student trainees (reverting the restriction so older students show up)
         const query = {
-            _id: { $in: allEnrolledIds },
             role: { $nin: ["assessor", "admin", "franchise"] }
         };
 
