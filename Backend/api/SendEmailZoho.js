@@ -5,23 +5,25 @@ const nodemailer = require("nodemailer");
 // POST route to handle sending email
 router.post("/send-email", async (req, res) => {
     try {
-        const { name, email,phone, subject, message } = req.body;
+        const { name, email, phone, subject, message } = req.body;
 
-        // Create a transporter using Nodemailer (example with Gmail)
+        // Create a transporter using Nodemailer (Zoho Configuration)
         const transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: "smtp.zoho.in", // Trying Zoho India server first
+            port: 465,
+            secure: true,
             auth: {
-                user: process.env.WEB_HEAD_EMAIL,  // Replace with your email
-                pass: process.env.WEB_HEAD_PASSWORD   // Replace with your email password or App Password
+                user: process.env.EMAIL_USER,  
+                pass: process.env.EMAIL_PASS   
             }
         });
 
         // Define the mail options
         const mailOptions = {
-            from: '"SSB With ISV" <info@ssbwithisv.in>',  // The verified alias
-            replyTo: email,  // Ensures replies go to the user who filled the form
+            from: `"SSB With ISV" <${process.env.EMAIL_USER}>`,
             to: 'info@ssbwithisv.in',  // Recipient's email
-            subject: subject,  // Subject from form
+            replyTo: email, // Set the reply-to as the person who filled the form
+            subject: subject,  
             html: `
                 <html>
                     <head>
@@ -81,17 +83,13 @@ router.post("/send-email", async (req, res) => {
                 </html>
             `
         };
-        
 
         // Send the email using Nodemailer
         await transporter.sendMail(mailOptions);
 
-        // If email is successfully sent, send a success response
         res.status(200).json({ success: true, message: 'Email sent successfully!' });
     } catch (error) {
         console.error('Error sending email:', error);
-
-        // If there is an error, send a failure response
         res.status(500).json({ success: false, message: 'Failed to send email', error: error.message });
     }
 });
