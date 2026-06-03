@@ -45,7 +45,7 @@ router.post("/send-otp", async (req, res) => {
         // });
 
         await transporter.sendMail({
-            from: `"SSB With ISV" <${process.env.EMAIL_USER}>`,
+            from: '"SSB With ISV" <info@ssbwithisv.in>',
 
             to: email,
             subject: "SSB with ISV - OTP Verification",

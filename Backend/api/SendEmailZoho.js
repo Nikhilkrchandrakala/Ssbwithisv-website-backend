@@ -20,7 +20,7 @@ router.post("/send-email", async (req, res) => {
 
         // Define the mail options
         const mailOptions = {
-            from: `"SSB With ISV" <${process.env.EMAIL_USER}>`,
+            from: '"SSB With ISV" <info@ssbwithisv.in>',
             to: 'info@ssbwithisv.in',  // Recipient's email
             replyTo: email, // Set the reply-to as the person who filled the form
             subject: subject,  
