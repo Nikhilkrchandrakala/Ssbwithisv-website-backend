@@ -96,6 +96,7 @@ app.use("/api", contactSettings);
 app.use("/api", require("./api/profileRoutes"));
 app.use("/api", require("./api/webhookRoutes"));
 app.use("/api", notificationRoutes);
+app.use("/api", require("./api/uploadBatteryImage"));
 
 // app.use("/api", sendOtp);
 
