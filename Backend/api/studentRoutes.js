@@ -56,7 +56,7 @@ router.get("/admin/students", checkAuth, async (req, res) => {
             .populate("assignedTO", "name email phone")
             .populate("assignedPsych", "name email phone")
             .populate("assignedIO", "name email phone")
-            .sort({ createdAt: -1 });
+            .sort({ updatedAt: -1 });
 
         // Proactively synchronize batch numbers and role settings for any students whose profiles have empty fields
         const studentsWithBatch = await Promise.all(students.map(async (student) => {

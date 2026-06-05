@@ -191,6 +191,28 @@ router.post("/manualBookSlot/:id", checkAuth, async (req, res) => {
 
         await order.save();
 
+        // 🔥 Synchronize User Profile Immediately & Bump updatedAt
+        let userModified = false;
+        
+        if (slot.batchNo) {
+            user.batch = slot.batchNo.trim();
+            userModified = true;
+        }
+
+        const bookedModules = order.selectedModules;
+        if (bookedModules.length === 1 && bookedModules[0] !== 'full_course') {
+            user.clinicalStage = bookedModules[0];
+            userModified = true;
+        } else if (bookedModules.includes('full_course') || bookedModules.length > 1) {
+            user.clinicalStage = 'full_course';
+            userModified = true;
+        }
+
+        // We forcefully save to trigger Mongoose `updatedAt` update even if nothing strictly changed,
+        // so the student jumps to the top of the Student Roster.
+        user.markModified('updatedAt'); 
+        await user.save();
+
         res.json({
             message: "Slot booked manually successfully",
             data: slot
