@@ -306,7 +306,7 @@ router.get("/admin/assessors", checkAuth, async (req, res) => {
 router.put("/admin/allotment/:id", checkAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { assignedGTO, assignedTO, assignedPsych, assignedIO } = req.body;
+        const { assignedGTO, assignedTO, assignedPsych, assignedIO, assignedAssessments } = req.body;
 
         if (assignedTO && assignedPsych) {
             return res.status(400).json({ error: "A candidate cannot be assigned to both a Psych Assessor and a Technical Assessor simultaneously." });
@@ -317,6 +317,7 @@ router.put("/admin/allotment/:id", checkAuth, async (req, res) => {
         if (assignedTO !== undefined) updateData.assignedTO = assignedTO || null;
         if (assignedPsych !== undefined) updateData.assignedPsych = assignedPsych || null;
         if (assignedIO !== undefined) updateData.assignedIO = assignedIO || null;
+        if (assignedAssessments !== undefined) updateData.assignedAssessments = assignedAssessments;
 
         const student = await UserDetails.findById(id);
 
@@ -333,6 +334,7 @@ router.put("/admin/allotment/:id", checkAuth, async (req, res) => {
         if (assignedTO !== undefined) student.assignedTO = assignedTO || null;
         if (assignedPsych !== undefined) student.assignedPsych = assignedPsych || null;
         if (assignedIO !== undefined) student.assignedIO = assignedIO || null;
+        if (assignedAssessments !== undefined) student.assignedAssessments = assignedAssessments;
 
         if (student.role !== "student") {
             student.role = "student";
@@ -419,7 +421,7 @@ router.post("/admin/students", checkAuth, async (req, res) => {
 router.put("/admin/students/:id", checkAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, phone, batch, clinicalStage, chestNo, assignedAssessments } = req.body;
+        const { name, email, phone, batch, clinicalStage, chestNo } = req.body;
 
         const updateData = {};
         if (name) updateData.name = name.trim();
@@ -428,7 +430,6 @@ router.put("/admin/students/:id", checkAuth, async (req, res) => {
         if (batch !== undefined) updateData.batch = (batch || "").trim();
         if (chestNo !== undefined) updateData.chestNo = (chestNo || "").trim();
         if (clinicalStage) updateData.clinicalStage = clinicalStage;
-        if (assignedAssessments !== undefined) updateData.assignedAssessments = assignedAssessments;
 
         const student = await UserDetails.findById(id);
 
@@ -442,7 +443,6 @@ router.put("/admin/students/:id", checkAuth, async (req, res) => {
         if (batch !== undefined) student.batch = (batch || "").trim();
         if (chestNo !== undefined) student.chestNo = (chestNo || "").trim();
         if (clinicalStage) student.clinicalStage = clinicalStage;
-        if (assignedAssessments !== undefined) student.assignedAssessments = assignedAssessments;
 
         if (student.role !== "student") {
             student.role = "student";
