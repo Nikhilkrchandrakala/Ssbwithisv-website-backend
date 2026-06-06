@@ -46,6 +46,6 @@ Backend/.cache/        # For any caching directories (optional)
 package-lock.json
 yarn.lock
 
-# DB Query Scripts with sensitive details
+# DB Query / utility scripts — local only, never committed
 Backend/DB QUERY/
-
+Backend/scripts/DBQUERY/
