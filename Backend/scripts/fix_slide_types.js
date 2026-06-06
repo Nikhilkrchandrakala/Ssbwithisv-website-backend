@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
-const mongoUrl = 'mongodb+srv://isvclub2021:ddtIDjbRII76huv8@ssbwithisvleads.3fu0m.mongodb.net/?appName=SsbWithIsvLeads';
+require('dotenv').config();
+if (!process.env.MONGODB_URI) { console.error('MONGODB_URI env var is required'); process.exit(1); }
 
-mongoose.connect(mongoUrl).then(async () => {
+mongoose.connect(process.env.MONGODB_URI).then(async () => {
     const db = mongoose.connection.db;
     const assessments = await db.collection('assessments').find({}).toArray();
     let updatedCount = 0;

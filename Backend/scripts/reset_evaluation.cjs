@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
+require('dotenv').config();
+if (!process.env.MONGODB_URI) { console.error('MONGODB_URI env var is required'); process.exit(1); }
 
-// Connect to the DB using the URI from the plan
-mongoose.connect('mongodb+srv://isvclub2021:ddtIDjbRII76huv8@ssbwithisvleads.3fu0m.mongodb.net/?appName=SsbWithIsvLeads')
+// Connect to the DB
+mongoose.connect(process.env.MONGODB_URI)
 .then(async () => {
   console.log("Connected to DB. Starting reset...");
   const db = mongoose.connection.db;

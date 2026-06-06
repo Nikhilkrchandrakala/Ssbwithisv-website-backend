@@ -1,5 +1,7 @@
 const fs = require('fs');
 const mongoose = require('mongoose');
+require('dotenv').config();
+if (!process.env.MONGODB_URI) { console.error('MONGODB_URI env var is required'); process.exit(1); }
 
 // Need to match your backend schema structure
 const slideSchema = new mongoose.Schema({
@@ -187,7 +189,7 @@ async function main() {
   
   console.log(`Parsed ${watWords.length} WAT words and ${finalSrt.length} SRT situations.`);
   
-  await mongoose.connect('mongodb+srv://isvclub2021:ddtIDjbRII76huv8@ssbwithisvleads.3fu0m.mongodb.net/?appName=SsbWithIsvLeads');
+  await mongoose.connect(process.env.MONGODB_URI);
   console.log("Connected to MongoDB.");
   
   const assessment = await Assessment.create({

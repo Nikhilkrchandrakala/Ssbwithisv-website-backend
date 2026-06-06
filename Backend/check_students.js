@@ -4,7 +4,7 @@ const path = require('path');
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://isvclub2021:ddtIDjbRII76huv8@ssbwithisvleads.3fu0m.mongodb.net/?appName=SsbWithIsvLeads';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 const userSchema = new mongoose.Schema({}, { strict: false });
 const User = mongoose.model('User', userSchema, 'users');

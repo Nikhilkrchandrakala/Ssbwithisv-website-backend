@@ -3,10 +3,13 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const FormData = require('form-data');
 const fetch = require('node-fetch');
+require('dotenv').config();
 
-const MONGODB_URI = 'mongodb+srv://isvclub2021:ddtIDjbRII76huv8@ssbwithisvleads.3fu0m.mongodb.net/?appName=SsbWithIsvLeads';
-const JWT_SECRET = 'hdvay6ert72839289()aiyg8t87qt72393293883uhefiuh78ttq3ifi78272jbkj2[]pou89ywe';
+const MONGODB_URI = process.env.MONGODB_URI;
+const JWT_SECRET = process.env.JWT_SECRET;
 const API_BASE = 'http://localhost:5173/api';
+
+if (!MONGODB_URI || !JWT_SECRET) { console.error('MONGODB_URI and JWT_SECRET env vars are required'); process.exit(1); }
 
 const userSchema = new mongoose.Schema({}, { strict: false });
 const User = mongoose.models.User || mongoose.model('User', userSchema, 'users');

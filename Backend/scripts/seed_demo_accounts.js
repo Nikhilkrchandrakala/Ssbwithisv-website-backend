@@ -2,10 +2,12 @@ const mongoose = require('mongoose');
 const { UserDetails } = require('../model/UserDetails');
 const { AdminUser } = require('../model/AdminUser');
 const Franchise = require('../model/Franchise');
+require('dotenv').config();
+if (!process.env.MONGODB_URI) { console.error('MONGODB_URI env var is required'); process.exit(1); }
 
 async function run() {
   console.log('Connecting to database...');
-  await mongoose.connect('mongodb+srv://isvclub2021:ddtIDjbRII76huv8@ssbwithisvleads.3fu0m.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
+  await mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
   console.log('Connected!');
 
   const demoAccounts = [
