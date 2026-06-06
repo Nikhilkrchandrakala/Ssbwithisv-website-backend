@@ -46,6 +46,5 @@ Backend/.cache/        # For any caching directories (optional)
 package-lock.json
 yarn.lock
 
-# DB Query / utility scripts — local only, never committed
-Backend/DB QUERY/
-Backend/scripts/DBQUERY/
+# DB Query / utility scripts — stored in root DBQUERY/ folder outside this repo
+# Backend/scripts/DBQUERY/ (removed — now lives at K:/H DRIVE/Quantum Climb/APPS/SSB/DBQUERY/)
