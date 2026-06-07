@@ -26,6 +26,7 @@ const couponRoutes = require("./api/couponRoutes");
 const rolesRoutes = require("./api/rolesRoutes");
 const studentRoutes = require("./api/studentRoutes");
 const notificationRoutes = require("./api/notificationRoutes");
+const allUsersRoutes = require("./api/allUsersRoutes");
 
 
 
@@ -97,6 +98,7 @@ app.use("/api", require("./api/profileRoutes"));
 app.use("/api", require("./api/webhookRoutes"));
 app.use("/api", notificationRoutes);
 app.use("/api", require("./api/uploadBatteryImage"));
+app.use("/api", allUsersRoutes);
 
 // app.use("/api", sendOtp);
 

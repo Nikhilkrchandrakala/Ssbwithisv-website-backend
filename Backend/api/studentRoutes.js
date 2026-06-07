@@ -31,7 +31,7 @@ router.get("/admin/students", checkAuth, async (req, res) => {
 
         // Query all student trainees (reverting the restriction so older students show up)
         const query = {
-            role: { $nin: ["assessor", "admin", "franchise"] }
+            role: { $nin: ["assessor", "admin", "franchise", "lead"] }
         };
 
         if (search) {
@@ -62,7 +62,7 @@ router.get("/admin/students", checkAuth, async (req, res) => {
         const studentsWithBatch = await Promise.all(students.map(async (student) => {
             let modified = false;
             
-            if (student.role !== "student") {
+            if (!student.role || (student.role !== "student" && student.role !== "lead" && student.role !== "admin" && student.role !== "assessor" && student.role !== "franchise")) {
                 student.role = "student";
                 modified = true;
             }
@@ -123,7 +123,7 @@ router.get("/admin/allotment-students", checkAuth, async (req, res) => {
         // Step 2: Build query for only enrolled students
         const query = {
             _id: { $in: allEnrolledIds },
-            role: { $nin: ["assessor", "admin", "franchise"] }
+            role: { $nin: ["assessor", "admin", "franchise", "lead"] }
         };
 
         if (search) {
@@ -165,7 +165,7 @@ router.get("/admin/allotment-students", checkAuth, async (req, res) => {
         // Step 5: Get all distinct batches for the filter dropdown (from enrolled students only)
         const allBatches = await UserDetails.distinct("batch", {
             _id: { $in: allEnrolledIds },
-            role: { $nin: ["assessor", "admin", "franchise"] },
+            role: { $nin: ["assessor", "admin", "franchise", "lead"] },
             batch: { $ne: "" }
         });
 
@@ -201,7 +201,7 @@ router.get("/admin/students/:id", checkAuth, async (req, res) => {
             return res.status(404).json({ error: "Student not found" });
         }
 
-        if (student.role !== "student") {
+        if (!student.role || (student.role !== "student" && student.role !== "lead" && student.role !== "admin" && student.role !== "assessor" && student.role !== "franchise")) {
             student.role = "student";
             await student.save();
         }
@@ -253,7 +253,7 @@ router.post("/admin/students/:id/stage", checkAuth, async (req, res) => {
         }
 
         student.clinicalStage = clinicalStage;
-        if (student.role !== "student") {
+        if (!student.role || (student.role !== "student" && student.role !== "lead" && student.role !== "admin" && student.role !== "assessor" && student.role !== "franchise")) {
             student.role = "student";
         }
         await student.save();
@@ -336,7 +336,7 @@ router.put("/admin/allotment/:id", checkAuth, async (req, res) => {
         if (assignedIO !== undefined) student.assignedIO = assignedIO || null;
         if (assignedAssessments !== undefined) student.assignedAssessments = assignedAssessments;
 
-        if (student.role !== "student") {
+        if (!student.role || (student.role !== "student" && student.role !== "lead" && student.role !== "admin" && student.role !== "assessor" && student.role !== "franchise")) {
             student.role = "student";
         }
         await student.save();
@@ -444,7 +444,7 @@ router.put("/admin/students/:id", checkAuth, async (req, res) => {
         if (chestNo !== undefined) student.chestNo = (chestNo || "").trim();
         if (clinicalStage) student.clinicalStage = clinicalStage;
 
-        if (student.role !== "student") {
+        if (!student.role || (student.role !== "student" && student.role !== "lead" && student.role !== "admin" && student.role !== "assessor" && student.role !== "franchise")) {
             student.role = "student";
         }
         await student.save();

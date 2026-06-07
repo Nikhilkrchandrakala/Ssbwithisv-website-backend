@@ -6,7 +6,23 @@ const { UserDetails } = require("../model/UserDetails");
 // Get all Lead entries
 router.get("/allLeads", async (req, res) => {
   try {
-    const data = await Lead.find({}).sort({ date: -1, time: -1 });
+    const rawLeads = await Lead.find({}).sort({ date: -1, time: -1 }).lean();
+    
+    const userLeads = await UserDetails.find({ role: 'lead' }).sort({ createdAt: -1 }).lean();
+    
+    const mappedUserLeads = userLeads.map(u => ({
+        _id: u._id,
+        name: u.name,
+        email: u.email,
+        phoneNumber: u.phone || "N/A",
+        date: u.createdAt || new Date(),
+        time: u.createdAt ? new Date(u.createdAt).toLocaleTimeString() : "N/A",
+        isRegisteredLead: true
+    }));
+    
+    const data = [...rawLeads, ...mappedUserLeads];
+    data.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
     res.status(200).send(data);
   } catch (err) {
     res.status(500).send(err);

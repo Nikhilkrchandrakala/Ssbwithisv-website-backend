@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
   },
   clinicalStage: {
     type: String,
-    default: "full_course"
+    default: null
   },
   batch: {
     type: String,
