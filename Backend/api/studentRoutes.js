@@ -223,7 +223,17 @@ router.get("/admin/students/:id", checkAuth, async (req, res) => {
             .populate("slotId")
             .sort({ createdAt: -1 });
 
-        res.status(200).json({ status: "ok", student, orders });
+        const mongoose = require("mongoose");
+        let submissions = [];
+        try {
+            submissions = await mongoose.connection.db.collection('submissions')
+                .find({ userId: new mongoose.Types.ObjectId(id) })
+                .toArray();
+        } catch (subErr) {
+            console.error("Error fetching submissions:", subErr);
+        }
+
+        res.status(200).json({ status: "ok", student, orders, submissions });
     } catch (error) {
         console.error("GET /admin/students/:id error:", error);
         res.status(500).json({ error: error.message });

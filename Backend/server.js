@@ -115,7 +115,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const fs = require("fs");
 const adminPath = fs.existsSync(path.join(__dirname, '../../SSB-Backend-Admin'))
     ? path.join(__dirname, '../../SSB-Backend-Admin')
-    : path.join(__dirname, '../admin');
+    : fs.existsSync(path.join(__dirname, '../../admin-ssbwithisv'))
+        ? path.join(__dirname, '../../admin-ssbwithisv')
+        : path.join(__dirname, '../admin');
 
 app.use('/admin', express.static(adminPath));
 app.use('/assets', express.static(path.join(adminPath, 'assets')));
