@@ -29,6 +29,14 @@ const userSchema = new mongoose.Schema({
   profileImage: {   // 👈 ADD THIS
     type: String,
   },
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  phoneVerified: {
+    type: Boolean,
+    default: true,
+  },
   role: {
     type: String,
     default: "student",

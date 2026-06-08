@@ -43,6 +43,7 @@ const candidateRoutes = require("./api/candidateRoutes");
 
 // const sendOtp = require("./api/sendOtp");
 const leads = require("./api/Leads");
+const signupOtp = require("./api/signupOtp");
 const { connectDB } = require("./config/database");
 const cookieParser = require("cookie-parser");
 const { Lead } = require("./model/LeadDetails");
@@ -70,6 +71,7 @@ app.use("/api", verifyOtp);
 app.use("/api", numberMonitor);
 app.use("/api", magazinePdf);
 app.use("/api", Register);
+app.use("/api", signupOtp);
 app.use("/api", AdminRegister);
 app.use("/api", loginUsers);
 
