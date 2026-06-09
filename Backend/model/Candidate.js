@@ -27,4 +27,4 @@ const candidateSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Candidate", candidateSchema);
+module.exports = mongoose.model("Candidate", candidateSchema, "Rec_candidates");
