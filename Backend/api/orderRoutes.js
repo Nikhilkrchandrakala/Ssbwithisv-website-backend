@@ -229,11 +229,21 @@ router.post("/verifyPayment", checkAuth, async (req, res) => {
             await slot.save();
         }
 
-        // Synchronize student's profile batch in UserDetails
+        // Synchronize student's profile batch, role, and clinicalStage in UserDetails
+        const { UserDetails } = require("../model/UserDetails");
+        const updateFields = {
+            role: "student"
+        };
         if (slot && slot.batchNo) {
-            const { UserDetails } = require("../model/UserDetails");
-            await UserDetails.findByIdAndUpdate(order.userId, { batch: slot.batchNo.trim() });
+            updateFields.batch = slot.batchNo.trim();
         }
+        const bookedModules = order.selectedModules || [];
+        if (bookedModules.length === 1 && bookedModules[0] !== 'full_course') {
+            updateFields.clinicalStage = bookedModules[0];
+        } else if (bookedModules.includes('full_course') || bookedModules.length > 1 || bookedModules.length === 0) {
+            updateFields.clinicalStage = 'full_course';
+        }
+        await UserDetails.findByIdAndUpdate(order.userId, updateFields);
 
         // 🔥 mark coupon used
         if (order.couponCode) {

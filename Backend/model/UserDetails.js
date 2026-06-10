@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
   },
   emailVerified: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   phoneVerified: {
     type: Boolean,
@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    default: "student",
+    default: "lead",
   },
   assessorType: {
     type: String,
