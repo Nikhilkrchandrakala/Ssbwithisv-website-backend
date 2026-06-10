@@ -33,10 +33,13 @@ router.post("/uploadBatteryImage", checkAuth, upload.single("file"), (req, res) 
         
         // Ensure consistent path format and construct full URL dynamically or relative
         const fileUrl = `/uploads/battery/${req.file.filename}`;
+        const host = req.get("host") || "";
+        const isLocal = host.includes("localhost") || host.includes("127.0.0.1") || host.startsWith("192.168.") || host.startsWith("10.");
+        const baseUrl = isLocal ? `${req.protocol}://${host}` : "https://api.ssbwithisv.in";
         
         res.status(200).json({
             message: "File uploaded successfully",
-            url: `https://api.ssbwithisv.in${fileUrl}` // Explicit absolute URL to avoid missing domain context on Vercel
+            url: `${baseUrl}${fileUrl}` // Explicit absolute URL to avoid missing domain context on Vercel
         });
     } catch (error) {
         console.error("Error in uploadBatteryImage:", error);
