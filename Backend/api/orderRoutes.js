@@ -152,6 +152,7 @@ router.post("/createOrder", checkAuth, async (req, res) => {
             referralCode: referralCode || null,
             selectedModules: selectedModules || [],
             status: "pending",
+            bookingMethod: referralCode ? 'franchise' : 'standard', // 🔥 Lock in booking channel
         });
 
         await order.save();

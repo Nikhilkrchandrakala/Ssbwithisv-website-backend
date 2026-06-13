@@ -31,6 +31,19 @@ router.post("/uploadBatteryImage", checkAuth, upload.single("file"), (req, res) 
             return res.status(400).json({ message: "No file uploaded" });
         }
         
+        // Limit checking based on role: 2MB limit for student dossier uploads
+        if (req.user && req.user.role === "student") {
+            const limit = 2 * 1024 * 1024;
+            if (req.file.size > limit) {
+                try {
+                    fs.unlinkSync(req.file.path);
+                } catch (unlinkErr) {
+                    console.error("Failed to delete oversized file:", unlinkErr);
+                }
+                return res.status(400).json({ message: "File size exceeds the 2MB limit for Dossier uploads" });
+            }
+        }
+        
         // Ensure consistent path format and construct full URL dynamically or relative
         const fileUrl = `/uploads/battery/${req.file.filename}`;
         const host = req.get("host") || "";

@@ -186,7 +186,8 @@ router.post("/manualBookSlot/:id", checkAuth, async (req, res) => {
             discount: 0,
             referralCode: null, // 🔥 Direct sale
             status: "paid", // 🔥 important
-            selectedModules: slot.isFullCourse ? (modules.length > 0 ? modules : ['full_course']) : []
+            selectedModules: slot.isFullCourse ? (modules.length > 0 ? modules : ['full_course']) : [],
+            bookingMethod: 'manual', // 🔥 Admin manually booked this slot
         });
 
         await order.save();

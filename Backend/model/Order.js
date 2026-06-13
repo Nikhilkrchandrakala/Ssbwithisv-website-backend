@@ -65,6 +65,13 @@ const orderSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+
+        // 🔥 Booking Channel — how this order was created
+        bookingMethod: {
+            type: String,
+            enum: ['manual', 'standard', 'franchise'],
+            default: null, // null = legacy order (treated as 'standard' in UI)
+        },
     },
     { timestamps: true }
 );
