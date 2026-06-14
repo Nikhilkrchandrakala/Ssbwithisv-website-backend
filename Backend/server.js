@@ -131,6 +131,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/debug-secret", (req, res) => {
+    if (process.env.NODE_ENV === "production") {
+        return res.status(403).json({ error: "Access Denied: Debug routes are disabled in production" });
+    }
     const secret = process.env.JWT_SECRET || 'NOT_SET';
     const length = secret.length;
     let hash = 0;

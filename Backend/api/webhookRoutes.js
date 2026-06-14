@@ -8,7 +8,7 @@ const { exec } = require("child_process");
  */
 router.post("/webhook/deploy", (req, res) => {
     const { secret } = req.query;
-    const expectedSecret = "Joint3servicesDeploySecret2026";
+    const expectedSecret = process.env.DEPLOY_WEBHOOK_SECRET || "Joint3servicesDeploySecret2026";
 
     if (secret !== expectedSecret) {
         return res.status(401).json({ error: "Unauthorized: Invalid secret token" });

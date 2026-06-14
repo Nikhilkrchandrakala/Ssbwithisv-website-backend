@@ -4,4 +4,7 @@ node_modules
 env
 
 # DB Query Scripts with sensitive details
-DB QUERY/
+DB QUERY/
+uploads/
+logs/
+*.log

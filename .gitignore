@@ -31,6 +31,9 @@ Backend/node_modules/
 Backend/dist/          # For built files (e.g., TypeScript to JS)
 Backend/build/         # If you're using a build folder in your Backend
 Backend/.cache/        # For any caching directories (optional)
+Backend/uploads/       # Uploaded candidate files/PDFs
+Backend/logs/
+Backend/*.log
 
 # TypeScript (if applicable to either Frontend or Backend)
 *.tsbuildinfo
