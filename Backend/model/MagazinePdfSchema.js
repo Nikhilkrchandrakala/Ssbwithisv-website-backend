@@ -19,7 +19,6 @@ const magazinePdfSchema = new mongoose.Schema({
   },
   tags: {
     type: String,
-    enum: ["Magazine", "Books", "SSBPrep"],
     required: true,
   },
 });

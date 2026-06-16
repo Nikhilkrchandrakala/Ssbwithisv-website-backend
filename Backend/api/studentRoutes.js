@@ -316,21 +316,31 @@ router.put("/admin/allotment/:id", checkAuth, async (req, res) => {
         const { id } = req.params;
         const { assignedGTO, assignedTO, assignedPsych, assignedIO, assignedAssessments } = req.body;
 
-        if (assignedTO && assignedPsych) {
-            return res.status(400).json({ error: "A candidate cannot be assigned to both a Psych Assessor and a Technical Assessor simultaneously." });
-        }
-
-        const updateData = {};
-        if (assignedGTO !== undefined) updateData.assignedGTO = assignedGTO || null;
-        if (assignedTO !== undefined) updateData.assignedTO = assignedTO || null;
-        if (assignedPsych !== undefined) updateData.assignedPsych = assignedPsych || null;
-        if (assignedIO !== undefined) updateData.assignedIO = assignedIO || null;
-        if (assignedAssessments !== undefined) updateData.assignedAssessments = assignedAssessments;
-
         const student = await UserDetails.findById(id);
 
         if (!student) {
             return res.status(404).json({ error: "Student not found" });
+        }
+
+        // Parse student courses / clinical stages
+        const stages = (student.clinicalStage || "full_course").split(",").map(st => st.trim()).filter(Boolean);
+        const gtoAllowed = stages.includes("full_course") || stages.includes("group_testing");
+        const ioAllowed = stages.includes("full_course") || stages.includes("interview");
+        const psychOrToAllowed = stages.includes("full_course") || stages.includes("psych");
+
+        // Validate allotments against allowed roles based on course enrollment
+        if (assignedGTO && !gtoAllowed) {
+            return res.status(400).json({ error: "A Group Testing Assessor (GTO) cannot be allotted to this student based on their course enrollment." });
+        }
+        if (assignedIO && !ioAllowed) {
+            return res.status(400).json({ error: "An Interviewing Officer (IO) cannot be allotted to this student based on their course enrollment." });
+        }
+        if ((assignedPsych || assignedTO) && !psychOrToAllowed) {
+            return res.status(400).json({ error: "A Psychology/Technical Assessor (Psych/TO) cannot be allotted to this student based on their course enrollment." });
+        }
+
+        if (assignedTO && assignedPsych) {
+            return res.status(400).json({ error: "A candidate cannot be assigned to both a Psych Assessor and a Technical Assessor simultaneously." });
         }
 
         const oldGTO = student.assignedGTO ? student.assignedGTO.toString() : null;

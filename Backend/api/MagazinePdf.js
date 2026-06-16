@@ -88,7 +88,7 @@ router.put(
       }
 
       // Update PDF file
-      if (req.files["magazinePdf"]) {
+      if (req.files && req.files["magazinePdf"]) {
         const oldPdfPath = existingPdf.pdfFilePath;
         fs.unlink(oldPdfPath, (err) => {
           if (err) console.error("Error deleting old PDF:", err);
@@ -97,7 +97,7 @@ router.put(
       }
 
       // Update Image
-      if (req.files["magazineFrontImage"]) {
+      if (req.files && req.files["magazineFrontImage"]) {
         const oldImagePath = existingPdf.magazineFrontImage;
         fs.unlink(oldImagePath, (err) => {
           if (err) console.error("Error deleting old image:", err);

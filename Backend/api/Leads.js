@@ -23,7 +23,44 @@ router.get("/allLeads", async (req, res) => {
     const data = [...rawLeads, ...mappedUserLeads];
     data.sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    res.status(200).send(data);
+    // De-duplicate leads by email and phone number (keeping the most recent)
+    const seenEmails = new Set();
+    const seenPhones = new Set();
+    const uniqueData = [];
+    
+    for (const lead of data) {
+      const email = (lead.email || "").toLowerCase().trim();
+      const rawPhone = lead.phoneNumber || "";
+      const phone = rawPhone.replace(/\D/g, "");
+      
+      let isDuplicate = false;
+      
+      if (email && email !== "n/a" && email !== "") {
+        if (seenEmails.has(email)) {
+          isDuplicate = true;
+        }
+      }
+      
+      if (phone && phone !== "" && phone !== "na") {
+        const last10 = phone.length >= 10 ? phone.slice(-10) : phone;
+        if (seenPhones.has(last10)) {
+          isDuplicate = true;
+        }
+      }
+      
+      if (!isDuplicate) {
+        if (email && email !== "n/a" && email !== "") {
+          seenEmails.add(email);
+        }
+        if (phone && phone !== "" && phone !== "na") {
+          const last10 = phone.length >= 10 ? phone.slice(-10) : phone;
+          seenPhones.add(last10);
+        }
+        uniqueData.push(lead);
+      }
+    }
+    
+    res.status(200).send(uniqueData);
   } catch (err) {
     res.status(500).send(err);
   }

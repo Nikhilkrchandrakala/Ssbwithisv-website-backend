@@ -16,6 +16,32 @@ function generateReferralCode() {
     return code;
 }
 
+const ROLE_LEVELS = {
+    super_admin: 4,
+    admin: 3,
+    franchise: 2,
+    assessor: 2,
+    student: 1
+};
+
+function getEffectiveRole(uDoc, aDoc, fDoc, uEmail) {
+    const emailLower = uEmail ? uEmail.toLowerCase() : "";
+    if (aDoc) {
+        const isSuper = emailLower === "info@ssbwithisv.in" || emailLower === "nkc@ssbwithisv.in" || (aDoc.permissions && aDoc.permissions.includes("super_admin"));
+        return isSuper ? "super_admin" : "admin";
+    }
+    if (fDoc) return "franchise";
+    if (uDoc) {
+        if (uDoc.role === "admin") {
+            const isSuper = emailLower === "info@ssbwithisv.in" || emailLower === "nkc@ssbwithisv.in" || (uDoc.permissions && uDoc.permissions.includes("super_admin"));
+            return isSuper ? "super_admin" : "admin";
+        }
+        return uDoc.role || "student";
+    }
+    return "student";
+}
+
+
 /**
  * GET /api/admin/users
  * Returns a normalized list of all users from all collections (users, adminusers, franchises)
@@ -183,6 +209,50 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
 
         const emailLower = email.toLowerCase();
 
+        if (emailLower === "nkc@ssbwithisv.in") {
+            return res.status(403).json({ error: "nkc@ssbwithisv.in is a protected Super Admin. This account cannot be edited." });
+        }
+
+        // Prevent editing own account
+        if (req.user && req.user.id) {
+            const isSelf = id === req.user.id;
+            
+            // Get logged-in user's email
+            const loggedInAdmin = await AdminUser.findById(req.user.id);
+            const loggedInFranchise = await Franchise.findById(req.user.id);
+            const loggedInUser = await UserDetails.findById(req.user.id);
+            
+            let loggedInUserEmail = "";
+            if (loggedInAdmin) loggedInUserEmail = loggedInAdmin.email;
+            else if (loggedInFranchise) loggedInUserEmail = loggedInFranchise.email;
+            else if (loggedInUser) loggedInUserEmail = loggedInUser.email;
+
+            const isSelfEmail = loggedInUserEmail && email && loggedInUserEmail.toLowerCase() === email.toLowerCase();
+
+            if (isSelf || isSelfEmail) {
+                return res.status(403).json({ error: "You cannot edit your own account." });
+            }
+
+            const loggedInLevel = getEffectiveRole(loggedInUser, loggedInAdmin, loggedInFranchise, loggedInUserEmail);
+            const targetLevel = getEffectiveRole(userDoc, adminDoc, franchiseDoc, email);
+            const loggedInLevelNum = ROLE_LEVELS[loggedInLevel] || 1;
+            const targetLevelNum = ROLE_LEVELS[targetLevel] || 1;
+
+            // 1. Cannot edit someone at the same or higher level
+            const isNewUser = !userDoc && !adminDoc && !franchiseDoc;
+            if (!isNewUser && loggedInLevelNum <= targetLevelNum) {
+                return res.status(403).json({ error: `You do not have permission to edit a user at level: ${targetLevel}.` });
+            }
+
+            // 2. Cannot promote/configure a role to the same or higher level as yourself
+            const reqIsSuper = role === "admin" && (permissions && permissions.includes("super_admin"));
+            const reqLevel = reqIsSuper ? "super_admin" : role;
+            const reqLevelNum = ROLE_LEVELS[reqLevel] || 1;
+            if (loggedInLevelNum <= reqLevelNum) {
+                return res.status(403).json({ error: `You do not have permission to configure a role at level: ${reqLevel}.` });
+            }
+        }
+
         // If force password reset is requested, generate fresh hash
         if (password) {
             passwordHash = await bcrypt.hash(password, 10);
@@ -332,6 +402,36 @@ router.delete("/admin/users/:id", checkAuth, async (req, res) => {
         if (userDoc) email = userDoc.email;
         else if (adminDoc) email = adminDoc.email;
         else if (franchiseDoc) email = franchiseDoc.email;
+
+        if (email && email.toLowerCase() === "nkc@ssbwithisv.in") {
+            return res.status(403).json({ error: "This user is protected and cannot be deleted." });
+        }
+
+        // Prevent deleting self
+        if (req.user && req.user.id) {
+            // Find logged-in user's email across collections
+            const loggedInAdmin = await AdminUser.findById(req.user.id);
+            const loggedInFranchise = await Franchise.findById(req.user.id);
+            const loggedInUser = await UserDetails.findById(req.user.id);
+            
+            let loggedInUserEmail = "";
+            if (loggedInAdmin) loggedInUserEmail = loggedInAdmin.email;
+            else if (loggedInFranchise) loggedInUserEmail = loggedInFranchise.email;
+            else if (loggedInUser) loggedInUserEmail = loggedInUser.email;
+
+            if (req.user.id === id || (loggedInUserEmail && email && loggedInUserEmail.toLowerCase() === email.toLowerCase())) {
+                return res.status(403).json({ error: "You cannot delete your own account." });
+            }
+
+            const loggedInLevel = getEffectiveRole(loggedInUser, loggedInAdmin, loggedInFranchise, loggedInUserEmail);
+            const targetLevel = getEffectiveRole(userDoc, adminDoc, franchiseDoc, email);
+            const loggedInLevelNum = ROLE_LEVELS[loggedInLevel] || 1;
+            const targetLevelNum = ROLE_LEVELS[targetLevel] || 1;
+
+            if (loggedInLevelNum <= targetLevelNum) {
+                return res.status(403).json({ error: `You do not have permission to delete a user at level: ${targetLevel}.` });
+            }
+        }
 
         // Delete from all collections by ID
         await AdminUser.findByIdAndDelete(id);
