@@ -101,6 +101,32 @@ router.get("/user/purchasedCourses", authMiddleware, async (req, res) => {
             message: err.message,
         });
     }
+// Register psych test consent and attempt timestamp
+router.put("/user/register-psych-consent", authMiddleware, async (req, res) => {
+    try {
+        const user = await UserDetails.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        
+        user.hasPsychTheoryConsent = true;
+        user.psychTestAttemptedAt = new Date();
+        await user.save();
+        
+        const userObj = user.toObject();
+        delete userObj.password;
+        
+        res.json({
+            status: "ok",
+            message: "Psychology test consent and attempt timestamp registered successfully",
+            user: userObj
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: error.message
+        });
+    }
 });
 
 module.exports = router;

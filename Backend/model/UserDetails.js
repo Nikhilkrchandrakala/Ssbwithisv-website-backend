@@ -85,6 +85,14 @@ const userSchema = new mongoose.Schema({
   assignedAssessments: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Assessment" }],
     default: []
+  },
+  hasPsychTheoryConsent: {
+    type: Boolean,
+    default: false
+  },
+  psychTestAttemptedAt: {
+    type: Date,
+    default: null
   }
 }, { timestamps: true });
 
