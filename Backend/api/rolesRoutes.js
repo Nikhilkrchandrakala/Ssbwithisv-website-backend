@@ -238,18 +238,22 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
             const loggedInLevelNum = ROLE_LEVELS[loggedInLevel] || 1;
             const targetLevelNum = ROLE_LEVELS[targetLevel] || 1;
 
-            // 1. Cannot edit someone at the same or higher level
-            const isNewUser = !userDoc && !adminDoc && !franchiseDoc;
-            if (!isNewUser && loggedInLevelNum <= targetLevelNum) {
-                return res.status(403).json({ error: `You do not have permission to edit a user at level: ${targetLevel}.` });
-            }
-
-            // 2. Cannot promote/configure a role to the same or higher level as yourself
             const reqIsSuper = role === "admin" && (permissions && permissions.includes("super_admin"));
             const reqLevel = reqIsSuper ? "super_admin" : role;
             const reqLevelNum = ROLE_LEVELS[reqLevel] || 1;
-            if (loggedInLevelNum <= reqLevelNum) {
-                return res.status(403).json({ error: `You do not have permission to configure a role at level: ${reqLevel}.` });
+
+            // If the logged-in user is not a super_admin, enforce standard hierarchy restrictions
+            if (loggedInLevel !== "super_admin") {
+                // 1. Cannot edit someone at the same or higher level
+                const isNewUser = !userDoc && !adminDoc && !franchiseDoc;
+                if (!isNewUser && loggedInLevelNum <= targetLevelNum) {
+                    return res.status(403).json({ error: `You do not have permission to edit a user at level: ${targetLevel}.` });
+                }
+
+                // 2. Cannot promote/configure a role to the same or higher level as yourself
+                if (loggedInLevelNum <= reqLevelNum) {
+                    return res.status(403).json({ error: `You do not have permission to configure a role at level: ${reqLevel}.` });
+                }
             }
         }
 
@@ -428,8 +432,13 @@ router.delete("/admin/users/:id", checkAuth, async (req, res) => {
             const loggedInLevelNum = ROLE_LEVELS[loggedInLevel] || 1;
             const targetLevelNum = ROLE_LEVELS[targetLevel] || 1;
 
-            if (loggedInLevelNum <= targetLevelNum) {
-                return res.status(403).json({ error: `You do not have permission to delete a user at level: ${targetLevel}.` });
+            const loggedInEmailLower = loggedInUserEmail ? loggedInUserEmail.toLowerCase() : "";
+
+            // If the logged-in user is not nkc@ssbwithisv.in, enforce standard hierarchy deletion checks
+            if (loggedInEmailLower !== "nkc@ssbwithisv.in") {
+                if (loggedInLevelNum <= targetLevelNum) {
+                    return res.status(403).json({ error: `You do not have permission to delete a user at level: ${targetLevel}.` });
+                }
             }
         }
 
