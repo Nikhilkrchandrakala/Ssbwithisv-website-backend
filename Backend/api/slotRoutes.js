@@ -195,6 +195,11 @@ router.post("/manualBookSlot/:id", checkAuth, async (req, res) => {
         // 🔥 Synchronize User Profile Immediately & Bump updatedAt
         let userModified = false;
         
+        if (user.role !== "student") {
+            user.role = "student";
+            userModified = true;
+        }
+        
         if (slot.batchNo) {
             user.batch = slot.batchNo.trim();
             userModified = true;
