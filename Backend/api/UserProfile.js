@@ -101,6 +101,8 @@ router.get("/user/purchasedCourses", authMiddleware, async (req, res) => {
             message: err.message,
         });
     }
+});
+
 // Register psych test consent and attempt timestamp
 router.put("/user/register-psych-consent", authMiddleware, async (req, res) => {
     try {
