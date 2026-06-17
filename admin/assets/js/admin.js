@@ -29,7 +29,7 @@ loginForm.addEventListener('submit', async (e) => {
       localStorage.setItem('role', result.role);
 
       // ✅ Role-based redirect
-      if (result.role === "admin") {
+      if (result.role === "admin" || result.role === "owner") {
         window.location.href = "./admin/dashboard.html";
       } else if (result.role === "franchise") {
         window.location.href = "./admin/FranchiesDashboard.html";

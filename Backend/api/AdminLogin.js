@@ -34,7 +34,7 @@ router.post("/AdminLogin", async (req, res, next) => {
         }
 
         if (user) {
-            role = "admin";
+            role = user.role === "owner" ? "owner" : "admin";
         } else {
             // =========================
             // 2️⃣ FRANCHISE CHECK
@@ -96,7 +96,7 @@ router.post("/AdminLogin", async (req, res, next) => {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
-                permissions: role === "admin" ? (user.permissions || []) : []
+                permissions: (role === "admin" || role === "owner") ? (user.permissions || []) : []
             },
         });
 

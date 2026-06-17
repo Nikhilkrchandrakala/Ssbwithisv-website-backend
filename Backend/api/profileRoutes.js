@@ -16,6 +16,9 @@ router.get("/profile", checkAuth, async (req, res) => {
         
         let user = await AdminUser.findById(userId).select("-password");
         let role = "admin";
+        if (user) {
+            role = user.role === "owner" ? "owner" : "admin";
+        }
         
         if (!user) {
             user = await Franchise.findById(userId).select("-password");
@@ -38,7 +41,7 @@ router.get("/profile", checkAuth, async (req, res) => {
                 email: user.email,
                 phone: user.phone || "",
                 role: role,
-                permissions: role === "admin" ? (user.permissions || []) : []
+                permissions: (role === "admin" || role === "owner") ? (user.permissions || []) : []
             }
         });
     } catch (error) {

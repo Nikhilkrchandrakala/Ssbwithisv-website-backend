@@ -17,6 +17,7 @@ function generateReferralCode() {
 }
 
 const ROLE_LEVELS = {
+    owner: 5,
     super_admin: 4,
     admin: 3,
     franchise: 2,
@@ -27,11 +28,13 @@ const ROLE_LEVELS = {
 function getEffectiveRole(uDoc, aDoc, fDoc, uEmail) {
     const emailLower = uEmail ? uEmail.toLowerCase() : "";
     if (aDoc) {
+        if (aDoc.role === "owner") return "owner";
         const isSuper = emailLower === "info@ssbwithisv.in" || emailLower === "nkc@ssbwithisv.in" || (aDoc.permissions && aDoc.permissions.includes("super_admin"));
         return isSuper ? "super_admin" : "admin";
     }
     if (fDoc) return "franchise";
     if (uDoc) {
+        if (uDoc.role === "owner") return "owner";
         if (uDoc.role === "admin") {
             const isSuper = emailLower === "info@ssbwithisv.in" || emailLower === "nkc@ssbwithisv.in" || (uDoc.permissions && uDoc.permissions.includes("super_admin"));
             return isSuper ? "super_admin" : "admin";
@@ -67,7 +70,7 @@ router.get("/admin/users", checkAuth, async (req, res) => {
                 name: au.name || (matchedUser ? matchedUser.name : "System Admin"),
                 email: au.email,
                 phone: au.phone || (matchedUser ? matchedUser.phone : "N/A"),
-                role: "admin",
+                role: au.role === "owner" ? "owner" : "admin",
                 sourceCollection: "adminusers",
                 permissions: au.permissions || [],
                 assessorType: null,
@@ -96,7 +99,7 @@ router.get("/admin/users", checkAuth, async (req, res) => {
         userDetails.forEach(u => {
             const emailLower = u.email.toLowerCase();
             if (!adminEmails.has(emailLower) && !franchiseEmails.has(emailLower)) {
-                if (u.role === "assessor" || u.role === "admin" || u.role === "franchise") {
+                if (u.role === "assessor" || u.role === "admin" || u.role === "franchise" || u.role === "owner") {
                     resultList.push({
                         id: u._id,
                         name: u.name,
@@ -208,9 +211,10 @@ router.put("/admin/users/:id/role", checkAuth, async (req, res) => {
         }
 
         const emailLower = email.toLowerCase();
+        const targetLevel = getEffectiveRole(userDoc, adminDoc, franchiseDoc, email);
 
-        if (emailLower === "nkc@ssbwithisv.in") {
-            return res.status(403).json({ error: "nkc@ssbwithisv.in is a protected Super Admin. This account cannot be edited." });
+        if (targetLevel === "owner" || emailLower === "nkc@ssbwithisv.in") {
+            return res.status(403).json({ error: "Owner / Protected account cannot be edited." });
         }
 
         // Prevent editing own account
@@ -407,7 +411,9 @@ router.delete("/admin/users/:id", checkAuth, async (req, res) => {
         else if (adminDoc) email = adminDoc.email;
         else if (franchiseDoc) email = franchiseDoc.email;
 
-        if (email && email.toLowerCase() === "nkc@ssbwithisv.in") {
+        const targetLevel = getEffectiveRole(userDoc, adminDoc, franchiseDoc, email);
+
+        if (targetLevel === "owner" || (email && email.toLowerCase() === "nkc@ssbwithisv.in")) {
             return res.status(403).json({ error: "This user is protected and cannot be deleted." });
         }
 
