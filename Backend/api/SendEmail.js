@@ -9,6 +9,10 @@ router.post("/send-email", async (req, res) => {
         ssbExperience, nextSsb, ssbCenter, ssbPreparation, ssbEntry
     } = req.body;
 
+    const nameParts = (name || '').trim().split(/\s+/);
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
     // Helper: renders a bold-label row — skips if value is empty
     const row = (label, value) => value
         ? `<p><span class="label">${label}:</span> ${value}</p>`
@@ -93,14 +97,15 @@ router.post("/send-email", async (req, res) => {
                             <div class="content">
                                 <div class="header">${subject}</div>
                                 <div class="details">
-                                    ${row('Name', name)}
-                                    ${row('Email', email)}
-                                    ${row('Phone', phone)}
-                                    ${row('SSB Experience', ssbExperience)}
-                                    ${row('Next SSB Date', nextSsb)}
-                                    ${row('Board / Selection Center', ssbCenter)}
-                                    ${row('How Preparing for SSB', ssbPreparation)}
-                                    ${row('SSB Entry', ssbEntry)}
+                                    ${row('First Name', firstName)}
+                                    ${row('Last Name', lastName)}
+                                    ${row('Mobile Number', phone)}
+                                    ${row('Email Address', email)}
+                                    ${row('What is your SSB experience?', ssbExperience)}
+                                    ${row('When is your next SSB?', nextSsb)}
+                                    ${row('In which Board/selection center is your next SSB/AFSB?', ssbCenter)}
+                                    ${row('Which entry of SSB are you going for?', ssbEntry)}
+                                    ${row('How are you preparing for SSB?', ssbPreparation)}
                                     <p><span class="label">Message:</span></p>
                                     <div class="message-block">${message || '—'}</div>
                                 </div>
@@ -123,9 +128,10 @@ router.post("/send-email", async (req, res) => {
         if (process.env.NODE_ENV !== 'production' || error.message.includes('BadCredentials') || error.message.includes('Username and Password not accepted')) {
             console.log('\n=========================================');
             console.log('--- DEVELOPMENT/FALLBACK EMAIL LOG ---');
-            console.log(`Name: ${name}`);
-            console.log(`Email: ${email}`);
-            console.log(`Phone: ${phone}`);
+            console.log(`First Name: ${firstName}`);
+            console.log(`Last Name: ${lastName}`);
+            console.log(`Mobile Number: ${phone}`);
+            console.log(`Email Address: ${email}`);
             console.log(`SSB Experience: ${ssbExperience}`);
             console.log(`Next SSB: ${nextSsb}`);
             console.log(`Center: ${ssbCenter}`);
