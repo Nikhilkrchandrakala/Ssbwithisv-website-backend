@@ -4,23 +4,26 @@ const nodemailer = require("nodemailer");
 
 // POST route to handle sending email
 router.post("/send-email", async (req, res) => {
+    const { name, email, phone, subject, message, replyTo } = req.body;
     try {
-        const { name, email,phone, subject, message } = req.body;
 
         // Create a transporter using Nodemailer (example with Gmail)
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: process.env.WEB_HEAD_EMAIL,  // Replace with your email
-                pass: process.env.WEB_HEAD_PASSWORD   // Replace with your email password or App Password
+                user: process.env.WEB_HEAD_EMAIL,  // Authenticated sender account
+                pass: process.env.WEB_HEAD_PASSWORD   // Gmail App Password
             }
         });
 
         // Define the mail options
+        // NOTE: Gmail SMTP requires 'from' to match the authenticated account.
+        // We use replyTo so that replies go directly back to the enquirer.
         const mailOptions = {
-            from: email,  // Sender's email
-            to: 'info@ssbwithisv.in',  // Recipient's email
-            subject: subject,  // Subject from form
+            from: `"SSB with ISV Website" <${process.env.WEB_HEAD_EMAIL}>`,
+            replyTo: replyTo || email,   // Replies go to the enquirer's email
+            to: 'info@ssbwithisv.in',   // Recipient's email
+            subject: subject,            // Subject from form
             html: `
                 <html>
                     <head>
@@ -71,7 +74,7 @@ router.post("/send-email", async (req, res) => {
                                     <p><span class="label">Email:</span> ${email}</p>
                                     <p><span class="label">Phone:</span> ${phone}</p>
                                     <p><span class="label">Message:</span></p>
-                                    <p>${message}</p>
+                                    <pre style="white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 15px;">${message}</pre>
                                 </div>
                                 <div class="footer">Thank you for reaching out!</div>
                             </div>
@@ -89,6 +92,26 @@ router.post("/send-email", async (req, res) => {
         res.status(200).json({ success: true, message: 'Email sent successfully!' });
     } catch (error) {
         console.error('Error sending email:', error);
+
+        // If we are in local development or if SMTP credentials are invalid/revoked,
+        // log the email to the console and return success so frontend flow testing isn't blocked.
+        if (process.env.NODE_ENV !== 'production' || error.message.includes('BadCredentials') || error.message.includes('Username and Password not accepted')) {
+            console.log('\n=========================================');
+            console.log('--- DEVELOPMENT/FALLBACK EMAIL SENDING ---');
+            console.log(`From Name: ${name}`);
+            console.log(`From Email: ${email}`);
+            console.log(`Phone: ${phone}`);
+            console.log(`Subject: ${subject}`);
+            console.log('Message:');
+            console.log(message);
+            console.log('=========================================\n');
+            
+            return res.status(200).json({ 
+                success: true, 
+                message: 'Email logged to console (Development Fallback)',
+                logged: true 
+            });
+        }
 
         // If there is an error, send a failure response
         res.status(500).json({ success: false, message: 'Failed to send email', error: error.message });

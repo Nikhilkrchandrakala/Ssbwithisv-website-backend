@@ -41,6 +41,7 @@ router.get("/profile", checkAuth, async (req, res) => {
                 email: user.email,
                 phone: user.phone || "",
                 role: role,
+                assessorType: role === "assessor" ? (user.assessorType || null) : null,
                 permissions: (role === "admin" || role === "owner") ? (user.permissions || []) : []
             }
         });
