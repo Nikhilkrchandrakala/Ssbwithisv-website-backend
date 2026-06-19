@@ -29,6 +29,11 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "User not found" });
     }
 
+    // Block assessors, admins, and owners from using the candidate login portal
+    if (user.role === "assessor" || user.role === "admin" || user.role === "owner") {
+      return res.status(403).json({ error: "Access denied. Please use the admin login portal." });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
