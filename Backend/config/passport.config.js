@@ -63,99 +63,112 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // ─────────────────────────────────────────────────
-// GOOGLE Strategy
+// GOOGLE Strategy (Optional)
 // ─────────────────────────────────────────────────
-passport.use(
-    new GoogleStrategy(
-        {
-            clientID: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: `${process.env.API_BASE_URL || "https://api.ssbwithisv.in"}/api/auth/google/callback`,
-            scope: ["openid", "profile", "email"],
-        },
-        async (accessToken, refreshToken, profile, done) => {
-            try {
-                const email = profile.emails?.[0]?.value || null;
-                const name = profile.displayName || profile.name?.givenName || "Google User";
-                const profileImage = profile.photos?.[0]?.value || null;
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    passport.use(
+        new GoogleStrategy(
+            {
+                clientID: process.env.GOOGLE_CLIENT_ID,
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+                callbackURL: `${process.env.API_BASE_URL || "https://api.ssbwithisv.in"}/api/auth/google/callback`,
+                scope: ["openid", "profile", "email"],
+            },
+            async (accessToken, refreshToken, profile, done) => {
+                try {
+                    const email = profile.emails?.[0]?.value || null;
+                    const name = profile.displayName || profile.name?.givenName || "Google User";
+                    const profileImage = profile.photos?.[0]?.value || null;
 
-                const user = await findOrCreateOAuthUser({
-                    oauthProvider: "google",
-                    oauthId: profile.id,
-                    email,
-                    name,
-                    profileImage,
-                });
-                return done(null, user);
-            } catch (err) {
-                return done(err, null);
+                    const user = await findOrCreateOAuthUser({
+                        oauthProvider: "google",
+                        oauthId: profile.id,
+                        email,
+                        name,
+                        profileImage,
+                    });
+                    return done(null, user);
+                } catch (err) {
+                    return done(err, null);
+                }
             }
-        }
-    )
-);
+        )
+    );
+} else {
+    console.warn("[Passport] Google Strategy disabled: GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET not in .env");
+}
 
 // ─────────────────────────────────────────────────
-// FACEBOOK Strategy
+// FACEBOOK Strategy (Optional)
 // ─────────────────────────────────────────────────
-passport.use(
-    new FacebookStrategy(
-        {
-            clientID: process.env.FACEBOOK_APP_ID,
-            clientSecret: process.env.FACEBOOK_APP_SECRET,
-            callbackURL: `${process.env.API_BASE_URL || "https://api.ssbwithisv.in"}/api/auth/facebook/callback`,
-            profileFields: ["id", "displayName", "emails", "photos", "name"],
-        },
-        async (accessToken, refreshToken, profile, done) => {
-            try {
-                const email = profile.emails?.[0]?.value || null;
-                const name = profile.displayName || `${profile.name?.givenName || ""} ${profile.name?.familyName || ""}`.trim() || "Facebook User";
-                const profileImage = profile.photos?.[0]?.value || null;
+if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET) {
+    passport.use(
+        new FacebookStrategy(
+            {
+                clientID: process.env.FACEBOOK_APP_ID,
+                clientSecret: process.env.FACEBOOK_APP_SECRET,
+                callbackURL: `${process.env.API_BASE_URL || "https://api.ssbwithisv.in"}/api/auth/facebook/callback`,
+                profileFields: ["id", "displayName", "emails", "photos", "name"],
+            },
+            async (accessToken, refreshToken, profile, done) => {
+                try {
+                    const email = profile.emails?.[0]?.value || null;
+                    const name = profile.displayName || `${profile.name?.givenName || ""} ${profile.name?.familyName || ""}`.trim() || "Facebook User";
+                    const profileImage = profile.photos?.[0]?.value || null;
 
-                const user = await findOrCreateOAuthUser({
-                    oauthProvider: "facebook",
-                    oauthId: profile.id,
-                    email,
-                    name,
-                    profileImage,
-                });
-                return done(null, user);
-            } catch (err) {
-                return done(err, null);
+                    const user = await findOrCreateOAuthUser({
+                        oauthProvider: "facebook",
+                        oauthId: profile.id,
+                        email,
+                        name,
+                        profileImage,
+                    });
+                    return done(null, user);
+                } catch (err) {
+                    return done(err, null);
+                }
             }
-        }
-    )
-);
+        )
+    );
+} else {
+    console.warn("[Passport] Facebook Strategy disabled: FACEBOOK_APP_ID/FACEBOOK_APP_SECRET not in .env");
+}
 
 // ─────────────────────────────────────────────────
-// LINKEDIN Strategy
+// LINKEDIN Strategy (Optional)
 // ─────────────────────────────────────────────────
-passport.use(
-    new LinkedInStrategy(
-        {
-            clientID: process.env.LINKEDIN_CLIENT_ID,
-            clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-            callbackURL: `${process.env.API_BASE_URL || "https://api.ssbwithisv.in"}/api/auth/linkedin/callback`,
-            scope: ["openid", "profile", "email"],
-        },
-        async (accessToken, refreshToken, profile, done) => {
-            try {
-                const email = profile.emails?.[0]?.value || null;
-                const name = profile.displayName || "LinkedIn User";
-                const profileImage = profile.photos?.[0]?.value || null;
+if (process.env.LINKEDIN_CLIENT_ID && process.env.LINKEDIN_CLIENT_SECRET) {
+    passport.use(
+        new LinkedInStrategy(
+            {
+                clientID: process.env.LINKEDIN_CLIENT_ID,
+                clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
+                callbackURL: `${process.env.API_BASE_URL || "https://api.ssbwithisv.in"}/api/auth/linkedin/callback`,
+                scope: ["openid", "profile", "email"],
+            },
+            async (accessToken, refreshToken, profile, done) => {
+                try {
+                    const email = profile.emails?.[0]?.value || null;
+                    const name = profile.displayName || "LinkedIn User";
+                    const profileImage = profile.photos?.[0]?.value || null;
 
-                const user = await findOrCreateOAuthUser({
-                    oauthProvider: "linkedin",
-                    oauthId: profile.id,
-                    email,
-                    name,
-                    profileImage,
-                });
-                return done(null, user);
-            } catch (err) {
-                return done(err, null);
+                    const user = await findOrCreateOAuthUser({
+                        oauthProvider: "linkedin",
+                        oauthId: profile.id,
+                        email,
+                        name,
+                        profileImage,
+                    });
+                    return done(null, user);
+                } catch (err) {
+                    return done(err, null);
+                }
             }
-        }
-    )
-);
+        )
+    );
+} else {
+    console.warn("[Passport] LinkedIn Strategy disabled: LINKEDIN_CLIENT_ID/LINKEDIN_CLIENT_SECRET not in .env");
+}
 
 module.exports = passport;
+
