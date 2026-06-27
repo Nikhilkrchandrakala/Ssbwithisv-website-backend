@@ -36,18 +36,6 @@ router.post("/trackDownload", authMiddleware, async (req, res) => {
 
     await user.save();
 
-    // Fetch magazine title to log in Zoho CRM lead details
-    try {
-      const magazine = await MagazinePdf.findById(magazineId);
-      if (magazine) {
-        zohoService.submitMagazineDownloadLead(user, magazine.pdfTitle).catch(err => {
-          console.error("[MagazinePdf] Background Zoho download submit failed:", err);
-        });
-      }
-    } catch (err) {
-      console.error("[MagazinePdf] Error loading magazine for Zoho submit:", err);
-    }
-
     res.status(200).json({ success: true, message: "Download tracked" });
   } catch (error) {
     console.error("Error tracking download:", error);
