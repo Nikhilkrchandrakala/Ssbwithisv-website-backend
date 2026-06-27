@@ -6,6 +6,7 @@ const authMiddleware = require("../middlewares/auth");
 const magazineUpload = require("../middlewares/MagazinePdfUpload"); // Updated multer middleware
 const fs = require("fs");
 const { UserDetails } = require("../model/UserDetails");
+const zohoService = require("../services/zohoService");
 
 // --- Track a magazine download for logged-in user ---
 router.post("/trackDownload", authMiddleware, async (req, res) => {
@@ -34,12 +35,26 @@ router.post("/trackDownload", authMiddleware, async (req, res) => {
     }
 
     await user.save();
+
+    // Fetch magazine title to log in Zoho CRM lead details
+    try {
+      const magazine = await MagazinePdf.findById(magazineId);
+      if (magazine) {
+        zohoService.submitMagazineDownloadLead(user, magazine.pdfTitle).catch(err => {
+          console.error("[MagazinePdf] Background Zoho download submit failed:", err);
+        });
+      }
+    } catch (err) {
+      console.error("[MagazinePdf] Error loading magazine for Zoho submit:", err);
+    }
+
     res.status(200).json({ success: true, message: "Download tracked" });
   } catch (error) {
     console.error("Error tracking download:", error);
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // --- Get all downloaded magazines for logged-in user ---
 router.get("/user/myDownloads", authMiddleware, async (req, res) => {

@@ -128,7 +128,21 @@ const userSchema = new mongoose.Schema({
       }
     ],
     default: []
-  }
+  },
+  
+  // ─── Extended SSB Profile fields ───
+  dob: { type: String, default: "" },
+  ssbAspirant: { type: String, default: "" },
+  servingCandidate: { type: String, default: "" },
+  vtxHeard: { type: String, default: "" },
+  youtubeSubscribed: { type: String, default: "" },
+  podcastSubscribed: { type: String, default: "" },
+  ssbExperience: { type: String, default: "" },
+  nextSsbDate: { type: String, default: "" },
+  ssbBoards: { type: [String], default: [] },
+  ssbEntries: { type: [String], default: [] },
+  city: { type: String, default: "" },
+  state: { type: String, default: "" }
 }, { timestamps: true });
 
 /* 🔐 Password hash — only runs if password is set (OAuth users have no password) */

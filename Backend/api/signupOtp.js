@@ -6,6 +6,8 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const EmailOtp = require("../model/EmailOtp");
 const { UserDetails } = require("../model/UserDetails");
+const zohoService = require("../services/zohoService");
+
 
 // ─── Server-side MSG91 credentials (no longer exposed to frontend) ───
 const MSG91_TOKEN_AUTH = process.env.MSG91_TOKEN_AUTH || "432663TzWGndK2N7sR6710de92P1";
@@ -352,6 +354,12 @@ router.post("/oauth/attach-phone", async (req, res) => {
     if (!user) {
         return res.status(404).json({ success: false, message: "User not found." });
     }
+
+    // Submit signup details to Zoho in background asynchronously
+    zohoService.submitSignupLead(user).catch(err => {
+        console.error("[signupOtp] Background Zoho submission failed:", err);
+    });
+
 
     // 5. Issue full 30-day JWT (same as normal login)
     const token = jwt.sign(

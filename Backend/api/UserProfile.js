@@ -138,9 +138,29 @@ router.put("/user/register-psych-consent", authMiddleware, async (req, res) => {
  */
 router.post("/user/zoho-form-filled", authMiddleware, async (req, res) => {
     try {
+        const {
+            dob, ssbAspirant, servingCandidate, vtxHeard,
+            youtubeSubscribed, podcastSubscribed, ssbExperience,
+            nextSsbDate, ssbBoards, ssbEntries, city, state
+        } = req.body;
+
         const user = await UserDetails.findByIdAndUpdate(
             req.user._id,
-            { zohoFormFilled: true },
+            { 
+                zohoFormFilled: true,
+                dob: dob || "",
+                ssbAspirant: ssbAspirant || "",
+                servingCandidate: servingCandidate || "",
+                vtxHeard: vtxHeard || "",
+                youtubeSubscribed: youtubeSubscribed || "",
+                podcastSubscribed: podcastSubscribed || "",
+                ssbExperience: ssbExperience || "",
+                nextSsbDate: nextSsbDate || "",
+                ssbBoards: Array.isArray(ssbBoards) ? ssbBoards : [],
+                ssbEntries: Array.isArray(ssbEntries) ? ssbEntries : [],
+                city: city || "",
+                state: state || ""
+            },
             { new: true }
         );
         if (!user) {

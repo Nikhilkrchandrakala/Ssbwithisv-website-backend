@@ -1,11 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const { UserDetails } = require("../model/UserDetails");
+const zohoService = require("../services/zohoService");
 
 // Register
 router.post("/register", async (req, res) => {
     try {
-        const { name, email, phone, password, emailVerifyToken, phoneVerifyToken } = req.body;
+        const {
+            name, email, phone, password, emailVerifyToken, phoneVerifyToken,
+            dob, ssbAspirant, servingCandidate, vtxHeard,
+            youtubeSubscribed, podcastSubscribed, ssbExperience,
+            nextSsbDate, ssbBoards, ssbEntries, city, state
+        } = req.body;
 
         if (!name || !email || !phone || !password) {
             return res.status(400).json({ error: "All fields are required" });
@@ -81,9 +87,27 @@ router.post("/register", async (req, res) => {
             password, // hashed automatically by pre-save hook
             emailVerified: true,
             phoneVerified: true,
+            zohoFormFilled: true, // Auto-mark true because they filled it at signup
+            dob: dob || "",
+            ssbAspirant: ssbAspirant || "",
+            servingCandidate: servingCandidate || "",
+            vtxHeard: vtxHeard || "",
+            youtubeSubscribed: youtubeSubscribed || "",
+            podcastSubscribed: podcastSubscribed || "",
+            ssbExperience: ssbExperience || "",
+            nextSsbDate: nextSsbDate || "",
+            ssbBoards: Array.isArray(ssbBoards) ? ssbBoards : [],
+            ssbEntries: Array.isArray(ssbEntries) ? ssbEntries : [],
+            city: city || "",
+            state: state || ""
         });
 
         await newUser.save();
+
+        // Submit signup details to Zoho in background asynchronously
+        zohoService.submitSignupLead(newUser).catch(err => {
+            console.error("[Register] Background Zoho submission failed:", err);
+        });
 
         res.status(201).json({
             status: "ok",
