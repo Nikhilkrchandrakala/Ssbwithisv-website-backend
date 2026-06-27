@@ -23,15 +23,15 @@ router.post("/send-email", async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: process.env.WEB_HEAD_EMAIL,   // Authenticated sender account
-                pass: process.env.WEB_HEAD_PASSWORD  // Gmail App Password
+                user: process.env.EMAIL_USER,   // Authenticated sender account
+                pass: process.env.EMAIL_PASS    // Gmail App Password
             }
         });
 
         // NOTE: Gmail SMTP requires 'from' to match the authenticated account.
         // replyTo ensures that hitting Reply in the inbox goes to the enquirer.
         const mailOptions = {
-            from: `"SSB with ISV Website" <${process.env.WEB_HEAD_EMAIL}>`,
+            from: `"SSB with ISV Website" <${process.env.EMAIL_USER}>`,
             replyTo: replyTo || email,
             to: 'info@ssbwithisv.in',
             subject: subject,
