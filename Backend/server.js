@@ -48,8 +48,11 @@ const signupOtp = require("./api/signupOtp");
 const { connectDB } = require("./config/database");
 const cookieParser = require("cookie-parser");
 const { Lead } = require("./model/LeadDetails");
+const compression = require("compression");
 
 const app = express();
+
+app.use(compression());
 
 app.use(cors({
     origin: "*",
