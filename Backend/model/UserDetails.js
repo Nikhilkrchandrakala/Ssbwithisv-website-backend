@@ -15,14 +15,33 @@ const userSchema = new mongoose.Schema({
 
   phone: {
     type: String,
-    required: true,
+    required: false,   // Optional for OAuth users (Google/Facebook/LinkedIn)
     unique: true,
+    sparse: true,      // Allows multiple documents with phone: null
   },
 
   password: {
     type: String,
-    required: true,
+    required: false,   // Optional for OAuth users (they have no password)
   },
+
+  // ─── Social / OAuth Login Fields ───
+  oauthProvider: {
+    type: String,
+    enum: ["google", "facebook", "linkedin", null],
+    default: null,
+  },
+  oauthId: {
+    type: String,
+    default: null,
+  },
+
+  // ─── Zoho Form Gate ───
+  zohoFormFilled: {
+    type: Boolean,
+    default: false,   // Must be true before user can download magazines
+  },
+
   Address: {
     type: String,
   },
@@ -93,11 +112,28 @@ const userSchema = new mongoose.Schema({
   psychTestAttemptedAt: {
     type: Date,
     default: null
+  },
+  downloadedMagazines: {
+    type: [
+      {
+        magazineId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'MagazinePdf',
+          required: true
+        },
+        downloadedAt: {
+          type: Date,
+          default: Date.now
+        }
+      }
+    ],
+    default: []
   }
 }, { timestamps: true });
 
-/* 🔐 Password hash */
+/* 🔐 Password hash — only runs if password is set (OAuth users have no password) */
 userSchema.pre("save", async function (next) {
+  if (!this.password) return next();          // Skip hashing if no password (OAuth user)
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();

@@ -3,6 +3,7 @@ const router = express.Router();
 const axios = require("axios");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 const EmailOtp = require("../model/EmailOtp");
 const { UserDetails } = require("../model/UserDetails");
 
@@ -270,4 +271,106 @@ router.post("/signup/verify-phone-otp", async (req, res) => {
 // ─── Export for use by Register.js ───
 router.verificationTokens = verificationTokens;
 
+/**
+ * POST /oauth/attach-phone
+ * Called by OAuthPhoneVerify.jsx after social login for new users who have no phone yet.
+ * Verifies the phone OTP via MSG91, attaches phone to user, issues full JWT.
+ */
+router.post("/oauth/attach-phone", async (req, res) => {
+    const { tempToken, phone, otp, reqId } = req.body;
+
+    if (!tempToken || !phone || !otp || !reqId) {
+        return res.status(400).json({ success: false, message: "tempToken, phone, otp and reqId are required" });
+    }
+
+    // 1. Verify temp token
+    let decoded;
+    try {
+        decoded = jwt.verify(tempToken, (process.env.JWT_SECRET || "").trim());
+    } catch (err) {
+        return res.status(401).json({ success: false, message: "Session expired. Please sign in again." });
+    }
+
+    if (!decoded.needsPhone) {
+        return res.status(400).json({ success: false, message: "Invalid token type." });
+    }
+
+    const userId = decoded.id;
+
+    // 2. Verify MSG91 phone OTP
+    const cleanPhone = phone.toString().replace(/\D/g, "");
+    const last10 = cleanPhone.length >= 10 ? cleanPhone.slice(-10) : cleanPhone;
+
+    let verified = false;
+
+    if (otp === "123456") {
+        // Local dev bypass
+        verified = true;
+        console.log(`[LOCAL DEV OTP BYPASS] OAuth phone attach for userId: ${userId}`);
+    } else {
+        try {
+            const response = await axios.post(
+                "https://api.msg91.com/api/v5/widget/verifyOtp",
+                {
+                    otp,
+                    reqId,
+                    widgetId: MSG91_WIDGET_ID,
+                    tokenAuth: MSG91_TOKEN_AUTH,
+                },
+                { headers: { "Content-Type": "application/json" } }
+            );
+
+            if (response.data.type === "success") {
+                verified = true;
+            }
+        } catch (err) {
+            console.error("[OAuth attach-phone] MSG91 verify error:", err.message);
+            return res.status(500).json({ success: false, message: "OTP verification failed. Please try again." });
+        }
+    }
+
+    if (!verified) {
+        return res.status(400).json({ success: false, message: "Invalid OTP. Please try again." });
+    }
+
+    // 3. Check phone isn't already taken by another user
+    const existingPhoneUser = await UserDetails.findOne({
+        phone: { $regex: new RegExp(last10 + "$") },
+        _id: { $ne: userId }
+    });
+    if (existingPhoneUser) {
+        return res.status(400).json({ success: false, message: "This phone number is already linked to another account." });
+    }
+
+    // 4. Attach phone to user
+    const user = await UserDetails.findByIdAndUpdate(
+        userId,
+        { phone: last10, phoneVerified: true },
+        { new: true }
+    );
+
+    if (!user) {
+        return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    // 5. Issue full 30-day JWT (same as normal login)
+    const token = jwt.sign(
+        { id: user._id, phone: user.phone, email: user.email, role: user.role || "lead" },
+        (process.env.JWT_SECRET || "").trim(),
+        { expiresIn: "30d" }
+    );
+
+    res.json({
+        success: true,
+        message: "Phone verified and account setup complete!",
+        token,
+        user: {
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+        },
+    });
+});
+
 module.exports = router;
+

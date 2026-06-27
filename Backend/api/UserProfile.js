@@ -131,4 +131,25 @@ router.put("/user/register-psych-consent", authMiddleware, async (req, res) => {
     }
 });
 
-module.exports = router;
+/**
+ * POST /api/user/zoho-form-filled
+ * Called after successful Zoho CRM lead form submission.
+ * Sets zohoFormFilled = true on the user's account so future downloads are allowed.
+ */
+router.post("/user/zoho-form-filled", authMiddleware, async (req, res) => {
+    try {
+        const user = await UserDetails.findByIdAndUpdate(
+            req.user._id,
+            { zohoFormFilled: true },
+            { new: true }
+        );
+        if (!user) {
+            return res.status(404).json({ status: "error", message: "User not found" });
+        }
+        res.json({ status: "ok", message: "Zoho form status updated", zohoFormFilled: true });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
+
+module.exports = router;

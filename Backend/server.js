@@ -31,6 +31,7 @@ const allUsersRoutes = require("./api/allUsersRoutes");
 
 
 const visitorRoute = require("./api/visitorRoute");
+const socialAuthRoutes = require("./api/socialAuthRoutes");
 
 
 const candidateRoutes = require("./api/candidateRoutes");
@@ -64,9 +65,22 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ─── Session + Passport (required for OAuth) ───
+const session = require("express-session");
+const passport = require("./config/passport.config");
+
+app.use(session({
+    secret: (process.env.SESSION_SECRET || "ssb_oauth_secret_fallback"),
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, maxAge: 15 * 60 * 1000 } // 15 min sessions (only for OAuth handshake)
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 // Middleware: Connecting different Routes
-
+app.use("/api", socialAuthRoutes); // OAuth must be early — before JSON body parser for redirects
 app.use("/api", verifyOtp);
 app.use("/api", numberMonitor);
 app.use("/api", magazinePdf);

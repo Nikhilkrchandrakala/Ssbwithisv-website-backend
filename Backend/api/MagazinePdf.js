@@ -2,8 +2,70 @@ const express = require("express");
 const router = express.Router();
 const { MagazinePdf } = require("../model/MagazinePdfSchema");
 const checkAuth = require("../middlewares/CheckAuth");
+const authMiddleware = require("../middlewares/auth");
 const magazineUpload = require("../middlewares/MagazinePdfUpload"); // Updated multer middleware
 const fs = require("fs");
+const { UserDetails } = require("../model/UserDetails");
+
+// --- Track a magazine download for logged-in user ---
+router.post("/trackDownload", authMiddleware, async (req, res) => {
+  try {
+    const { magazineId } = req.body;
+    if (!magazineId) {
+      return res.status(400).json({ message: "magazineId is required" });
+    }
+
+    // authMiddleware already fetches the full user — fetch again to get mutable doc
+    const user = await UserDetails.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if already downloaded — if yes, update timestamp; if no, add entry
+    const existingIndex = user.downloadedMagazines.findIndex(
+      (d) => d.magazineId.toString() === magazineId
+    );
+
+    if (existingIndex !== -1) {
+      // Update downloadedAt so it bubbles to top (most recently downloaded)
+      user.downloadedMagazines[existingIndex].downloadedAt = new Date();
+    } else {
+      user.downloadedMagazines.push({ magazineId, downloadedAt: new Date() });
+    }
+
+    await user.save();
+    res.status(200).json({ success: true, message: "Download tracked" });
+  } catch (error) {
+    console.error("Error tracking download:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// --- Get all downloaded magazines for logged-in user ---
+router.get("/user/myDownloads", authMiddleware, async (req, res) => {
+  try {
+    const user = await UserDetails.findById(req.user._id).populate(
+      "downloadedMagazines.magazineId"
+    );
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Sort by most recently downloaded, filter out any nulls (deleted magazines)
+    const downloads = user.downloadedMagazines
+      .filter((d) => d.magazineId) // skip if magazine was deleted
+      .sort((a, b) => new Date(b.downloadedAt) - new Date(a.downloadedAt))
+      .map((d) => ({
+        ...d.magazineId.toObject(),
+        downloadedAt: d.downloadedAt,
+      }));
+
+    res.status(200).json(downloads);
+  } catch (error) {
+    console.error("Error fetching user downloads:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
 
 // --- Get All Magazine PDFs ---
 router.get("/allMagazinePdfs", (req, res) => {
