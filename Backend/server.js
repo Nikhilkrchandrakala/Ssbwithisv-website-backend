@@ -118,6 +118,7 @@ app.use("/api", require("./api/webhookRoutes"));
 app.use("/api", notificationRoutes);
 app.use("/api", require("./api/uploadBatteryImage"));
 app.use("/api", allUsersRoutes);
+app.use("/api", require("./api/AuthDisplaySettingsRoute"));
 
 // app.use("/api", sendOtp);
 
