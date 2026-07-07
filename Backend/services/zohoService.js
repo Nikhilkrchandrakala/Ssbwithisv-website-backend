@@ -43,7 +43,12 @@ async function submitSignupLead(user) {
     try {
         const { firstName, lastName } = splitName(user.name);
         const email = (user.email || "").trim();
-        const phone = (user.phone || "").trim();
+        let phone = (user.phone || "").trim();
+        
+        // Format phone to include +91 country code if it is a 10-digit Indian number
+        if (phone.length === 10) {
+            phone = `+91${phone}`;
+        }
 
         const params = new URLSearchParams();
         params.append("xnQsjsdp", MAGAZINE_xnQsjsdp);
@@ -56,7 +61,7 @@ async function submitSignupLead(user) {
         params.append("First Name", firstName);
         params.append("Last Name", lastName);
         params.append("Email", email);
-        params.append("Phone", phone);
+        params.append("Mobile", phone);
         
         // SSB Profile custom fields mapping
         params.append("LEADCF53", formatDate(user.dob));
