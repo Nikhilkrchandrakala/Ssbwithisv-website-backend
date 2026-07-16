@@ -45,12 +45,16 @@ router.post("/forgot-password", async (req, res) => {
             console.log("Searching UserDetails collection with query:", userQuery);
             let userDoc = await UserDetails.findOne(userQuery);
             if (userDoc) {
-                console.log("User found in UserDetails. Resetting password...");
-                // UserDetails schema has auto-hash middleware
-                userDoc.password = newPassword;
-                await userDoc.save();
-                userFound = true;
-                console.log("UserDetails password updated successfully");
+                if (userDoc.role === "assessor") {
+                    console.log("Assessor found in UserDetails. Resetting password...");
+                    // UserDetails schema has auto-hash middleware
+                    userDoc.password = newPassword;
+                    await userDoc.save();
+                    userFound = true;
+                    console.log("UserDetails (Assessor) password updated successfully");
+                } else {
+                    console.log(`User found in UserDetails has role '${userDoc.role}', not 'assessor'. Rejecting password recovery.`);
+                }
             } else {
                 console.log("User not found in UserDetails collection");
             }

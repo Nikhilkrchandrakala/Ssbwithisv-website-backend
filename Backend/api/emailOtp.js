@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const { UserDetails } = require("../model/UserDetails");
+const { AdminUser } = require("../model/AdminUser");
+const Franchise = require("../model/Franchise");
 
 const MSG91_TOKEN_AUTH = process.env.MSG91_TOKEN_AUTH || "432663TzWGndK2N7sR6710de92P1";
 
@@ -16,6 +19,20 @@ router.post("/send-otp", async (req, res) => {
         if (!email) return res.status(400).json({ message: "Email required" });
 
         const emailLower = email.toLowerCase().trim();
+
+        // Restrict to admin/superadmin, franchise, and assessor roles
+        const adminExists = await AdminUser.findOne({ email: { $regex: new RegExp("^" + emailLower + "$", "i") } });
+        const franchiseExists = await Franchise.findOne({ email: { $regex: new RegExp("^" + emailLower + "$", "i") } });
+        const userDoc = await UserDetails.findOne({ email: { $regex: new RegExp("^" + emailLower + "$", "i") } });
+        const assessorExists = userDoc && userDoc.role === "assessor";
+
+        if (!adminExists && !franchiseExists && !assessorExists) {
+            console.log(`Send-OTP rejected: Email ${emailLower} is not administrative or assessor.`);
+            return res.status(403).json({
+                success: false,
+                message: "Password recovery is restricted to administrative and assessor accounts."
+            });
+        }
 
         const response = await axios.post(
             "https://api.msg91.com/api/v5/widget/sendOtp",

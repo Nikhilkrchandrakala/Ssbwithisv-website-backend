@@ -51,3 +51,12 @@ yarn.lock
 
 # DB Query / utility scripts — stored in root DBQUERY/ folder outside this repo
 # Backend/scripts/DBQUERY/ (removed — now lives at K:/H DRIVE/Quantum Climb/APPS/SSB/DBQUERY/)
+
+# Custom temporary/scratch folders and scripts
+scratch/
+github_deploy_key*
+vps_deploy_key*
+*.key
+*.pub
+*test*.js
+
