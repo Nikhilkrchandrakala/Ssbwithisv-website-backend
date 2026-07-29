@@ -5,6 +5,7 @@ const Coupon = require("../model/Coupon");
 const Franchise = require("../model/Franchise");
 const Slot = require("../model/Slot");
 const CheckAuth = require("../middlewares/CheckAuth");
+const jwt = require("jsonwebtoken");
 
 
 // ========================================
@@ -175,10 +176,22 @@ router.delete("/deleteCoupon/:id", CheckAuth, async (req, res) => {
 
 
 // ========================================
-// ✅ APPLY COUPON (USER SIDE)
+// ✅ APPLY COUPON (USER & GUEST FRIENDLY)
 // ========================================
-router.post("/applyCoupon", CheckAuth, async (req, res) => {
+router.post("/applyCoupon", async (req, res) => {
     try {
+        const authHeader = req.headers.authorization;
+        let loggedInUserId = null;
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            try {
+                const token = authHeader.split(" ")[1];
+                const decoded = jwt.verify(token, (process.env.JWT_SECRET || '').trim());
+                loggedInUserId = decoded?.id;
+            } catch (e) {
+                // Ignore expired token for public guest coupon discount check
+            }
+        }
+
         const { code, amount, slotId } = req.body;
 
         if (slotId) {
@@ -206,15 +219,17 @@ router.post("/applyCoupon", CheckAuth, async (req, res) => {
             return res.status(400).json({ message: "Coupon expired" });
         }
 
-        // ❌ Already used
-        const alreadyUsed = coupon.usedBy.some(
-            (u) => u.userId.toString() === req.user.id
-        );
+        // ❌ Already used (only check if user is currently signed in)
+        if (loggedInUserId) {
+            const alreadyUsed = coupon.usedBy.some(
+                (u) => u.userId && u.userId.toString() === loggedInUserId.toString()
+            );
 
-        if (alreadyUsed) {
-            return res.status(400).json({
-                message: "You already used this coupon",
-            });
+            if (alreadyUsed) {
+                return res.status(400).json({
+                    message: "You already used this coupon",
+                });
+            }
         }
 
         // ✅ Discount calculation

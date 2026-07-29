@@ -6,7 +6,15 @@ const orderSchema = new mongoose.Schema(
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true,
+            required: false, // Optional during unauthenticated guest course checkout
+        },
+
+        // 🔥 Guest Checkout Data
+        guestData: {
+            name: { type: String },
+            email: { type: String },
+            phone: { type: String },
+            generatedPassword: { type: String },
         },
 
         slotId: {

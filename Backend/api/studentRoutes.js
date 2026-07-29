@@ -29,9 +29,9 @@ router.get("/admin/students", checkAuth, async (req, res) => {
     try {
         const { search, clinicalStage } = req.query;
 
-        // Query only paid and manual candidate trainees (role "student")
+        // Query trainees, students, and leads (excluding assessors & staff)
         const query = {
-            role: "student"
+            role: { $in: ["student", "lead", "candidate", null, ""] }
         };
 
         if (search) {
@@ -120,9 +120,15 @@ router.get("/admin/allotment-students", checkAuth, async (req, res) => {
             ...manualStudentIds.map(id => id.toString())
         ])];
 
-        // Step 2: Build query for only enrolled students (role "student")
+        // Step 2: Build query for all students, leads, and candidates or anyone with an assortment
         const query = {
-            role: "student"
+            $or: [
+                { role: { $in: ["student", "lead", "candidate", null, ""] } },
+                { assignedGTO: { $ne: null } },
+                { assignedTO: { $ne: null } },
+                { assignedPsych: { $ne: null } },
+                { assignedIO: { $ne: null } }
+            ]
         };
 
         if (search) {
@@ -161,10 +167,10 @@ router.get("/admin/allotment-students", checkAuth, async (req, res) => {
             .skip(skip)
             .limit(limitNum);
 
-        // Step 5: Get all distinct batches for the filter dropdown (from enrolled students only)
+        // Step 5: Get all distinct batches for the filter dropdown
         const allBatches = await UserDetails.distinct("batch", {
-            role: "student",
-            batch: { $ne: "" }
+            batch: { $ne: "" },
+            batch: { $ne: null }
         });
 
         res.status(200).json({

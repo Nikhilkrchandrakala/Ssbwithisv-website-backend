@@ -20,13 +20,14 @@ router.get("/contactSettings", async (req, res) => {
 // Update contact settings (requires authentication)
 router.put("/contactSettings", checkAuth, async (req, res) => {
   try {
-    const { whatsappNumber, callNumber } = req.body;
+    const { whatsappNumber, callNumber, secondaryCallNumber } = req.body;
     let settings = await ContactSettings.findOne();
     if (!settings) {
       settings = new ContactSettings();
     }
     if (whatsappNumber !== undefined) settings.whatsappNumber = whatsappNumber.trim().replace(/\s+/g, "");
     if (callNumber !== undefined) settings.callNumber = callNumber.trim().replace(/\s+/g, "");
+    if (secondaryCallNumber !== undefined) settings.secondaryCallNumber = secondaryCallNumber.trim().replace(/\s+/g, "");
     
     await settings.save();
     res.status(200).json({ message: "Successfully updated contact settings", data: settings });
