@@ -78,7 +78,12 @@ router.post("/createOrder", checkAuth, async (req, res) => {
         const modules = selectedModules || [];
 
         if (slot.isFullCourse) {
-            if (modules.length === 0 || modules.includes('full_course')) {
+            // Full Course slots dynamically bind to the global Full Bundle Course price
+            calculatedBaseAmount = getPrice('full_course');
+        } else {
+            if (modules.length === 0) {
+                calculatedBaseAmount = slot.price || getPrice('full_course');
+            } else if (modules.includes('full_course')) {
                 calculatedBaseAmount = getPrice('full_course');
             } else {
                 // If all 4 individual modules are selected, apply full course price
@@ -95,8 +100,6 @@ router.post("/createOrder", checkAuth, async (req, res) => {
                     calculatedBaseAmount = sum;
                 }
             }
-        } else {
-            calculatedBaseAmount = slot.price || getPrice('full_course');
         }
 
         // ✅ GST and Discount Logic
@@ -390,7 +393,11 @@ router.post("/createGuestOrder", async (req, res) => {
         const modules = selectedModules || [];
 
         if (slot.isFullCourse) {
-            if (modules.length === 0 || modules.includes('full_course')) {
+            calculatedBaseAmount = getPrice('full_course');
+        } else {
+            if (modules.length === 0) {
+                calculatedBaseAmount = slot.price || getPrice('full_course');
+            } else if (modules.includes('full_course')) {
                 calculatedBaseAmount = getPrice('full_course');
             } else {
                 const individualSelectedCount = modules.filter(id => id !== 'full_course').length;
@@ -406,8 +413,6 @@ router.post("/createGuestOrder", async (req, res) => {
                     calculatedBaseAmount = sum;
                 }
             }
-        } else {
-            calculatedBaseAmount = slot.price || getPrice('full_course');
         }
 
         const baseAmount = calculatedBaseAmount;
